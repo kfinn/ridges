@@ -96,17 +96,20 @@ pub fn Router(comptime AppReference: type, comptime routes_entries_param: []cons
                     }
                     comptime assert(show_type_info.params.len == 2);
                     const ShowParams = show_type_info.params[1].type.?;
-                    const show_params: ShowParams = undefined;
-                    inline for (std.meta.fieldNames((ShowParams))) |field| {
-                        @field(show_params, field) = route_params.find(field);
+                    var show_params: ShowParams = undefined;
+                    inline for (comptime std.meta.fieldNames((ShowParams))) |field| {
+                        @field(show_params, field) = try route_params.find(field);
                     }
                     try controller.show(show_params);
+                    return true;
                 } else {
                     return false;
                 }
-            } else {
-                return false;
             }
+            if (resource.routes) |child_routes| {
+                return try self.handleRouteEntries(request, response, child_routes, rest_path_segments, route_params);
+            }
+            return false;
         }
 
         fn handleResources(self: *@This(), request: *httpz.Request, response: *httpz.Response, comptime resources: Resources, path: []const u8, route_params: RouteParams) !bool {
@@ -139,6 +142,10 @@ pub fn Router(comptime AppReference: type, comptime routes_entries_param: []cons
                     return false;
                 }
             }
+            if (resources.routes) |child_routes| {
+                const param_name = std.fmt.comptimePrint("{s}_id", .{resources.name});
+                return try self.handleRouteEntries(request, response, child_routes, rest_path_segments, RouteParams{ .some = .{ .name = param_name, .value = id_path_segment, .rest = &route_params } });
+            }
             return false;
         }
     };
@@ -152,7 +159,7 @@ pub const RoutesEntry = union(enum) {
 
 pub const Namespace = struct {
     name: []const u8,
-    routes: ?[]RoutesEntry,
+    routes: ?[]const RoutesEntry,
 };
 
 fn splitPathSegments(path: []const u8) [2][]const u8 {
@@ -163,7 +170,7 @@ fn splitPathSegments(path: []const u8) [2][]const u8 {
 pub const Resources = struct {
     name: []const u8,
     Controller: type,
-    routes: ?[]RoutesEntry,
+    routes: ?[]const RoutesEntry,
 
     // fn handle(self: *const @This(), request: *httpz.Request, response: *httpz.Response, path: []const u8, route_params: RouteParams) !bool {
     //     const first_path_segment, const rest_path_segments = splitPathSegments(path);
@@ -186,5 +193,5 @@ pub const Resources = struct {
 pub const Resource = struct {
     name: []const u8,
     Controller: type,
-    routes: ?[]RoutesEntry,
+    routes: ?[]const RoutesEntry,
 };
