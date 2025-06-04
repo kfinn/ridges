@@ -1,7 +1,8 @@
 pub const App = @import("app.zig").App;
-const routes_module = @import("routes.zig");
-pub const RoutesEntry = routes_module.RoutesEntry;
-pub const Namespace = routes_module.Namespace;
-pub const Resources = routes_module.Resources;
-pub const Resource = routes_module.Resource;
-pub const Params = routes_module.Params;
+const router_module = @import("router.zig");
+pub const RoutesEntry = router_module.RoutesEntry;
+pub const Namespace = router_module.Namespace;
+pub const Resources = router_module.Resources;
+pub const Resource = router_module.Resource;
+pub const Params = router_module.Params;
+pub const ControllerContext = @import("controller_context.zig").ControllerContext;

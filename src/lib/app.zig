@@ -1,37 +1,34 @@
 const httpz = @import("httpz");
 const std = @import("std");
 
-const routes_module = @import("routes.zig");
-const RoutesEntry = routes_module.RoutesEntry;
-const handleRoutesEntries = routes_module.handleRoutesEntries;
-const Params = routes_module.Params;
+const router_module = @import("router.zig");
+const Router = router_module.Router;
+const RoutesEntry = router_module.RoutesEntry;
+const findRoutesEntriesAction = router_module.findRoutesEntriesAction;
+const Params = router_module.Params;
 
 pub const InitOptions = struct { port: u16 };
 
-pub fn App(comptime routes: []const RoutesEntry) type {
-    const Handler = struct {
-        pub fn handle(_: *@This(), request: *httpz.Request, response: *httpz.Response) void {
-            std.debug.assert(request.url.path[0] == '/');
-            const handled = handleRoutesEntries(routes, request, response, request.url.path[1..], .none) catch {
-                response.status = 500;
-                response.body = "Internal Error";
-            };
-            if (!handled) {
-                response.status = 404;
-                response.body = "Not Found";
-            }
-        }
-    };
-
+pub fn App(comptime routes_entries: []const RoutesEntry) type {
     return struct {
-        const Self = @This();
-        server: httpz.Server(Handler),
+        server: httpz.Server(AppRouter),
+        app_reference: AppReference = .{},
 
-        pub fn init(allocator: std.mem.Allocator, initOptions: InitOptions) !Self {
-            return .{ .server = try httpz.Server(Handler).init(allocator, .{ .port = initOptions.port }, .{}) };
+        const AppSelf = @This();
+        pub const AppReference = struct {
+            pub const App = AppSelf;
+            pub fn app(self: *@This()) *AppSelf {
+                return @alignCast(@fieldParentPtr("app_reference", self));
+            }
+        };
+        const AppRouter = Router(AppReference, routes_entries);
+
+        pub fn init(allocator: std.mem.Allocator, initOptions: InitOptions) !@This() {
+            const app_reference: AppReference = .{};
+            return @This(){ .app_reference = app_reference, .server = try httpz.Server(AppRouter).init(allocator, .{ .port = initOptions.port }, AppRouter{ .app_reference = app_reference }) };
         }
 
-        pub fn run(self: *Self) !void {
+        pub fn run(self: *@This()) !void {
             if (self.server.config.port) |port| {
                 std.log.info("Listening on port {d}", .{port});
             }
