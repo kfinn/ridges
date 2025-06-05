@@ -4,6 +4,7 @@ const assert = std.debug.assert;
 const httpz = @import("httpz");
 
 const ControllerContext = @import("controller_context.zig").ControllerContext;
+const inflector = @import("inflector.zig");
 
 pub const RouteParams = union(enum) {
     const RouteParamsThis = @This();
@@ -50,7 +51,8 @@ pub fn Router(comptime AppReference: type, comptime routes_entries_param: []cons
                 return;
             }
 
-            const handled = self.handleRouteEntries(request, response, routes_entries_param, request.url.path[1..], .none) catch {
+            const handled = self.handleRouteEntries(request, response, routes_entries_param, request.url.path[1..], .none) catch |err| {
+                std.log.info("error: {}", .{err});
                 renderServerError(response);
                 return;
             };
@@ -75,7 +77,7 @@ pub fn Router(comptime AppReference: type, comptime routes_entries_param: []cons
         }
 
         fn handleResource(self: *@This(), request: *httpz.Request, response: *httpz.Response, comptime resource: Resource, path: []const u8, route_params: RouteParams) !bool {
-            const first_path_segment, const rest_path_segments = splitPathSegments(path);
+            const first_path_segment, const rest_path_segments = splitFirstPathSegment(path);
 
             if (!std.mem.eql(u8, resource.name, first_path_segment)) {
                 return false;
@@ -83,15 +85,15 @@ pub fn Router(comptime AppReference: type, comptime routes_entries_param: []cons
 
             if (rest_path_segments.len == 0) {
                 if (request.method == .GET and std.meta.hasFn(resource.Controller, "show")) {
-                    const controller = resource.Controller{ .controller_context = .{ .app = self.app_reference.app(), .request = request, .response = response } };
+                    const context = resource.Controller.Context{ .app = self.app_reference.app(), .request = request, .response = response };
 
                     const show_type_info = @typeInfo(@TypeOf(resource.Controller.show)).@"fn";
                     comptime {
                         assert(show_type_info.params.len >= 1);
-                        assert(show_type_info.params[0].type.? == *const resource.Controller);
+                        assert(show_type_info.params[0].type.? == *const resource.Controller.Context);
                     }
                     if (show_type_info.params.len == 1) {
-                        try controller.show();
+                        try resource.Controller.show(&context);
                         return true;
                     }
                     comptime assert(show_type_info.params.len == 2);
@@ -100,7 +102,7 @@ pub fn Router(comptime AppReference: type, comptime routes_entries_param: []cons
                     inline for (comptime std.meta.fieldNames((ShowParams))) |field| {
                         @field(show_params, field) = try route_params.find(field);
                     }
-                    try controller.show(show_params);
+                    try resource.Controller.show(&context, show_params);
                     return true;
                 } else {
                     return false;
@@ -113,22 +115,22 @@ pub fn Router(comptime AppReference: type, comptime routes_entries_param: []cons
         }
 
         fn handleResources(self: *@This(), request: *httpz.Request, response: *httpz.Response, comptime resources: Resources, path: []const u8, route_params: RouteParams) !bool {
-            const first_path_segment, const path_segments_after_name = splitPathSegments(path);
+            const first_path_segment, const path_segments_after_name = splitFirstPathSegment(path);
 
             if (!std.mem.eql(u8, resources.name, first_path_segment) or path_segments_after_name.len == 0) {
                 return false;
             }
 
-            const id_path_segment, const rest_path_segments = splitPathSegments(path_segments_after_name);
+            const id_path_segment, const rest_path_segments = splitFirstPathSegment(path_segments_after_name);
 
             if (rest_path_segments.len == 0) {
                 if (request.method == .GET and std.meta.hasFn(resources.Controller, "show")) {
-                    const controller = resources.Controller{ .controller_context = .{ .app = self.app_reference.app(), .request = request, .response = response } };
+                    const context = resources.Controller.Context{ .app = self.app_reference.app(), .request = request, .response = response };
 
                     const show_type_info = @typeInfo(@TypeOf(resources.Controller.show)).@"fn";
                     comptime {
                         assert(show_type_info.params.len == 2);
-                        assert(show_type_info.params[0].type.? == *const resources.Controller);
+                        assert(show_type_info.params[0].type.? == *const resources.Controller.Context);
                     }
                     const ShowParams = show_type_info.params[1].type.?;
                     var show_params: ShowParams = undefined;
@@ -136,14 +138,14 @@ pub fn Router(comptime AppReference: type, comptime routes_entries_param: []cons
                     inline for (comptime std.meta.fieldNames((ShowParams))) |field| {
                         @field(show_params, field) = try route_params_with_id.find(field);
                     }
-                    try controller.show(show_params);
+                    try resources.Controller.show(&context, show_params);
                     return true;
                 } else {
                     return false;
                 }
             }
             if (resources.routes) |child_routes| {
-                const param_name = std.fmt.comptimePrint("{s}_id", .{resources.name});
+                const param_name = std.fmt.comptimePrint("{s}_id", .{inflector.comptimeSingularize(resources.name)});
                 return try self.handleRouteEntries(request, response, child_routes, rest_path_segments, RouteParams{ .some = .{ .name = param_name, .value = id_path_segment, .rest = &route_params } });
             }
             return false;
@@ -162,36 +164,19 @@ pub const Namespace = struct {
     routes: ?[]const RoutesEntry,
 };
 
-fn splitPathSegments(path: []const u8) [2][]const u8 {
-    var iterator = std.mem.splitScalar(u8, path, '/');
-    return .{ iterator.first(), iterator.rest() };
-}
-
 pub const Resources = struct {
     name: []const u8,
     Controller: type,
-    routes: ?[]const RoutesEntry,
-
-    // fn handle(self: *const @This(), request: *httpz.Request, response: *httpz.Response, path: []const u8, route_params: RouteParams) !bool {
-    //     const first_path_segment, const rest_path_segments = splitPathSegments(path);
-
-    //     if (rest_path_segments.len == 0) {
-    //         if (request.method == .GET and @hasDecl(self.controller, "index")) {
-    //             const index_type_info = @typeInfo(@TypeOf(self.controller.index));
-    //             switch (index_type_info) {
-    //                 .@"fn" => {},
-    //                 else => return false,
-    //             }
-    //         }
-    //     }
-    //     if (std.mem.eql(u8, self.name, first_path_segment)) {
-    //         return handleRoutesEntries(self.routes, request, response, rest_path_segments, route_params);
-    //     }
-    //     return false;
-    // }
+    routes: ?[]const RoutesEntry = null,
 };
+
 pub const Resource = struct {
     name: []const u8,
     Controller: type,
-    routes: ?[]const RoutesEntry,
+    routes: ?[]const RoutesEntry = null,
 };
+
+fn splitFirstPathSegment(path: []const u8) [2][]const u8 {
+    var iterator = std.mem.splitScalar(u8, path, '/');
+    return .{ iterator.first(), iterator.rest() };
+}

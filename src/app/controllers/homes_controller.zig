@@ -1,12 +1,8 @@
 const httpz = @import("httpz");
-const ridges_lib = @import("ridges_lib");
-const App = @import("../app.zig").App;
 
-pub const HomesController = struct {
-    controller_context: ridges_lib.ControllerContext(App),
+pub const Context = @import("./context.zig").Context;
 
-    pub fn show(self: *const @This()) !void {
-        self.controller_context.response.status = 200;
-        self.controller_context.response.body = "Hello World";
-    }
-};
+pub fn show(controller_context: *const Context) !void {
+    controller_context.response.status = 200;
+    controller_context.response.body = "Hello World";
+}
