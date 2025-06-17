@@ -1,0 +1,8 @@
+<% _ = props; %>
+<html>
+  <title>Ridges</title>
+</html>
+<body>
+  <h1>Ridges</h1>
+  <div>Hello World</div>
+</body>

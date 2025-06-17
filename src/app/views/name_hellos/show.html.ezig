@@ -1,0 +1,7 @@
+<html>
+  <title>Ridges</title>
+</html>
+<body>
+  <h1>Ridges</h1>
+  <div>Hello, <%= props.name_id %>!</div>
+</body>

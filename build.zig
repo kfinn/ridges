@@ -1,4 +1,5 @@
 const std = @import("std");
+const ezig = @import("ezig");
 
 // Although this function looks imperative, note that its job is to
 // declaratively construct a build graph that will be executed by an external
@@ -41,6 +42,8 @@ pub fn build(b: *std.Build) void {
         .target = target,
         .optimize = optimize,
     });
+
+    ezig.addEzigTemplatesImport(exe_mod, .{ .path = "src/app/views" });
 
     // Modules can depend on one another using the `std.Build.Module.addImport` function.
     // This is what allows Zig source code to use `@import("foo")` where 'foo' is not a
