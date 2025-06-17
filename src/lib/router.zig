@@ -3,7 +3,7 @@ const assert = std.debug.assert;
 
 const httpz = @import("httpz");
 
-const ControllerContext = @import("controller_context.zig").ControllerContext;
+const ControllerContext = @import("ControllerContext.zig").ControllerContext;
 const inflector = @import("inflector.zig");
 
 const RouterError = error{unknown};
@@ -51,8 +51,6 @@ pub fn Router(comptime AppReference: type, comptime routes_entries_param: []cons
     return struct {
         app_reference: AppReference,
 
-        const AppControllerContext = ControllerContext(AppReference.App);
-
         fn renderServerError(response: *httpz.Response) void {
             response.status = 500;
             response.body = "Internal Error";
@@ -99,12 +97,12 @@ pub fn Router(comptime AppReference: type, comptime routes_entries_param: []cons
 
             if (rest_path_segments.len == 0) {
                 if (request.method == .GET and std.meta.hasFn(resource.Controller, "show")) {
-                    const context = resource.Controller.Context{ .app = self.app_reference.app(), .request = request, .response = response };
+                    const context = self.buildControllerContext(request, response);
 
                     const show_type_info = @typeInfo(@TypeOf(resource.Controller.show)).@"fn";
                     comptime {
                         assert(show_type_info.params.len >= 1);
-                        assert(show_type_info.params[0].type.? == *const resource.Controller.Context);
+                        assert(show_type_info.params[0].type.? == *const @TypeOf(context));
                     }
                     if (show_type_info.params.len == 1) {
                         try resource.Controller.show(&context);
@@ -139,12 +137,12 @@ pub fn Router(comptime AppReference: type, comptime routes_entries_param: []cons
 
             if (rest_path_segments.len == 0) {
                 if (request.method == .GET and std.meta.hasFn(resources.Controller, "show")) {
-                    const context = resources.Controller.Context{ .app = self.app_reference.app(), .request = request, .response = response };
+                    const context = self.buildControllerContext(request, response);
 
                     const show_type_info = @typeInfo(@TypeOf(resources.Controller.show)).@"fn";
                     comptime {
                         assert(show_type_info.params.len == 2);
-                        assert(show_type_info.params[0].type.? == *const resources.Controller.Context);
+                        assert(show_type_info.params[0].type.? == *const @TypeOf(context));
                     }
                     const ShowParams = show_type_info.params[1].type.?;
                     var show_params: ShowParams = undefined;
@@ -165,6 +163,14 @@ pub fn Router(comptime AppReference: type, comptime routes_entries_param: []cons
                 return try self.handleRouteEntries(nested_route_param_names, request, response, child_routes, rest_path_segments, route_params_with_id);
             }
             return false;
+        }
+
+        fn buildControllerContext(self: *@This(), request: *httpz.Request, response: *httpz.Response) AppReference.App.ControllerContext {
+            return AppReference.App.ControllerContext{
+                .app = self.app_reference.app(),
+                .request = request,
+                .response = response,
+            };
         }
     };
 }

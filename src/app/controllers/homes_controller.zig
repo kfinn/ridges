@@ -1,7 +1,7 @@
 const ezig_templates = @import("ezig_templates");
 const httpz = @import("httpz");
 
-pub const Context = @import("./context.zig").Context;
+const Context = @import("../RidgesApp.zig").RidgesApp.ControllerContext;
 
 pub fn show(controller_context: *const Context) !void {
     controller_context.response.status = 200;

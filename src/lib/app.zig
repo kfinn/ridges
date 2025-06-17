@@ -1,11 +1,13 @@
 const httpz = @import("httpz");
 const std = @import("std");
 
-const router_module = @import("router.zig");
+const router_module = @import("Router.zig");
 const Router = router_module.Router;
 const RoutesEntry = router_module.RoutesEntry;
 const findRoutesEntriesAction = router_module.findRoutesEntriesAction;
 const Params = router_module.Params;
+
+const controller_context = @import("ControllerContext.zig");
 
 pub const InitOptions = struct { port: u16 };
 
@@ -22,6 +24,7 @@ pub fn App(comptime routes_entries: []const RoutesEntry) type {
             }
         };
         const AppRouter = Router(AppReference, routes_entries);
+        pub const ControllerContext = controller_context.ControllerContext(AppSelf);
 
         pub fn init(allocator: std.mem.Allocator, initOptions: InitOptions) !@This() {
             const app_reference: AppReference = .{};
