@@ -22,7 +22,8 @@ pub fn build(b: *std.Build) void {
 
     exe_mod.addImport("ridges_lib", lib_mod);
     exe_mod.addImport("httpz", httpz);
-    ezig.addEzigTemplatesImport(exe_mod, .{ .path = "src/app/views" });
+    const ezig_templates_mod = ezig.addEzigTemplatesImport(exe_mod, .{ .path = "src/app/views" });
+    ezig_templates_mod.addImport("app", exe_mod);
 
     const lib = b.addLibrary(.{
         .linkage = .static,

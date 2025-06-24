@@ -1,3 +1,7 @@
 <% _ = props; %>
 <h1>Ridges</h1>
 <div>Hello World</div>
+<%
+  const view_helpers = @import("app").view_helpers;
+  try view_helpers.writeLinkTo(writer, "somewhere", "https://www.google.com");
+%>

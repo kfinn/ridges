@@ -3,6 +3,7 @@ const std = @import("std");
 const httpz = @import("httpz");
 
 const RidgesApp = @import("RidgesApp.zig").RidgesApp;
+pub const view_helpers = @import("view_helpers.zig");
 
 pub fn main() !void {
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
