@@ -4,8 +4,8 @@
     .fingerprint = 0x4b501ac07458ca30,
     .dependencies = .{
         .ezig = .{
-            .url = "git+https://github.com/kfinn/ezig#dbd7c7754ddce59a4363b6d4c485fe7bab8aaf9e",
-            .hash = "ezig-0.0.0-r1de5RRaAABOe7oG25EnVCvRKzT77GLUWpEHxAnVcGeY",
+            .url = "git+https://github.com/kfinn/ezig#c0d55292a849602f227c29164d72d9be57e94ed5",
+            .hash = "ezig-0.0.0-r1de5QRcAADhwWrDaUSTvAXKUUk6HXuzqNZ3OwnaIomt",
         },
         .pg = .{
             .url = "git+https://github.com/karlseguin/pg.zig?ref=master#842541eb22a6da1e43a2e78c1b20b5ea88aa9366",
