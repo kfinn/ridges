@@ -5,7 +5,7 @@ const httpz = @import("httpz");
 
 const Context = @import("../RidgesApp.zig").RidgesApp.ControllerContext;
 
-pub fn show(controller_context: *const Context) !void {
+pub fn show(controller_context: *Context) !void {
     controller_context.response.status = 200;
 
     try ezig_templates.@"layouts/app_layout.html"(

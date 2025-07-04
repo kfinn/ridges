@@ -6,3 +6,4 @@ pub const Resources = router_module.Resources;
 pub const Resource = router_module.Resource;
 pub const Params = router_module.Params;
 pub const ControllerContext = @import("ControllerContext.zig").ControllerContext;
+pub const cgi_escape = @import("cgi_escape.zig");

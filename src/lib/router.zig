@@ -5,18 +5,34 @@ const httpz = @import("httpz");
 
 const ControllerContext = @import("ControllerContext.zig").ControllerContext;
 const inflector = @import("inflector.zig");
+const cgi_escape = @import("cgi_escape.zig");
 
 const RouterError = error{unknown};
 
 fn RouteParams(comptime param_names: []const [:0]const u8) type {
     comptime {
-        var fields_builder: [param_names.len]std.builtin.Type.StructField = undefined;
-        for (param_names, &fields_builder) |fieldName, *fieldBuilder| {
-            fieldBuilder.* = .{ .name = fieldName, .type = []const u8, .default_value_ptr = null, .is_comptime = false, .alignment = 0 };
+        var fields: [param_names.len]std.builtin.Type.StructField = undefined;
+        for (param_names, 0..) |field_name, index| {
+            fields[index] = .{
+                .name = field_name ++ "",
+                .type = []const u8,
+                .default_value_ptr = null,
+                .is_comptime = false,
+                .alignment = 0,
+            };
         }
-        const fields = &fields_builder;
-        const decls: [0]std.builtin.Type.Declaration = .{};
-        return @Type(std.builtin.Type{ .@"struct" = .{ .layout = .auto, .fields = fields, .decls = &decls, .is_tuple = false } });
+        const decls = [_]std.builtin.Type.Declaration{};
+
+        return @Type(
+            std.builtin.Type{
+                .@"struct" = .{
+                    .layout = .auto,
+                    .fields = &fields,
+                    .decls = &decls,
+                    .is_tuple = false,
+                },
+            },
+        );
     }
 }
 
@@ -47,16 +63,14 @@ fn extendRouteParams(comptime OldRouteParams: type, comptime new_param_name: [:0
     return extended_route_params;
 }
 
-pub fn Router(comptime AppReference: type, comptime routes_entries_param: []const RoutesEntry) type {
+pub fn Router(comptime App: type, comptime routes_entries_param: []const RoutesEntry) type {
     return struct {
-        app_reference: AppReference,
-
         fn renderServerError(response: *httpz.Response) void {
             response.status = 500;
             response.body = "Internal Error";
         }
 
-        const empty_param_names = [0][:0]const u8{};
+        const empty_param_names: [0][:0]const u8 = .{};
         pub fn handle(self: *@This(), request: *httpz.Request, response: *httpz.Response) void {
             if (request.url.path[0] != '/') {
                 renderServerError(response);
@@ -97,12 +111,17 @@ pub fn Router(comptime AppReference: type, comptime routes_entries_param: []cons
 
             if (rest_path_segments.len == 0) {
                 if (request.method == .GET and std.meta.hasFn(resource.Controller, "show")) {
-                    const context = self.buildControllerContext(request, response);
+                    var context = try App.ControllerContext.init(
+                        self.app(),
+                        request,
+                        response,
+                    );
+                    defer context.deinit();
 
                     const show_type_info = @typeInfo(@TypeOf(resource.Controller.show)).@"fn";
                     comptime {
                         assert(show_type_info.params.len >= 1);
-                        assert(show_type_info.params[0].type.? == *const @TypeOf(context));
+                        assert(show_type_info.params[0].type.? == *@TypeOf(context));
                     }
                     if (show_type_info.params.len == 1) {
                         try resource.Controller.show(&context);
@@ -133,19 +152,28 @@ pub fn Router(comptime AppReference: type, comptime routes_entries_param: []cons
                 return false;
             }
 
-            const id_path_segment, const rest_path_segments = splitFirstPathSegment(path_segments_after_name);
+            const escaped_id_path_segment, const rest_path_segments = splitFirstPathSegment(path_segments_after_name);
+
+            const id_path_segment = try cgi_escape.unescapeUriComponentAlloc(request.arena, escaped_id_path_segment);
+            defer request.arena.free(id_path_segment);
 
             if (rest_path_segments.len == 0) {
                 if (request.method == .GET and std.meta.hasFn(resources.Controller, "show")) {
-                    const context = self.buildControllerContext(request, response);
+                    var context = try App.ControllerContext.init(
+                        self.app(),
+                        request,
+                        response,
+                    );
+                    defer context.deinit();
 
                     const show_type_info = @typeInfo(@TypeOf(resources.Controller.show)).@"fn";
                     comptime {
                         assert(show_type_info.params.len == 2);
-                        assert(show_type_info.params[0].type.? == *const @TypeOf(context));
+                        assert(show_type_info.params[0].type.? == *@TypeOf(context));
                     }
                     const ShowParams = show_type_info.params[1].type.?;
                     var show_params: ShowParams = undefined;
+
                     const route_params_with_id = extendRouteParams(@TypeOf(route_params), "id", route_params, id_path_segment);
                     inline for (comptime std.meta.fieldNames((ShowParams))) |field| {
                         @field(show_params, field) = @field(route_params_with_id, field);
@@ -165,12 +193,8 @@ pub fn Router(comptime AppReference: type, comptime routes_entries_param: []cons
             return false;
         }
 
-        fn buildControllerContext(self: *@This(), request: *httpz.Request, response: *httpz.Response) AppReference.App.ControllerContext {
-            return AppReference.App.ControllerContext{
-                .app = self.app_reference.app(),
-                .request = request,
-                .response = response,
-            };
+        fn app(self: *@This()) *App {
+            return @alignCast(@fieldParentPtr("router", self));
         }
     };
 }

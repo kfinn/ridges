@@ -1,13 +1,35 @@
 const std = @import("std");
 
 const httpz = @import("httpz");
+const ridges_lib = @import("ridges_lib");
 
 const RidgesApp = @import("RidgesApp.zig").RidgesApp;
 pub const view_helpers = @import("view_helpers.zig");
 
 pub fn main() !void {
-    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    var gpa: std.heap.GeneralPurposeAllocator(.{}) = .init;
     const allocator = gpa.allocator();
-    var app = try RidgesApp.init(allocator, .{ .port = 5882 });
-    try app.run();
+
+    var app = try RidgesApp.init(
+        allocator,
+        .{
+            .db = .{
+                .auth = .{
+                    .username = "ridges",
+                    .password = "password",
+                    .database = "ridges_development",
+                    .application_name = "Ridges",
+                },
+            },
+        },
+    );
+    defer app.deinit();
+
+    var server = try httpz.Server(*RidgesApp.AppRouter).init(allocator, .{ .port = 5882 }, &app.router);
+    defer server.deinit();
+
+    std.log.info("Listening at http://localhost:5882", .{});
+    try server.listen();
+
+    std.process.cleanExit();
 }

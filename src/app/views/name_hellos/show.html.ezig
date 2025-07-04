@@ -1,2 +1,3 @@
+<% const cgi_escape = @import("ridges_lib").cgi_escape; %>
 <h1>Ridges</h1>
-<div>Hello, <%= props.name_id %>!</div>
+<div>Hello, <% try cgi_escape.writeEscapedHtml(writer, props.name_id); %>!</div>

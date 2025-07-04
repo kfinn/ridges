@@ -1,5 +1,6 @@
 const httpz = @import("httpz");
 const std = @import("std");
+const pg = @import("pg");
 
 const router_module = @import("Router.zig");
 const Router = router_module.Router;
@@ -9,33 +10,29 @@ const Params = router_module.Params;
 
 const controller_context = @import("ControllerContext.zig");
 
-pub const InitOptions = struct { port: u16 };
+pub const InitOptions = struct {
+    db: pg.Pool.Opts,
+};
 
 pub fn App(comptime routes_entries: []const RoutesEntry) type {
     return struct {
-        server: httpz.Server(AppRouter),
-        app_reference: AppReference = .{},
+        router: AppRouter = .{},
+        pg_pool: *pg.Pool,
 
         const AppSelf = @This();
-        pub const AppReference = struct {
-            pub const App = AppSelf;
-            pub fn app(self: *@This()) *AppSelf {
-                return @alignCast(@fieldParentPtr("app_reference", self));
-            }
-        };
-        const AppRouter = Router(AppReference, routes_entries);
+        pub const AppRouter = Router(AppSelf, routes_entries);
         pub const ControllerContext = controller_context.ControllerContext(AppSelf);
 
-        pub fn init(allocator: std.mem.Allocator, initOptions: InitOptions) !@This() {
-            const app_reference: AppReference = .{};
-            return @This(){ .app_reference = app_reference, .server = try httpz.Server(AppRouter).init(allocator, .{ .port = initOptions.port }, AppRouter{ .app_reference = app_reference }) };
+        pub fn init(allocator: std.mem.Allocator, init_options: InitOptions) !@This() {
+            var app: @This() = undefined;
+            app.pg_pool = try pg.Pool.init(allocator, init_options.db);
+
+            return app;
         }
 
-        pub fn run(self: *@This()) !void {
-            if (self.server.config.port) |port| {
-                std.log.info("Listening on port {d}", .{port});
-            }
-            try self.server.listen();
+        pub fn deinit(self: *@This()) void {
+            self.pg_pool.deinit();
+            self.* = undefined;
         }
     };
 }

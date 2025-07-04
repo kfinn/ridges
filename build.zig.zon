@@ -3,13 +3,17 @@
     .version = "0.0.0",
     .fingerprint = 0x4b501ac07458ca30,
     .dependencies = .{
-        .httpz = .{
-            .url = "git+https://github.com/karlseguin/http.zig?ref=master#bf66b28690967fec187bc3074ebdd2cf748e172e",
-            .hash = "httpz-0.0.0-PNVzrDm1BgBS1NqfP2uTPocAxDSTjZNJKr41Q_S63cFB",
-        },
         .ezig = .{
             .url = "git+https://github.com/kfinn/ezig#dbd7c7754ddce59a4363b6d4c485fe7bab8aaf9e",
             .hash = "ezig-0.0.0-r1de5RRaAABOe7oG25EnVCvRKzT77GLUWpEHxAnVcGeY",
+        },
+        .pg = .{
+            .url = "git+https://github.com/karlseguin/pg.zig?ref=master#842541eb22a6da1e43a2e78c1b20b5ea88aa9366",
+            .hash = "pg-0.0.0-Wp_7gfMCBgDT6BLHD1r7hNtVeXs6yJbFBkNar4uY-ZDB",
+        },
+        .httpz = .{
+            .url = "git+https://github.com/karlseguin/http.zig?ref=master#68e760cc9eed0722dfcae69bda0ed9406bb83be2",
+            .hash = "httpz-0.0.0-PNVzrOu4BgCBCARbwWC7MUn7_MqnGwUNfTXEUryOns06",
         },
     },
     .paths = .{

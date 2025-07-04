@@ -11,19 +11,30 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
     });
 
-    const httpz = b.dependency("httpz", .{}).module("httpz");
-    lib_mod.addImport("httpz", httpz);
-
     const exe_mod = b.createModule(.{
         .root_source_file = b.path("src/app/main.zig"),
         .target = target,
         .optimize = optimize,
     });
-
     exe_mod.addImport("ridges_lib", lib_mod);
+
+    const httpz = b.dependency("httpz", .{
+        .target = target,
+        .optimize = optimize,
+    }).module("httpz");
+    lib_mod.addImport("httpz", httpz);
     exe_mod.addImport("httpz", httpz);
+
+    const pg = b.dependency("pg", .{
+        .target = target,
+        .optimize = optimize,
+    }).module("pg");
+    lib_mod.addImport("pg", pg);
+    exe_mod.addImport("pg", pg);
+
     const ezig_templates_mod = ezig.addEzigTemplatesImport(exe_mod, .{ .path = "src/app/views" });
     ezig_templates_mod.addImport("app", exe_mod);
+    ezig_templates_mod.addImport("ridges_lib", lib_mod);
 
     const lib = b.addLibrary(.{
         .linkage = .static,
