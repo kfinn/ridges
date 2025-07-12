@@ -17,7 +17,7 @@ pub fn main() !void {
                 .auth = .{
                     .username = "ridges",
                     .password = "password",
-                    .database = "ridges_development",
+                    .database = "ridges",
                     .application_name = "Ridges",
                 },
             },

@@ -78,7 +78,10 @@ pub fn Router(comptime App: type, comptime routes_entries_param: []const RoutesE
             }
 
             const handled = self.handleRouteEntries(&empty_param_names, request, response, routes_entries_param, request.url.path[1..], .{}) catch |err| {
-                std.log.info("error: {}", .{err});
+                std.log.err("error: {}", .{err});
+                if (@errorReturnTrace()) |error_return_trace| {
+                    std.debug.dumpStackTrace(error_return_trace.*);
+                }
                 renderServerError(response);
                 return;
             };

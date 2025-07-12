@@ -5,15 +5,12 @@ const httpz = @import("httpz");
 
 const Context = @import("../RidgesApp.zig").RidgesApp.ControllerContext;
 
-const User = struct {
-    id: i64,
-    name: []const u8,
-};
+const User = @import("../models/User.zig");
 
 pub fn show(context: *Context, params: struct { id: []const u8 }) !void {
     context.response.status = 200;
 
-    const user = try (try context.db_conn.row("SELECT id, name FROM users WHERE id = $1", .{try std.fmt.parseInt(i64, params.id, 10)})).?.to(User, .{});
+    const user = try User.db.find(&context.db_conn, try std.fmt.parseInt(i64, params.id, 10));
 
     try ezig_templates.@"layouts/app_layout.html"(
         struct {

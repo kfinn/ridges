@@ -7,3 +7,5 @@ pub const Resource = router_module.Resource;
 pub const Params = router_module.Params;
 pub const ControllerContext = @import("ControllerContext.zig").ControllerContext;
 pub const cgi_escape = @import("cgi_escape.zig");
+pub const ConnWithDefaultOpts = @import("ConnWithDefaultOpts.zig");
+pub const Repo = @import("Repo.zig").Repo;
