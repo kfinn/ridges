@@ -5,28 +5,28 @@ const httpz = @import("httpz");
 
 const Context = @import("../RidgesApp.zig").RidgesApp.ControllerContext;
 
-const User = @import("../models/User.zig");
+const Place = @import("../models/Place.zig");
 
-pub fn show(context: *Context, params: struct { id: []const u8 }) !void {
+pub fn index(context: *Context) !void {
     context.response.status = 200;
 
-    const user = try User.Repo.find(&context.db_conn, try std.fmt.parseInt(i64, params.id, 10));
+    const places = try Place.Repo.all(&context.db_conn);
 
     try ezig_templates.@"layouts/app_layout.html"(
         struct {
-            user: User,
+            places: []Place,
 
             pub fn writeBody(self: *const @This(), writer: std.io.AnyWriter) !void {
-                try ezig_templates.@"users/show.html"(
+                try ezig_templates.@"places/index.html"(
                     struct {
-                        user: User,
+                        places: []Place,
                     },
                     writer,
-                    .{ .user = self.user },
+                    .{ .places = self.places },
                 );
             }
         },
         context.response.writer().any(),
-        .{ .user = user },
+        .{ .places = places },
     );
 }

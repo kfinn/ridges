@@ -1,0 +1,14 @@
+<% const cgi_escape = @import("ridges_lib").cgi_escape; %>
+<h1>Ridges</h1>
+<h2>Places</h2>
+<ul>
+<% for (props.places) |place| { %>
+  <li>
+    <% try cgi_escape.writeEscapedHtml(writer, place.name); %>:
+    <span style="font-family: monospace">
+    <% const point = place.point(); %>
+    <%{d}= point.longitude %> <%{d}= point.latitude %>
+    </span>
+  </li>
+<% } %>
+</ul>
