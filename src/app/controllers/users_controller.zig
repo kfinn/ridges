@@ -12,6 +12,14 @@ pub fn show(context: *Context, params: struct { id: []const u8 }) !void {
 
     const user = try User.Repo.find(&context.db_conn, try std.fmt.parseInt(i64, params.id, 10));
 
+    if (context.session) |*session| {
+        session.num += 1;
+    } else {
+        context.session = .{ .num = 1 };
+    }
+
+    std.log.info("session {any} parse error: {any}", .{ context.session, context.session_parse_error });
+
     try ezig_templates.@"layouts/app_layout.html"(
         struct {
             user: User,

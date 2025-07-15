@@ -10,24 +10,34 @@ const Params = router_module.Params;
 
 const controller_context = @import("ControllerContext.zig");
 
-pub const InitOptions = struct {
-    db: pg.Pool.Opts,
+pub const ComptimeOptions = struct {
+    routes_entries: []const RoutesEntry,
+    Session: type = struct {},
 };
 
-pub fn App(comptime routes_entries: []const RoutesEntry) type {
+pub const Config = struct {
+    db: pg.Pool.Opts,
+    session: struct {
+        cookie_secret_key: *const [32]u8,
+    },
+};
+
+pub fn App(comptime comptime_options: ComptimeOptions) type {
     return struct {
+        config: Config,
         router: AppRouter = .{},
         pg_pool: *pg.Pool,
 
         const AppSelf = @This();
-        pub const AppRouter = Router(AppSelf, routes_entries);
+        pub const AppRouter = Router(AppSelf, comptime_options.routes_entries);
         pub const ControllerContext = controller_context.ControllerContext(AppSelf);
+        pub const Session = comptime_options.Session;
 
-        pub fn init(allocator: std.mem.Allocator, init_options: InitOptions) !@This() {
-            var app: @This() = undefined;
-            app.pg_pool = try pg.Pool.init(allocator, init_options.db);
-
-            return app;
+        pub fn init(allocator: std.mem.Allocator, config: Config) !@This() {
+            return .{
+                .config = config,
+                .pg_pool = try pg.Pool.init(allocator, config.db),
+            };
         }
 
         pub fn deinit(self: *@This()) void {

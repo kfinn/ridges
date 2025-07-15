@@ -21,6 +21,9 @@ pub fn main() !void {
                     .application_name = "Ridges",
                 },
             },
+            .session = .{
+                .cookie_secret_key = "de86040470140bcaa6cf34b4dc34edf3",
+            },
         },
     );
     defer app.deinit();
