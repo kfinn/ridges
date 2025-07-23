@@ -10,7 +10,7 @@ const Place = @import("../models/Place.zig");
 pub fn index(context: *Context) !void {
     context.response.status = 200;
 
-    const places = try Place.Repo.all(&context.db_conn);
+    const places = try Place.Repo.all(context.db_conn, context.response.arena);
 
     try ezig_templates.@"layouts/app_layout.html"(
         struct {

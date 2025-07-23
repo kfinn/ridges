@@ -142,21 +142,38 @@ pub fn Router(comptime App: type, comptime routes_entries_param: []const RoutesE
             defer context.deinit();
 
             if (path_segments_after_name.len == 0) {
-                if (request.method == .GET and std.meta.hasFn(resources.Controller, "index")) {
-                    try self.performControllerAction(resources.Controller, "index", request, response, route_params);
-                    return true;
+                switch (request.method) {
+                    .GET => {
+                        if (std.meta.hasFn(resources.Controller, "index")) {
+                            try self.performControllerAction(resources.Controller, "index", request, response, route_params);
+                            return true;
+                        }
+                    },
+                    .POST => {
+                        if (std.meta.hasFn(resources.Controller, "create")) {
+                            try self.performControllerAction(resources.Controller, "create", request, response, route_params);
+                            return true;
+                        }
+                    },
+                    else => {
+                        return false;
+                    },
                 }
-                return false;
             } else {
                 const escaped_id_path_segment, const rest_path_segments = splitFirstPathSegment(path_segments_after_name);
 
                 const id_path_segment = try cgi_escape.unescapeUriComponentAlloc(request.arena, escaped_id_path_segment);
 
                 if (rest_path_segments.len == 0) {
-                    if (request.method == .GET and std.meta.hasFn(resources.Controller, "show")) {
-                        const route_params_with_id = extendRouteParams(@TypeOf(route_params), "id", route_params, id_path_segment);
-                        try self.performControllerAction(resources.Controller, "show", request, response, route_params_with_id);
-                        return true;
+                    if (request.method == .GET) {
+                        if (std.mem.eql(u8, id_path_segment, "new") and std.meta.hasFn(resources.Controller, "new")) {
+                            try self.performControllerAction(resources.Controller, "new", request, response, route_params);
+                            return true;
+                        } else if (std.meta.hasFn(resources.Controller, "show")) {
+                            const route_params_with_id = extendRouteParams(@TypeOf(route_params), "id", route_params, id_path_segment);
+                            try self.performControllerAction(resources.Controller, "show", request, response, route_params_with_id);
+                            return true;
+                        }
                     }
                     return false;
                 }
@@ -166,8 +183,8 @@ pub fn Router(comptime App: type, comptime routes_entries_param: []const RoutesE
                     const route_params_with_id = extendRouteParams(@TypeOf(route_params), param_name, route_params, id_path_segment);
                     return try self.handleRouteEntries(nested_route_param_names, request, response, child_routes, rest_path_segments, route_params_with_id);
                 }
-                return false;
             }
+            return false;
         }
 
         fn app(self: *@This()) *App {
@@ -190,6 +207,7 @@ pub fn Router(comptime App: type, comptime routes_entries_param: []const RoutesE
             } else {
                 const ControllerParams = action_fn_type_info.params[1].type.?;
                 var controller_params: ControllerParams = undefined;
+
                 inline for (comptime std.meta.fieldNames(ControllerParams)) |field_name| {
                     @field(controller_params, field_name) = @field(params, field_name);
                 }

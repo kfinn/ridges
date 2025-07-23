@@ -28,7 +28,7 @@ pub fn main() !void {
     );
     defer app.deinit();
 
-    var server = try httpz.Server(*RidgesApp.AppRouter).init(allocator, .{ .port = 5882 }, &app.router);
+    var server = try httpz.Server(*RidgesApp.AppRouter).init(allocator, .{ .port = 5882, .request = .{ .max_form_count = 10 } }, &app.router);
     defer server.deinit();
 
     std.log.info("Listening at http://localhost:5882", .{});

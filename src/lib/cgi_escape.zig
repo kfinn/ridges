@@ -90,6 +90,16 @@ pub fn writeEscapedFormEncodedComponent(writer: anytype, unsafe_text: []const u8
     }
 }
 
+pub fn writeEscapedHtmlAttribute(writer: anytype, unsafe_text: []const u8) @TypeOf(writer).Error!void {
+    for (unsafe_text) |character| {
+        switch (character) {
+            '"' => try writer.writeAll("\\\""),
+            '\\' => try writer.writeAll("\\\\"),
+            else => try writer.writeByte(character),
+        }
+    }
+}
+
 test writeEscapedHtml {
     var buf = std.ArrayList(u8).init(std.testing.allocator);
     try writeEscapedHtml(buf.writer(), "<div style=\"position: absolute; top: 0;\">&'</div>");
@@ -112,4 +122,12 @@ test writeEscapedFormEncodedComponent {
     const actual = try buf.toOwnedSlice();
     defer std.testing.allocator.free(actual);
     try std.testing.expectEqualStrings("%27Stop%21%27+said+Fred", actual);
+}
+
+test writeEscapedHtmlAttribute {
+    var buf = std.ArrayList(u8).init(std.testing.allocator);
+    try writeEscapedHtmlAttribute(buf.writer(), "robert\"><script>window.alert('boo!')</script>");
+    const actual = try buf.toOwnedSlice();
+    defer std.testing.allocator.free(actual);
+    try std.testing.expectEqualStrings("robert\\\"><script>window.alert('boo!')</script>", actual);
 }

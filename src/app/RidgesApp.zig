@@ -22,13 +22,21 @@ pub const RidgesApp = ridges_lib.App(.{
             .name = "users",
             .Controller = @import("controllers/users_controller.zig"),
         } },
+        .{ .resource = .{
+            .name = "current_user",
+            .Controller = @import("controllers/current_users_controller.zig"),
+        } },
         .{ .resources = .{
             .name = "places",
             .Controller = @import("controllers/places_controller.zig"),
         } },
+        .{ .resources = .{
+            .name = "sessions",
+            .Controller = @import("controllers/sessions_controller.zig"),
+        } },
     },
     .Session = struct {
-        num: i32,
+        user_id: i64,
 
         pub const key = "RidgesApp";
     },

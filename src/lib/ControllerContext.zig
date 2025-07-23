@@ -1,13 +1,12 @@
 const std = @import("std");
+
 const httpz = @import("httpz");
 const pg = @import("pg");
-
-const ConnWithDefaultOpts = @import("ConnWithDefaultOpts.zig");
 
 pub fn ControllerContext(comptime App: type) type {
     return struct {
         app: *App,
-        db_conn: ConnWithDefaultOpts,
+        db_conn: *pg.Conn,
         request: *httpz.Request,
         response: *httpz.Response,
         session: ?App.Session,
@@ -22,14 +21,9 @@ pub fn ControllerContext(comptime App: type) type {
                 session_parse_error = err;
             }
 
-            std.debug.print("session: {any}, session_parse_error: {any}\n", .{ session, session_parse_error });
-
             return .{
                 .app = app,
-                .db_conn = ConnWithDefaultOpts.init(
-                    try app.pg_pool.acquire(),
-                    .{ .allocator = request.arena },
-                ),
+                .db_conn = try app.pg_pool.acquire(),
                 .request = request,
                 .response = response,
                 .session = session,
@@ -85,7 +79,10 @@ pub fn ControllerContext(comptime App: type) type {
                 request.arena,
                 session_zon,
                 null,
-                .{ .ignore_unknown_fields = true, .free_on_error = false },
+                .{
+                    .ignore_unknown_fields = true,
+                    .free_on_error = false,
+                },
             );
         }
 
@@ -95,7 +92,10 @@ pub fn ControllerContext(comptime App: type) type {
             };
 
             var session_zon_buf = std.ArrayList(u8).init(self.response.arena);
-            try std.zon.stringify.serialize(session, .{}, session_zon_buf.writer());
+            try std.zon.stringify.serialize(session, .{
+                .whitespace = false,
+                .emit_default_optional_fields = false,
+            }, session_zon_buf.writer());
             const session_zon = try session_zon_buf.toOwnedSlice();
 
             const encrypted_session_zon = try self.response.arena.alloc(u8, session_zon.len);
@@ -130,6 +130,7 @@ pub fn ControllerContext(comptime App: type) type {
 
             const cookie_opts: httpz.response.CookieOpts = .{
                 .max_age = 604800, // one week
+                .path = "/",
                 // TODO: add more security
                 // .domain = domain,
                 // .secure = true,

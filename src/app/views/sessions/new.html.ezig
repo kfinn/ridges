@@ -1,0 +1,24 @@
+<h1>Log in</h1>
+<form style="display: flex; flex-direction: column;" action="." method="post">
+<label for="email">
+Email:
+<input
+  id="email"
+  name="email"
+  type="email"
+  <% if (props.email.len == 0) {
+    try writer.print("value=\"{s}\"", .{props.email});
+  } else {
+    try writer.writeAll("autofocus");
+  } %>
+/>
+</label>
+<label for="password">
+Password:
+<input id="password" name="password" type="password" <%= if (props.email.len != 0) "autofocus " else "" %>/>
+</label>
+<% if (props.failed) { %>
+  <span style="color: red">Invalid email or password</span>
+<% } %>
+<input type="submit" value="Log In" />
+</form>
