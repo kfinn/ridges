@@ -98,7 +98,7 @@ fn generate(allocator: std.mem.Allocator, args: *std.process.ArgIterator) !void 
 
         while (try walker.next()) |asset| {
             const path_with_digest = digested_asset_paths_by_asset_path.get(asset.path).?;
-            try asset.dir.copyFile(asset.path, output_dir, path_with_digest, .{});
+            try asset.install(output_dir, path_with_digest, &digested_asset_paths_by_asset_path, allocator);
 
             try dependencies_file_writer.print(" {s}/{s}", .{ assets_path, asset.path });
 

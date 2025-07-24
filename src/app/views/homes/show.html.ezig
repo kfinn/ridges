@@ -6,4 +6,5 @@
   try view_helpers.writeLinkTo(writer, "somewhere", "https://www.google.com");
 %>
 <% const assets = @import("assets"); %>
+<div id="whatever"></div>
 <img src="<%= assets.@"screenshot.png" %>" />
