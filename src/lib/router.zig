@@ -9,6 +9,11 @@ const cgi_escape = @import("cgi_escape.zig");
 
 const RouterError = error{unknown};
 
+pub const ComptimeOptions = struct {
+    routes_entries: []const RoutesEntry,
+    assets: []const type,
+};
+
 fn RouteParams(comptime param_names: []const [:0]const u8) type {
     comptime {
         var fields: [param_names.len]std.builtin.Type.StructField = undefined;
@@ -63,7 +68,7 @@ fn extendRouteParams(comptime OldRouteParams: type, comptime new_param_name: [:0
     return extended_route_params;
 }
 
-pub fn Router(comptime App: type, comptime routes_entries_param: []const RoutesEntry) type {
+pub fn Router(comptime App: type, comptime comptime_options: ComptimeOptions) type {
     return struct {
         fn renderServerError(response: *httpz.Response) void {
             response.status = 500;
@@ -79,18 +84,30 @@ pub fn Router(comptime App: type, comptime routes_entries_param: []const RoutesE
                 return;
             }
 
-            const handled = self.handleRouteEntries(&empty_param_names, request, response, routes_entries_param, request.url.path[1..], .{}) catch |err| {
+            if (self.handleRouteEntries(&empty_param_names, request, response, comptime_options.routes_entries, request.url.path[1..], .{})) |handled| {
+                if (handled) return;
+            } else |err| {
                 std.log.err("error: {}", .{err});
                 if (@errorReturnTrace()) |error_return_trace| {
                     std.debug.dumpStackTrace(error_return_trace.*);
                 }
                 renderServerError(response);
                 return;
-            };
-            if (!handled) {
-                response.status = 404;
-                response.body = "Not Found";
             }
+
+            if (self.handleAssets(request, response)) |handled| {
+                if (handled) return;
+            } else |err| {
+                std.log.err("error: {}", .{err});
+                if (@errorReturnTrace()) |error_return_trace| {
+                    std.debug.dumpStackTrace(error_return_trace.*);
+                }
+                renderServerError(response);
+                return;
+            }
+
+            response.status = 404;
+            response.body = "Not Found";
         }
 
         fn handleRouteEntries(self: *@This(), comptime route_param_names: []const [:0]const u8, request: *httpz.Request, response: *httpz.Response, comptime routes_entries: []const RoutesEntry, path: []const u8, route_params: RouteParams(route_param_names)) !bool {
@@ -214,6 +231,30 @@ pub fn Router(comptime App: type, comptime routes_entries_param: []const RoutesE
                 try @field(Controller, action_name)(&context, controller_params);
             }
             try context.afterAction();
+        }
+
+        fn handleAssets(_: *const @This(), request: *httpz.Request, response: *httpz.Response) !bool {
+            inline for (comptime_options.assets) |assets_library| {
+                if (assets_library.All.has(request.url.path)) {
+                    const self_exe_dir_path = try std.fs.selfExeDirPathAlloc(response.arena);
+                    const asset_path = try std.fmt.allocPrint(response.arena, "{s}/../{s}", .{ self_exe_dir_path, request.url.path });
+
+                    response.content_type = httpz.ContentType.forFile(asset_path);
+                    response.header("Cache-Control", "max-age=31536000, immutable");
+
+                    const file = try std.fs.openFileAbsolute(asset_path, .{});
+                    defer file.close();
+
+                    var buf: [1024 * 1024]u8 = undefined;
+                    while (true) {
+                        const bytes_read = try file.read(&buf);
+                        if (bytes_read == 0) break;
+                        try response.chunk(buf[0..bytes_read]);
+                    }
+                    return true;
+                }
+            }
+            return false;
         }
     };
 }

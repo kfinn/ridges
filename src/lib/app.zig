@@ -11,7 +11,7 @@ const Params = router_module.Params;
 const controller_context = @import("ControllerContext.zig");
 
 pub const ComptimeOptions = struct {
-    routes_entries: []const RoutesEntry,
+    router: router_module.ComptimeOptions,
     Session: type = struct {},
 };
 
@@ -29,7 +29,7 @@ pub fn App(comptime comptime_options: ComptimeOptions) type {
         pg_pool: *pg.Pool,
 
         const AppSelf = @This();
-        pub const AppRouter = Router(AppSelf, comptime_options.routes_entries);
+        pub const AppRouter = Router(AppSelf, comptime_options.router);
         pub const ControllerContext = controller_context.ControllerContext(AppSelf);
         pub const Session = comptime_options.Session;
 

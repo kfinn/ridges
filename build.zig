@@ -32,9 +32,18 @@ pub fn build(b: *std.Build) void {
     lib_mod.addImport("pg", pg);
     exe_mod.addImport("pg", pg);
 
+    const assets_exe = b.addExecutable(.{
+        .name = " assets",
+        .root_source_file = b.path("src/tools/assets.zig"),
+        .target = b.graph.host,
+    });
+
+    const assets_mod = addAssetsImportExe(exe_mod, .{ .path = "src/app/assets" }, assets_exe);
+
     const ezig_templates_mod = ezig.addEzigTemplatesImport(exe_mod, .{ .path = "src/app/views" });
     ezig_templates_mod.addImport("app", exe_mod);
     ezig_templates_mod.addImport("ridges_lib", lib_mod);
+    ezig_templates_mod.addImport("assets", assets_mod);
 
     const lib = b.addLibrary(.{
         .linkage = .static,
@@ -70,4 +79,39 @@ pub fn build(b: *std.Build) void {
     const test_step = b.step("test", "Run unit tests");
     test_step.dependOn(&run_lib_unit_tests.step);
     test_step.dependOn(&run_exe_unit_tests.step);
+}
+
+pub const AssetsImportOptions = struct {
+    path: []const u8,
+    import_name: []const u8 = "assets",
+};
+
+fn addAssetsImportExe(module: *std.Build.Module, options: AssetsImportOptions, assets_exe: *std.Build.Step.Compile) *std.Build.Module {
+    const b = module.owner;
+
+    const assets_list_only_step = b.addRunArtifact(assets_exe);
+    assets_list_only_step.has_side_effects = true;
+    assets_list_only_step.addArg("list");
+    const assets_list_only_output = assets_list_only_step.addOutputFileArg("assets_list.txt");
+    assets_list_only_step.addDirectoryArg(b.path(options.path));
+
+    const assets_generate_step = b.addRunArtifact(assets_exe);
+    assets_generate_step.addArg("generate");
+    const assets_zig_output = assets_generate_step.addOutputFileArg("assets.zig");
+    const assets_dir_output = assets_generate_step.addOutputDirectoryArg("assets");
+    assets_generate_step.addDirectoryArg(b.path(options.path));
+    _ = assets_generate_step.addDepFileOutputArg("assets.d");
+    assets_generate_step.addFileInput(assets_list_only_output);
+
+    const assets_mod = b.createModule(.{ .root_source_file = assets_zig_output });
+    module.addImport(options.import_name, assets_mod);
+
+    const install_assets = b.addInstallDirectory(.{
+        .source_dir = assets_dir_output,
+        .install_dir = .{ .prefix = {} },
+        .install_subdir = "assets",
+    });
+    b.getInstallStep().dependOn(&install_assets.step);
+
+    return assets_mod;
 }

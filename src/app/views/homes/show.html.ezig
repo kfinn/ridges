@@ -5,3 +5,5 @@
   const view_helpers = @import("app").view_helpers;
   try view_helpers.writeLinkTo(writer, "somewhere", "https://www.google.com");
 %>
+<% const assets = @import("assets"); %>
+<img src="<%= assets.@"screenshot.png" %>" />
