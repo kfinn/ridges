@@ -124,6 +124,7 @@ fn installCss(
         ur,
         url,
         @"url(",
+        eof,
     };
 
     var src_file = try self.dir.openFile(self.path, .{});
@@ -138,7 +139,7 @@ fn installCss(
 
     state: switch (State.plain) {
         .plain => {
-            const c = try readOptByte(reader) orelse return;
+            const c = try readOptByte(reader) orelse continue :state .eof;
             try writer.writeByte(c);
             switch (c) {
                 'u' => continue :state .u,
@@ -146,7 +147,7 @@ fn installCss(
             }
         },
         .u => {
-            const c = try readOptByte(reader) orelse return;
+            const c = try readOptByte(reader) orelse continue :state .eof;
             try writer.writeByte(c);
             switch (c) {
                 'r' => continue :state .ur,
@@ -154,7 +155,7 @@ fn installCss(
             }
         },
         .ur => {
-            const c = try readOptByte(reader) orelse return;
+            const c = try readOptByte(reader) orelse continue :state .eof;
             try writer.writeByte(c);
             switch (c) {
                 'l' => continue :state .url,
@@ -162,7 +163,7 @@ fn installCss(
             }
         },
         .url => {
-            const c = try readOptByte(reader) orelse return;
+            const c = try readOptByte(reader) orelse continue :state .eof;
             try writer.writeByte(c);
             switch (c) {
                 '(' => continue :state .@"url(",
@@ -170,7 +171,7 @@ fn installCss(
             }
         },
         .@"url(" => {
-            const c = try readOptByte(reader) orelse return;
+            const c = try readOptByte(reader) orelse continue :state .eof;
             switch (c) {
                 ')' => {
                     const url = url_buf[0..url_len];
@@ -196,6 +197,9 @@ fn installCss(
                     }
                 },
             }
+        },
+        .eof => {
+            try writer.print("\n\n/*# sourceMappingURL={s} */\n", .{self.path});
         },
     }
 }
