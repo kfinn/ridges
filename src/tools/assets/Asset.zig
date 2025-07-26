@@ -98,6 +98,9 @@ fn installWithoutTransforming(
     dest_dir: std.fs.Dir,
     dest_path: []const u8,
 ) !void {
+    if (std.fs.path.dirname(dest_path)) |dest_dirname| {
+        try dest_dir.makePath(dest_dirname);
+    }
     try self.dir.copyFile(self.path, dest_dir, dest_path, .{});
 }
 
@@ -131,6 +134,10 @@ fn installCss(
     defer src_file.close();
 
     const reader = src_file.reader();
+
+    if (std.fs.path.dirname(dest_path)) |dest_dirname| {
+        try dest_dir.makePath(dest_dirname);
+    }
 
     var dest_file = try dest_dir.createFile(dest_path, .{});
     defer dest_file.close();
@@ -176,7 +183,6 @@ fn installCss(
                 ')' => {
                     const url = url_buf[0..url_len];
                     if (digested_asset_paths_by_asset_path.get(url)) |digested_asset_path| {
-                        try writer.writeAll("/assets/");
                         try writer.writeAll(digested_asset_path);
                     } else {
                         try writer.writeAll(url);

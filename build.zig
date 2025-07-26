@@ -1,5 +1,6 @@
 const std = @import("std");
 const ezig = @import("ezig");
+const tailwindcss = @import("tailwindcss");
 
 pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
@@ -32,15 +33,25 @@ pub fn build(b: *std.Build) void {
     lib_mod.addImport("pg", pg);
     exe_mod.addImport("pg", pg);
 
+    const tailwindcss_step = tailwindcss.addTailwindcssStep(b, .{ .input = b.path("src/app/tailwind.css") });
+
+    const collect_assets_step = b.addWriteFiles();
+    _ = collect_assets_step.addCopyFile(tailwindcss_step.output_file, "tailwind/tailwind.css");
+    _ = collect_assets_step.addCopyDirectory(b.path("src/app/assets"), ".", .{});
+
     const assets_exe = b.addExecutable(.{
         .name = " assets",
         .root_source_file = b.path("src/tools/assets.zig"),
         .target = b.graph.host,
     });
 
-    const assets_mod = addAssetsImportExe(exe_mod, .{ .path = "src/app/assets" }, assets_exe);
+    const assets_mod = addAssetsImportExe(
+        exe_mod,
+        .{ .path = collect_assets_step.getDirectory() },
+        assets_exe,
+    );
 
-    const ezig_templates_mod = ezig.addEzigTemplatesImport(exe_mod, .{ .path = "src/app/views" });
+    const ezig_templates_mod = ezig.addEzigTemplatesImport(exe_mod, .{ .path = b.path("src/app/views") });
     ezig_templates_mod.addImport("app", exe_mod);
     ezig_templates_mod.addImport("ridges_lib", lib_mod);
     ezig_templates_mod.addImport("assets", assets_mod);
@@ -82,7 +93,7 @@ pub fn build(b: *std.Build) void {
 }
 
 pub const AssetsImportOptions = struct {
-    path: []const u8,
+    path: std.Build.LazyPath,
     import_name: []const u8 = "assets",
 };
 
@@ -93,13 +104,13 @@ fn addAssetsImportExe(module: *std.Build.Module, options: AssetsImportOptions, a
     assets_list_only_step.has_side_effects = true;
     assets_list_only_step.addArg("list");
     const assets_list_only_output = assets_list_only_step.addOutputFileArg("assets_list.txt");
-    assets_list_only_step.addDirectoryArg(b.path(options.path));
+    assets_list_only_step.addDirectoryArg(options.path);
 
     const assets_generate_step = b.addRunArtifact(assets_exe);
     assets_generate_step.addArg("generate");
     const assets_zig_output = assets_generate_step.addOutputFileArg("assets.zig");
     const assets_dir_output = assets_generate_step.addOutputDirectoryArg("assets");
-    assets_generate_step.addDirectoryArg(b.path(options.path));
+    assets_generate_step.addDirectoryArg(options.path);
     _ = assets_generate_step.addDepFileOutputArg("assets.d");
     assets_generate_step.addFileInput(assets_list_only_output);
 

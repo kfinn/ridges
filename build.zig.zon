@@ -3,10 +3,6 @@
     .version = "0.0.0",
     .fingerprint = 0x4b501ac07458ca30,
     .dependencies = .{
-        .ezig = .{
-            .url = "git+https://github.com/kfinn/ezig#bbab281beea47fee8c3e7e50840eaf3077f1ccdf",
-            .hash = "ezig-0.0.0-r1de5QJhAABVnaTrJFGkJDcZ09IVngaoK-NGrLMnKGQx",
-        },
         .pg = .{
             .url = "git+https://github.com/karlseguin/pg.zig?ref=master#842541eb22a6da1e43a2e78c1b20b5ea88aa9366",
             .hash = "pg-0.0.0-Wp_7gfMCBgDT6BLHD1r7hNtVeXs6yJbFBkNar4uY-ZDB",
@@ -14,6 +10,14 @@
         .httpz = .{
             .url = "git+https://github.com/karlseguin/http.zig?ref=master#68e760cc9eed0722dfcae69bda0ed9406bb83be2",
             .hash = "httpz-0.0.0-PNVzrOu4BgCBCARbwWC7MUn7_MqnGwUNfTXEUryOns06",
+        },
+        .tailwindcss = .{
+            .url = "git+https://github.com/kfinn/tailwindcss-zig#333cc34eac5b2e1ed098886314fc8d6becd782a2",
+            .hash = "tailwindcss-0.0.0-hvehw48hAADKI0wEn3SJUPX2IQ1NEBB-dLCI8-Kmttlt",
+        },
+        .ezig = .{
+            .url = "git+https://github.com/kfinn/ezig#3958d588b3c654e4915d8a521a899f306ca6b50d",
+            .hash = "ezig-0.0.0-r1de5QJhAAC1yWIJQsDGQlH-YWuiGTYPgayN-8E3DSmD",
         },
     },
     .paths = .{
