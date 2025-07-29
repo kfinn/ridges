@@ -41,7 +41,7 @@ pub fn build(b: *std.Build) void {
 
     const assets_exe = b.addExecutable(.{
         .name = " assets",
-        .root_source_file = b.path("src/tools/assets.zig"),
+        .root_source_file = b.path("src/tools/assets/main.zig"),
         .target = b.graph.host,
     });
 
