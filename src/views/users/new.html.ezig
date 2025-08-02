@@ -1,0 +1,26 @@
+<% const cgi_escape = @import("mantle").cgi_escape; %>
+<% const view_helpers = @import("app").view_helpers; %>
+<h1>New User</h1>
+<form style="display: flex; flex-direction: column" action="." method="post">
+  <label for="name">
+    Name:
+    <input id="name" name="name" value="<% try cgi_escape.writeEscapedHtmlAttribute(writer, props.user.name); %>" />
+    <% if (props.user_errors) |user_errors| try view_helpers.writeFieldErrors(writer, user_errors, .name); %>
+  </label>
+  <label for="email">
+    Email:
+    <input id="email" name="email" type="email" value="<% try cgi_escape.writeEscapedHtmlAttribute(writer, props.user.email); %>" />
+    <% if (props.user_errors) |user_errors| try view_helpers.writeFieldErrors(writer, user_errors, .email); %>
+  </label>
+  <label for="password">
+    Password:
+    <input id="password" name="password" type="password" />
+    <% if (props.password_confirmation_errors) |password_confirmation_errors| try view_helpers.writeFieldErrors(writer, password_confirmation_errors, .password); %>
+  </label>
+  <label for="password_confirmation">
+    Password Confirmation:
+    <input id="password_confirmation" name="password_confirmation" type="password" />
+    <% if (props.password_confirmation_errors) |password_confirmation_errors| try view_helpers.writeFieldErrors(writer, password_confirmation_errors, .password_confirmation); %>
+  </label>
+  <input type="submit" value="Create" />
+</form>
