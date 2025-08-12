@@ -1,3 +1,0 @@
-<% const cgi_escape = @import("mantle").cgi_escape; %>
-<h1>Ridges</h1>
-<div>Hello, <% try cgi_escape.writeEscapedHtml(writer, props.name_id); %>!</div>

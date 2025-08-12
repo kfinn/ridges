@@ -20,3 +20,57 @@ pub fn writeFieldErrors(writer: anytype, errors: anytype, field: @TypeOf(errors)
 
     try writer.writeAll("</span>");
 }
+
+pub fn writeH1(writer: anytype, body: []const u8) @TypeOf(writer).Error!void {
+    try writer.print("<h1 class=\"text-xl\">{s}</h1>", .{body});
+}
+
+pub fn writeH2(writer: anytype, body: []const u8) @TypeOf(writer).Error!void {
+    try writer.print("<h2 class=\"text-lg\">{s}</h1>", .{body});
+}
+
+pub fn beginUl(writer: anytype) @TypeOf(writer).Error!void {
+    try writer.writeAll("<ul class=\"list-disc\">");
+}
+
+pub fn endUl(writer: anytype) @TypeOf(writer).Error!void {
+    try writer.writeAll("</ul>");
+}
+
+pub fn beginForm(writer: anytype) @TypeOf(writer).Error!void {
+    try writer.writeAll("<form class=\"flex\" action=\".\" method=\"POST\">");
+}
+
+pub fn endForm(writer: anytype) @TypeOf(writer).Error!void {
+    try writer.writeAll("</form>");
+}
+
+pub const InputOpts = struct {
+    value: ?[]const u8 = null,
+    autofocus: ?bool = null,
+    type: ?[]const u8 = null,
+};
+
+pub fn writeInput(writer: anytype, name: []const u8, opts: InputOpts) @TypeOf(writer).Error!void {
+    try writer.writeAll("<input class=\"rounded outline-1 focus:outline-2 outline-gray-300 dark:outline-gray-600\" id=\"");
+    try mantle.cgi_escape.writeEscapedHtmlAttribute(writer, name);
+    try writer.writeAll("\" name=\"");
+    try mantle.cgi_escape.writeEscapedHtmlAttribute(writer, name);
+    try writer.writeAll("\"");
+    if (opts.value) |value| {
+        try writer.writeAll(" value=\"");
+        try mantle.cgi_escape.writeEscapedHtmlAttribute(writer, value);
+        try writer.writeAll("\"");
+    }
+    if (opts.autofocus) |autofocus| {
+        if (autofocus) {
+            try writer.writeAll(" autofocus");
+        }
+    }
+    if (opts.type) |type_opt| {
+        try writer.writeAll(" type=\"");
+        try mantle.cgi_escape.writeEscapedHtmlAttribute(writer, type_opt);
+        try writer.writeAll("\"");
+    }
+    try writer.writeAll(" />");
+}

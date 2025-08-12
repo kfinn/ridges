@@ -1,24 +1,27 @@
-<h1>Log in</h1>
-<form style="display: flex; flex-direction: column;" action="." method="post">
+<% const view_helpers = @import("app").view_helpers; %>
+
+<% try view_helpers.writeH1(writer, "Log in"); %>
+<% try view_helpers.beginForm(writer); %>
 <label for="email">
 Email:
-<input
-  id="email"
-  name="email"
-  type="email"
-  <% if (props.email.len == 0) {
-    try writer.print("value=\"{s}\"", .{props.email});
-  } else {
-    try writer.writeAll("autofocus");
-  } %>
-/>
+<%
+  try view_helpers.writeInput(
+    writer,
+    "email",
+    .{
+      .value = props.email,
+      .autofocus = props.email.len == 0,
+      .type = "email"
+    }
+  );
+%>
 </label>
 <label for="password">
 Password:
-<input id="password" name="password" type="password" <%= if (props.email.len != 0) "autofocus " else "" %>/>
+<% try view_helpers.writeInput(writer, "password", .{ .type = "password", .autofocus = props.email.len != 0 }); %>
 </label>
 <% if (props.failed) { %>
   <span style="color: red">Invalid email or password</span>
 <% } %>
 <input type="submit" value="Log In" />
-</form>
+<% try view_helpers.endForm(writer); %>

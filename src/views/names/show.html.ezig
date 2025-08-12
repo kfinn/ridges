@@ -1,2 +1,0 @@
-<h1>Ridges</h1>
-<div>Id: <%= props.id %></div>

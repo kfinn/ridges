@@ -13,7 +13,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
     <link rel="stylesheet" href="<%= assets.@"tailwind/tailwind.css" %>" />
   </head>
-  <body>
+  <body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100">
     <% try props.writeBody(writer); %>
   </body>
 </html>

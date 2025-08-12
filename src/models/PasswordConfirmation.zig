@@ -7,11 +7,18 @@ password_confirmation: ?[]const u8 = null,
 
 pub const Errors = mantle.validation.RecordErrors(@This());
 
-pub fn fromFormData(form_data: anytype) @This() {
+pub fn init(password: ?[]const u8, password_confirmation: ?[]const u8) @This() {
     return .{
-        .password = form_data.get("password"),
-        .password_confirmation = form_data.get("password_confirmation"),
+        .password = password,
+        .password_confirmation = password_confirmation,
     };
+}
+
+pub fn fromFormData(form_data: anytype) @This() {
+    return .init(
+        form_data.get("password"),
+        form_data.get("password_confirmation"),
+    );
 }
 
 pub fn validate(self: *const @This(), allocator: std.mem.Allocator) !Errors {

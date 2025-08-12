@@ -46,8 +46,8 @@ pub fn create(context: *Context) !void {
             if (user.authenticatePassword(new_session.password)) {
                 context.session = .{ .user_id = user.id };
 
-                context.response.status = 201;
-                context.response.body = "correct credentials";
+                context.response.status = 302;
+                context.response.header("Location", "/current_user");
                 return;
             }
         }
