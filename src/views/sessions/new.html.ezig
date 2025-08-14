@@ -1,27 +1,30 @@
 <% const view_helpers = @import("app").view_helpers; %>
+<% const mantle = @import("mantle"); %>
 
 <% try view_helpers.writeH1(writer, "Log in"); %>
 <% try view_helpers.beginForm(writer); %>
-<label for="email">
-Email:
-<%
-  try view_helpers.writeInput(
-    writer,
-    "email",
-    .{
-      .value = props.email,
-      .autofocus = props.email.len == 0,
-      .type = "email"
+  <%
+    try view_helpers.writeField(
+      writer,
+      props.email,
+      if (props.errors) |errors| errors.field_errors.get(.email).items else &[_]mantle.validation.Error{},
+      "email",
+      .{ .autofocus = props.email.len == 0, .type = "email" }
+    );
+  %>
+  <%
+    try view_helpers.writeField(
+      writer,
+      "",
+      if (props.errors) |errors| errors.field_errors.get(.password).items else &[_]mantle.validation.Error{},
+      "password",
+      .{ .autofocus = props.email.len > 0, .type = "password"}
+    );
+  %>
+  <%
+    if (props.errors) |errors| {
+      try view_helpers.writeErrors(writer, errors.base_errors.items);
     }
-  );
-%>
-</label>
-<label for="password">
-Password:
-<% try view_helpers.writeInput(writer, "password", .{ .type = "password", .autofocus = props.email.len != 0 }); %>
-</label>
-<% if (props.failed) { %>
-  <span style="color: red">Invalid email or password</span>
-<% } %>
-<input type="submit" value="Log In" />
+  %>
+  <% try view_helpers.writeSubmit(writer, "Log In"); %>
 <% try view_helpers.endForm(writer); %>

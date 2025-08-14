@@ -6,15 +6,20 @@ pub fn writeLinkTo(writer: anytype, body: []const u8, url: []const u8) @TypeOf(w
 }
 
 pub fn writeFieldErrors(writer: anytype, errors: anytype, field: @TypeOf(errors).Field) @TypeOf(writer).Error!void {
-    const field_errors = errors.field_errors.get(field).items;
-    if (field_errors.len == 0) return;
+    try writeErrors(writer, errors.field_errors.get(field).items);
+}
 
-    try writer.writeAll("<span style=\"color: red\">");
+pub fn writeErrors(writer: anytype, errors: []mantle.validation.Error) @TypeOf(writer).Error!void {
+    if (errors.len == 0) {
+        return;
+    }
+
+    try writer.writeAll("<span class=\"text-red-600 dark:text-red-500\">");
 
     var requires_leading_comma = false;
-    for (field_errors) |field_error| {
+    for (errors) |validation_error| {
         if (requires_leading_comma) try writer.writeAll(", ");
-        try mantle.cgi_escape.writeEscapedHtml(writer, field_error.description);
+        try mantle.cgi_escape.writeEscapedHtml(writer, validation_error.description);
         requires_leading_comma = true;
     }
 
@@ -38,11 +43,31 @@ pub fn endUl(writer: anytype) @TypeOf(writer).Error!void {
 }
 
 pub fn beginForm(writer: anytype) @TypeOf(writer).Error!void {
-    try writer.writeAll("<form class=\"flex\" action=\".\" method=\"POST\">");
+    try writer.writeAll("<form class=\"flex flex-col items-stretch space-y-2\" action=\".\" method=\"POST\">");
 }
 
 pub fn endForm(writer: anytype) @TypeOf(writer).Error!void {
     try writer.writeAll("</form>");
+}
+
+pub const FieldOpts = struct {
+    autofocus: ?bool = null,
+    type: ?[]const u8 = null,
+};
+
+pub fn writeField(writer: anytype, value: ?[]const u8, errors: []mantle.validation.Error, comptime name: []const u8, opts: FieldOpts) !void {
+    const title_case_field_name = comptime mantle.inflector.comptimeTitleize(name);
+
+    try writer.writeAll("<label for=\"");
+    try mantle.cgi_escape.writeEscapedHtmlAttribute(writer, name);
+    try writer.writeAll("\" class=\"flex flex-col items-stretch space-y-1\"><span>");
+    try mantle.cgi_escape.writeEscapedHtml(writer, title_case_field_name);
+    try writer.writeAll("</span>");
+    try writeInput(writer, name, .{ .autofocus = opts.autofocus, .type = opts.type, .value = value });
+    try writer.writeAll("<div>");
+    try writeErrors(writer, errors);
+    try writer.writeAll("</div>");
+    try writer.writeAll("</label>");
 }
 
 pub const InputOpts = struct {
@@ -73,4 +98,10 @@ pub fn writeInput(writer: anytype, name: []const u8, opts: InputOpts) @TypeOf(wr
         try writer.writeAll("\"");
     }
     try writer.writeAll(" />");
+}
+
+pub fn writeSubmit(writer: anytype, value: []const u8) !void {
+    try writer.writeAll("<input type=\"submit\" class=\"rounded outline-1 focus:outline-2 outline-gray-300 dark:outline-gray-600 cursor-pointer\" value=\"");
+    try mantle.cgi_escape.writeEscapedHtmlAttribute(writer, value);
+    try writer.writeAll("\" />");
 }

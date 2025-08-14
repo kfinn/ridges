@@ -21,7 +21,7 @@
         },
         .mantle = .{
             .url = "../mantle",
-            .hash = "mantle-0.0.0-d9oPsOQ7AQCa_GKczf8HD1OIyqY_ktIisU0HjiiyV8Ns",
+            .hash = "mantle-0.0.0-d9oPsPQ9AQBIcK9EvbQ934bHl4irM1O2WMKFfbHxcWrS",
         },
     },
     .paths = .{

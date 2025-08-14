@@ -12,6 +12,10 @@ pub const RidgesApp = mantle.App(.{
         },
         .routes = &[_]Route{
             .{ .resources = .{
+                .name = "places",
+                .Controller = @import("controllers/places_controller.zig"),
+            } },
+            .{ .resources = .{
                 .name = "sessions",
                 .Controller = @import("controllers/sessions_controller.zig"),
             } },
@@ -19,7 +23,7 @@ pub const RidgesApp = mantle.App(.{
         .assets = &[_]type{@import("assets")},
     },
     .Session = struct {
-        user_id: i64,
+        user_id: [16]u8,
         csrf_token: ?[32]u8 = null,
 
         pub const key = "RidgesApp";

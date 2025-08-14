@@ -2,7 +2,7 @@ const std = @import("std");
 
 const mantle = @import("mantle");
 
-id: i64,
+id: []const u8,
 name: []const u8,
 email: []const u8,
 password_bcrypt: []const u8,
