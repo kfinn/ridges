@@ -5,7 +5,7 @@
 <% try view_helpers.writeH2(writer, "Places"); %>
 
 <% try view_helpers.beginUl(writer); %>
-  <% for (props.places) |place| { %>
+  <% for (props.all_places) |place| { %>
     <li>
       <% try cgi_escape.writeEscapedHtml(writer, place.name); %>:
       <span class="font-mono">

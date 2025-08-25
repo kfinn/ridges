@@ -1,8 +1,10 @@
 const std = @import("std");
+
+const mantle = @import("mantle");
 const pg = @import("pg");
 
 const PasswordConfirmation = @import("../models/PasswordConfirmation.zig");
-const User = @import("../models/User.zig");
+const users = @import("../relations/users.zig");
 
 pub fn @"users:create"(cli: anytype, args: *std.process.ArgIterator) !void {
     const name = args.next() orelse cli.fatal("Usage: users:create [name] [email]", .{});
@@ -24,7 +26,9 @@ pub fn @"users:create"(cli: anytype, args: *std.process.ArgIterator) !void {
     const conn: *pg.Conn = try cli.app.pg_pool.acquire();
     defer conn.release();
 
-    const user = try User.Repo.create(conn, cli.allocator, .{
+    const repo = mantle.Repo.init(cli.allocator, conn);
+
+    const user = try repo.create(users, .{
         .name = name,
         .email = email,
         .password_bcrypt = password_bcrypt,

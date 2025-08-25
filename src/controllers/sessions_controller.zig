@@ -4,7 +4,7 @@ const ezig_templates = @import("ezig_templates");
 const httpz = @import("httpz");
 const mantle = @import("mantle");
 
-const User = @import("../models/User.zig");
+const users = @import("../relations/users.zig");
 const Context = @import("../ridges_app.zig").RidgesApp.ControllerContext;
 
 const Session = struct {
@@ -57,8 +57,8 @@ pub fn create(context: *Context) !void {
     if (mantle.form_data.parse(Session, form_data, mantle.form_data.empty_prefix)) |new_session| {
         errors = try new_session.validate(context.response.arena);
         if (errors.isValid()) {
-            if (try User.Repo.findBy(context.db_conn, context.response.arena, .{ .email = new_session.email.? })) |user| {
-                if (user.authenticatePassword(new_session.password.?)) {
+            if (try context.repo.findBy(users, .{ .email = new_session.email.? })) |user| {
+                if (users.authenticatePassword(user, new_session.password.?)) {
                     context.session = .{ .user_id = user.id[0..16].* };
 
                     context.response.status = 302;

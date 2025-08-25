@@ -1,4 +1,5 @@
 const std = @import("std");
+
 const mantle = @import("mantle");
 
 pub fn writeLinkTo(writer: anytype, body: []const u8, url: []const u8) @TypeOf(writer).Error!void {
@@ -56,7 +57,7 @@ pub const FieldOpts = struct {
 };
 
 pub fn writeField(writer: anytype, value: ?[]const u8, errors: []mantle.validation.Error, comptime name: []const u8, opts: FieldOpts) !void {
-    const title_case_field_name = comptime mantle.inflector.comptimeTitleize(name);
+    const title_case_field_name = comptime mantle.inflector.comptimeHumanize(name);
 
     try writer.writeAll("<label for=\"");
     try mantle.cgi_escape.writeEscapedHtmlAttribute(writer, name);
