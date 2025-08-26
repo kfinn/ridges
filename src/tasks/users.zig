@@ -33,6 +33,9 @@ pub fn @"users:create"(cli: anytype, args: *std.process.ArgIterator) !void {
         .email = email,
         .password_bcrypt = password_bcrypt,
     });
-    var std_out_writer = std.io.getStdOut().writer();
-    try std_out_writer.print("Created user {s} with password: {s}\n", .{ user.email, &password_hex });
+    var std_out = std.fs.File.stdout();
+    var std_out_buffer: [1024]u8 = undefined;
+    var std_out_writer = std_out.writer(&std_out_buffer);
+    try std_out_writer.interface.print("Created user {s} with password: {s}\n", .{ user.email, &password_hex });
+    try std_out_writer.interface.flush();
 }

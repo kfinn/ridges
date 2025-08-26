@@ -4,24 +4,24 @@
     .fingerprint = 0x4b501ac07458ca30,
     .dependencies = .{
         .pg = .{
-            .url = "git+https://github.com/karlseguin/pg.zig?ref=master#842541eb22a6da1e43a2e78c1b20b5ea88aa9366",
-            .hash = "pg-0.0.0-Wp_7gfMCBgDT6BLHD1r7hNtVeXs6yJbFBkNar4uY-ZDB",
+            .url = "git+https://github.com/karlseguin/pg.zig#4c2602bad095f9d85b16711d12aa3a2bc7e169cc",
+            .hash = "pg-0.0.0-Wp_7gQ8FBgCRArfpYn9OdkUhGOUHVRXxB6h9S6lYu7bC",
         },
         .httpz = .{
-            .url = "git+https://github.com/karlseguin/http.zig?ref=master#68e760cc9eed0722dfcae69bda0ed9406bb83be2",
-            .hash = "httpz-0.0.0-PNVzrOu4BgCBCARbwWC7MUn7_MqnGwUNfTXEUryOns06",
+            .url = "git+https://github.com/karlseguin/http.zig#90e7fc07ef7157a4da6922571fb4daef38b48998",
+            .hash = "httpz-0.0.0-PNVzrHLABgDoVnzqKpEbx2rZIzmMclEdoEmdJDfZmxsv",
         },
         .tailwindcss = .{
-            .url = "git+https://github.com/kfinn/tailwindcss-zig#333cc34eac5b2e1ed098886314fc8d6becd782a2",
-            .hash = "tailwindcss-0.0.0-hvehw48hAADKI0wEn3SJUPX2IQ1NEBB-dLCI8-Kmttlt",
+            .url = "git+https://github.com/kfinn/tailwindcss-zig#6d6189081374e7fe5476e6993d53133b69cf0483",
+            .hash = "tailwindcss-0.0.0-hvehw9sXAABOPTfEEIl_2MdZRUxr0ebN0GnM3XkDhYg8",
         },
         .ezig = .{
-            .url = "git+https://github.com/kfinn/ezig#3958d588b3c654e4915d8a521a899f306ca6b50d",
-            .hash = "ezig-0.0.0-r1de5QJhAAC1yWIJQsDGQlH-YWuiGTYPgayN-8E3DSmD",
+            .url = "git+https://github.com/kfinn/ezig#0248034b3e0b2763aed48742d8cb1b6dffdf7a04",
+            .hash = "ezig-0.0.0-r1de5Zh3AAB0jV7TWCgsfCYr1Mk0irFIqctypBr3bkKn",
         },
         .mantle = .{
-            .url = "git+https://github.com/kfinn/mantle#ca3e8986ba14178af18db8cb46ff85b2a90ad187",
-            .hash = "mantle-0.0.0-d9oPsP1aAQBGrtbqwfYPzu4VY519oujHu7P0fefF61Dh",
+            .url = "git+https://github.com/kfinn/mantle#c1c3a271c23184ea84f4942ec935fa9288ac2fa5",
+            .hash = "mantle-0.0.0-d9oPsMxSAQBpHMz2EmzHyfhmoc-t8gp0DqclEu5IzbTQ",
         },
     },
     .paths = .{

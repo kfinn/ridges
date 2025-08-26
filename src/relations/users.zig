@@ -58,7 +58,12 @@ fn validateEmail(record: anytype, errors: *mantle.validation.RecordErrors(@TypeO
                 }
             },
             else => {
-                try errors.addFieldError(.email, .init(error.InvalidEmailFormat, try std.fmt.allocPrintZ(errors.allocator, "must be a valid email address (contains {c})", .{c})));
+                try errors.addFieldError(.email, .init(error.InvalidEmailFormat, try std.fmt.allocPrintSentinel(
+                    errors.allocator,
+                    "must be a valid email address (contains {c})",
+                    .{c},
+                    0,
+                )));
                 return;
             },
         }

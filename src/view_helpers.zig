@@ -2,15 +2,15 @@ const std = @import("std");
 
 const mantle = @import("mantle");
 
-pub fn writeLinkTo(writer: anytype, body: []const u8, url: []const u8) @TypeOf(writer).Error!void {
+pub fn writeLinkTo(writer: *std.Io.Writer, body: []const u8, url: []const u8) std.Io.Writer.Error!void {
     try writer.print("<a href=\"{s}\">{s}</a>", .{ url, body });
 }
 
-pub fn writeFieldErrors(writer: anytype, errors: anytype, field: @TypeOf(errors).Field) @TypeOf(writer).Error!void {
+pub fn writeFieldErrors(writer: *std.Io.Writer, errors: anytype, field: @TypeOf(errors).Field) std.Io.Writer.Error!void {
     try writeErrors(writer, errors.field_errors.get(field).items);
 }
 
-pub fn writeErrors(writer: anytype, errors: []mantle.validation.Error) @TypeOf(writer).Error!void {
+pub fn writeErrors(writer: *std.Io.Writer, errors: []mantle.validation.Error) std.Io.Writer.Error!void {
     if (errors.len == 0) {
         return;
     }
@@ -27,27 +27,27 @@ pub fn writeErrors(writer: anytype, errors: []mantle.validation.Error) @TypeOf(w
     try writer.writeAll("</span>");
 }
 
-pub fn writeH1(writer: anytype, body: []const u8) @TypeOf(writer).Error!void {
+pub fn writeH1(writer: *std.Io.Writer, body: []const u8) std.Io.Writer.Error!void {
     try writer.print("<h1 class=\"text-xl\">{s}</h1>", .{body});
 }
 
-pub fn writeH2(writer: anytype, body: []const u8) @TypeOf(writer).Error!void {
+pub fn writeH2(writer: *std.Io.Writer, body: []const u8) std.Io.Writer.Error!void {
     try writer.print("<h2 class=\"text-lg\">{s}</h1>", .{body});
 }
 
-pub fn beginUl(writer: anytype) @TypeOf(writer).Error!void {
+pub fn beginUl(writer: *std.Io.Writer) std.Io.Writer.Error!void {
     try writer.writeAll("<ul class=\"list-disc\">");
 }
 
-pub fn endUl(writer: anytype) @TypeOf(writer).Error!void {
+pub fn endUl(writer: *std.Io.Writer) std.Io.Writer.Error!void {
     try writer.writeAll("</ul>");
 }
 
-pub fn beginForm(writer: anytype) @TypeOf(writer).Error!void {
+pub fn beginForm(writer: *std.Io.Writer) std.Io.Writer.Error!void {
     try writer.writeAll("<form class=\"flex flex-col items-stretch space-y-2\" action=\".\" method=\"POST\">");
 }
 
-pub fn endForm(writer: anytype) @TypeOf(writer).Error!void {
+pub fn endForm(writer: *std.Io.Writer) std.Io.Writer.Error!void {
     try writer.writeAll("</form>");
 }
 
@@ -56,7 +56,7 @@ pub const FieldOpts = struct {
     type: ?[]const u8 = null,
 };
 
-pub fn writeField(writer: anytype, value: ?[]const u8, errors: []mantle.validation.Error, comptime name: []const u8, opts: FieldOpts) !void {
+pub fn writeField(writer: *std.Io.Writer, value: ?[]const u8, errors: []mantle.validation.Error, comptime name: []const u8, opts: FieldOpts) !void {
     const title_case_field_name = comptime mantle.inflector.comptimeHumanize(name);
 
     try writer.writeAll("<label for=\"");
@@ -77,7 +77,7 @@ pub const InputOpts = struct {
     type: ?[]const u8 = null,
 };
 
-pub fn writeInput(writer: anytype, name: []const u8, opts: InputOpts) @TypeOf(writer).Error!void {
+pub fn writeInput(writer: *std.Io.Writer, name: []const u8, opts: InputOpts) std.Io.Writer.Error!void {
     try writer.writeAll("<input class=\"rounded outline-1 focus:outline-2 outline-gray-300 dark:outline-gray-600\" id=\"");
     try mantle.cgi_escape.writeEscapedHtmlAttribute(writer, name);
     try writer.writeAll("\" name=\"");
@@ -101,7 +101,7 @@ pub fn writeInput(writer: anytype, name: []const u8, opts: InputOpts) @TypeOf(wr
     try writer.writeAll(" />");
 }
 
-pub fn writeSubmit(writer: anytype, value: []const u8) !void {
+pub fn writeSubmit(writer: *std.Io.Writer, value: []const u8) !void {
     try writer.writeAll("<input type=\"submit\" class=\"rounded outline-1 focus:outline-2 outline-gray-300 dark:outline-gray-600 cursor-pointer\" value=\"");
     try mantle.cgi_escape.writeEscapedHtmlAttribute(writer, value);
     try writer.writeAll("\" />");

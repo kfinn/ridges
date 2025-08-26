@@ -36,18 +36,20 @@ const Session = struct {
 pub fn new(context: *Context) !void {
     context.response.status = 200;
 
+    var response_writer = context.response.writer();
     try ezig_templates.@"layouts/app_layout.html"(
+        &response_writer.interface,
         struct {
-            pub fn writeBody(_: *const @This(), writer: std.io.AnyWriter) !void {
+            pub fn writeBody(_: *const @This(), writer: *std.Io.Writer) std.Io.Writer.Error!void {
                 try ezig_templates.@"sessions/new.html"(
-                    struct { email: []const u8, errors: ?mantle.validation.RecordErrors(Session) },
                     writer,
-                    .{ .email = "", .errors = null },
+                    struct { email: []const u8, errors: ?mantle.validation.RecordErrors(Session) }{
+                        .email = "",
+                        .errors = null,
+                    },
                 );
             }
-        },
-        context.response.writer().any(),
-        .{},
+        }{},
     );
 }
 
@@ -75,20 +77,28 @@ pub fn create(context: *Context) !void {
         errors.addBaseError(.init(err, "unknonwn error"));
     }
 
+    var response_writer = context.response.writer();
     try ezig_templates.@"layouts/app_layout.html"(
+        &response_writer.interface,
         struct {
             errors: mantle.validation.RecordErrors(Session),
             email: []const u8,
 
-            pub fn writeBody(self: *const @This(), writer: std.io.AnyWriter) !void {
+            pub fn writeBody(self: *const @This(), writer: *std.Io.Writer) !void {
                 try ezig_templates.@"sessions/new.html"(
-                    struct { errors: ?mantle.validation.RecordErrors(Session), email: []const u8 },
                     writer,
-                    .{ .errors = self.errors, .email = self.email },
+                    struct {
+                        errors: ?mantle.validation.RecordErrors(Session),
+                        email: []const u8,
+                    }{
+                        .errors = self.errors,
+                        .email = self.email,
+                    },
                 );
             }
+        }{
+            .email = form_data.get("email") orelse "",
+            .errors = errors,
         },
-        context.response.writer().any(),
-        .{ .email = form_data.get("email") orelse "", .errors = errors },
     );
 }
