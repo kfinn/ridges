@@ -19,6 +19,10 @@ pub const RidgesApp = mantle.App(.{
                 .name = "sessions",
                 .Controller = @import("controllers/sessions_controller.zig"),
             } },
+            .{ .resource = .{
+                .name = "current_user",
+                .Controller = @import("controllers/current_users_controller.zig"),
+            } },
         },
         .assets = &[_]type{@import("assets")},
     },

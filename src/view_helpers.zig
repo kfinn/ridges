@@ -3,7 +3,7 @@ const std = @import("std");
 const mantle = @import("mantle");
 
 pub fn writeLinkTo(writer: *std.Io.Writer, body: []const u8, url: []const u8) std.Io.Writer.Error!void {
-    try writer.print("<a href=\"{s}\">{s}</a>", .{ url, body });
+    try writer.print("<a class=\"text-blue-600 dark:text-blue-500 hover:underline\" href=\"{s}\">{s}</a>", .{ url, body });
 }
 
 pub fn writeFieldErrors(writer: *std.Io.Writer, errors: anytype, field: @TypeOf(errors).Field) std.Io.Writer.Error!void {
@@ -32,7 +32,17 @@ pub fn writeH1(writer: *std.Io.Writer, body: []const u8) std.Io.Writer.Error!voi
 }
 
 pub fn writeH2(writer: *std.Io.Writer, body: []const u8) std.Io.Writer.Error!void {
-    try writer.print("<h2 class=\"text-lg\">{s}</h1>", .{body});
+    try beginH2(writer);
+    try mantle.cgi_escape.writeEscapedHtml(writer, body);
+    try endH2(writer);
+}
+
+pub fn beginH2(writer: *std.Io.Writer) std.Io.Writer.Error!void {
+    try writer.writeAll("<h2 class=\"text-lg\">");
+}
+
+pub fn endH2(writer: *std.Io.Writer) std.Io.Writer.Error!void {
+    try writer.writeAll("</h2>");
 }
 
 pub fn beginUl(writer: *std.Io.Writer) std.Io.Writer.Error!void {
@@ -44,7 +54,7 @@ pub fn endUl(writer: *std.Io.Writer) std.Io.Writer.Error!void {
 }
 
 pub fn beginForm(writer: *std.Io.Writer) std.Io.Writer.Error!void {
-    try writer.writeAll("<form class=\"flex flex-col items-stretch space-y-2\" action=\".\" method=\"POST\">");
+    try writer.writeAll("<form class=\"flex flex-col items-stretch space-y-2\" method=\"POST\">");
 }
 
 pub fn endForm(writer: *std.Io.Writer) std.Io.Writer.Error!void {
@@ -56,7 +66,29 @@ pub const FieldOpts = struct {
     type: ?[]const u8 = null,
 };
 
-pub fn writeField(writer: *std.Io.Writer, value: ?[]const u8, errors: []mantle.validation.Error, comptime name: []const u8, opts: FieldOpts) !void {
+pub fn writeRecordField(
+    writer: *std.Io.Writer,
+    model: anytype,
+    errors: *mantle.validation.RecordErrors(@TypeOf(model)),
+    comptime name: std.meta.FieldEnum(@TypeOf(model)),
+    opts: FieldOpts,
+) !void {
+    try writeField(
+        writer,
+        @field(model, @tagName(name)),
+        errors.field_errors.get(name).items,
+        @tagName(name),
+        opts,
+    );
+}
+
+pub fn writeField(
+    writer: *std.Io.Writer,
+    value: ?[]const u8,
+    errors: []mantle.validation.Error,
+    comptime name: []const u8,
+    opts: FieldOpts,
+) !void {
     const title_case_field_name = comptime mantle.inflector.comptimeHumanize(name);
 
     try writer.writeAll("<label for=\"");

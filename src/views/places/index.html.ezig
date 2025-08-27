@@ -1,7 +1,6 @@
 <% const cgi_escape = @import("mantle").cgi_escape; %>
 <% const view_helpers = @import("app").view_helpers; %>
 
-<% try view_helpers.writeH1(writer, "Ridges"); %>
 <% try view_helpers.writeH2(writer, "Places"); %>
 
 <% try view_helpers.beginUl(writer); %>

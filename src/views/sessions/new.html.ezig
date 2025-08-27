@@ -1,7 +1,7 @@
 <% const view_helpers = @import("app").view_helpers; %>
 <% const mantle = @import("mantle"); %>
 
-<% try view_helpers.writeH1(writer, "Log in"); %>
+<% try view_helpers.writeH2(writer, "Log in"); %>
 <% try view_helpers.beginForm(writer); %>
   <%
     try view_helpers.writeField(

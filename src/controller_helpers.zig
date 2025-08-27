@@ -13,7 +13,7 @@ pub fn authenticateUser(self: *@This()) !?users.User {
             return user;
         }
     }
-    redirectTo(context, "/sessions/new");
+    self.redirectTo("/sessions/new");
     return null;
 }
 
