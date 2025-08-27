@@ -18,9 +18,7 @@ pub fn authenticatePassword(user: User, password: []const u8) bool {
     }
 }
 
-pub fn validate(allocator: std.mem.Allocator, record: anytype) !mantle.validation.RecordErrors(@TypeOf(record)) {
-    var errors = mantle.validation.RecordErrors(@TypeOf(record)).init(allocator);
-
+pub fn validate(record: anytype, errors: *mantle.validation.RecordErrors(@TypeOf(record))) !void {
     if (record.password_bcrypt.len == 0) {
         try errors.addFieldError(.password_bcrypt, .init(error.Required, "required"));
     }
@@ -31,9 +29,7 @@ pub fn validate(allocator: std.mem.Allocator, record: anytype) !mantle.validatio
         try errors.addFieldError(.email, .init(error.Required, "required"));
     }
 
-    try validateEmail(record, &errors);
-
-    return errors;
+    try validateEmail(record, errors);
 }
 
 fn validateEmail(record: anytype, errors: *mantle.validation.RecordErrors(@TypeOf(record))) !void {

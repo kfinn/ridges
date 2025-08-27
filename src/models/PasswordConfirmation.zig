@@ -21,9 +21,7 @@ pub fn fromFormData(form_data: anytype) @This() {
     );
 }
 
-pub fn validate(self: *const @This(), allocator: std.mem.Allocator) !Errors {
-    var errors = Errors.init(allocator);
-
+pub fn validate(self: *const @This(), errors: *Errors) !void {
     if (self.password == null) {
         try errors.addFieldError(.password, .init(error.Required, "required"));
     }
@@ -44,12 +42,12 @@ pub fn validate(self: *const @This(), allocator: std.mem.Allocator) !Errors {
             }
         }
     }
-
-    return errors;
 }
 
 pub fn toPasswordHash(self: *const @This(), allocator: std.mem.Allocator) ![]const u8 {
-    if ((try self.validate(allocator)).isInvalid()) {
+    var errors = Errors.init(allocator);
+    try self.validate(&errors);
+    if (errors.isInvalid()) {
         return error.RecordInvalid;
     }
 

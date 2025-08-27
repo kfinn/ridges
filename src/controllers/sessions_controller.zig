@@ -11,9 +11,7 @@ const Session = struct {
     email: ?[]const u8,
     password: ?[]const u8,
 
-    fn validate(self: *const @This(), allocator: std.mem.Allocator) !mantle.validation.RecordErrors(@This()) {
-        var errors = mantle.validation.RecordErrors(@This()).init(allocator);
-
+    fn validate(self: *const @This(), errors: *mantle.validation.RecordErrors(@This())) !void {
         if (self.email) |email| {
             if (email.len == 0) {
                 try errors.addFieldError(.email, .init(error.Required, "required"));
@@ -28,8 +26,6 @@ const Session = struct {
         } else {
             try errors.addFieldError(.email, .init(error.Required, "required"));
         }
-
-        return errors;
     }
 };
 
@@ -55,16 +51,15 @@ pub fn new(context: *Context) !void {
 
 pub fn create(context: *Context) !void {
     const form_data = try context.request.formData();
-    var errors = mantle.validation.RecordErrors(Session).init(context.response.arena);
+    var errors: mantle.validation.RecordErrors(Session) = .init(context.response.arena);
     if (mantle.form_data.parse(Session, form_data, mantle.form_data.empty_prefix)) |new_session| {
-        errors = try new_session.validate(context.response.arena);
+        try new_session.validate(&errors);
         if (errors.isValid()) {
             if (try context.repo.findBy(users, .{ .email = new_session.email.? })) |user| {
                 if (users.authenticatePassword(user, new_session.password.?)) {
                     context.session = .{ .user_id = user.id[0..16].* };
 
-                    context.response.status = 302;
-                    context.response.header("Location", "/current_user");
+                    context.helpers.redirectTo("/current_user");
                     return;
                 } else {
                     try errors.addFieldError(.password, .init(error.InvalidPassword, "invalid password"));
@@ -77,6 +72,7 @@ pub fn create(context: *Context) !void {
         errors.addBaseError(.init(err, "unknonwn error"));
     }
 
+    context.response.status = 422;
     var response_writer = context.response.writer();
     try ezig_templates.@"layouts/app_layout.html"(
         &response_writer.interface,

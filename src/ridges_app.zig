@@ -36,6 +36,7 @@ pub const RidgesApp = mantle.App(.{
     .tasks = &[_]type{
         @import("tasks/users.zig"),
     },
+    .controller_helpers = @import("controller_helpers.zig"),
 });
 
 pub fn init(allocator: std.mem.Allocator) !RidgesApp {
