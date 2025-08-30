@@ -27,8 +27,8 @@ pub const RidgesApp = mantle.App(.{
         .assets = &[_]type{@import("assets")},
     },
     .Session = struct {
-        user_id: [16]u8,
-        csrf_token: ?[32]u8 = null,
+        user_id: ?[16]u8 = null,
+        csrf_token: mantle.CsrfToken = .{},
 
         pub const key = "RidgesApp";
     },

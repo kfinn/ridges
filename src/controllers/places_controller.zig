@@ -4,6 +4,7 @@ const ezig_templates = @import("ezig_templates");
 const httpz = @import("httpz");
 const mantle = @import("mantle");
 
+const Point = @import("../models/Point.zig");
 const places = @import("../relations/places.zig");
 const Context = @import("../ridges_app.zig").RidgesApp.ControllerContext;
 
@@ -17,7 +18,7 @@ pub fn index(context: *Context) !void {
         struct {
             all_places: @TypeOf(all_places),
 
-            pub fn writeBody(self: *const @This(), writer: *std.Io.Writer) std.Io.Writer.Error!void {
+            pub fn writeBody(self: *const @This(), writer: *std.Io.Writer) !void {
                 try ezig_templates.@"places/index.html"(writer, struct {
                     all_places: @TypeOf(all_places),
                 }{

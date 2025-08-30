@@ -10,8 +10,8 @@ fn getContext(self: *@This()) *Context {
 pub fn authenticateUser(self: *@This()) !?mantle.Repo.relationResultType(users) {
     var context = self.getContext();
 
-    if (context.session) |session| {
-        if (context.repo.findBy(users, .{ .id = session.user_id })) |opt_user| {
+    if (context.session.user_id) |user_id| {
+        if (context.repo.findBy(users, .{ .id = user_id })) |opt_user| {
             if (opt_user) |user| {
                 return user;
             }

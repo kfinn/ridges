@@ -2,6 +2,7 @@
 <% const view_helpers = @import("app").view_helpers; %>
 
 <% try view_helpers.writeH2(writer, "Places"); %>
+<% try view_helpers.writeLinkTo(writer, "New", "/places/new"); %>
 
 <% try view_helpers.beginUl(writer); %>
   <% for (props.all_places) |place| { %>

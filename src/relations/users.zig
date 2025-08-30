@@ -2,6 +2,8 @@ const std = @import("std");
 
 const mantle = @import("mantle");
 
+const users = @This();
+
 pub const Attributes = struct {
     id: []const u8,
     name: []const u8,
@@ -9,20 +11,38 @@ pub const Attributes = struct {
     password_bcrypt: []const u8,
 };
 
-pub fn helpers(comptime Result: type, comptime field_name: []const u8) type {
-    return struct {
-        fn user(self: *const @This()) *const Result {
-            return @alignCast(@fieldParentPtr(field_name, self));
-        }
+pub const NewSession = struct {
+    email: []const u8 = "",
+    password: []const u8 = "",
+};
 
-        pub fn authenticatePassword(self: *const @This(), password: []const u8) bool {
-            if (std.crypto.pwhash.bcrypt.strVerify(self.user().attributes.password_bcrypt, password, .{ .silently_truncate_password = false })) {
-                return true;
-            } else |_| {
-                return false;
-            }
-        }
+const AuthenticateResult = union(enum) {
+    success: mantle.Repo.relationResultType(users),
+    failure: mantle.validation.RecordErrors(NewSession),
+};
+
+pub fn authenticate(allocator: std.mem.Allocator, repo: *mantle.Repo, new_session: NewSession) !AuthenticateResult {
+    var errors: mantle.validation.RecordErrors(NewSession) = .init(allocator);
+
+    if (new_session.email.len == 0) {
+        try errors.addFieldError(.email, .init(error.Required, "required"));
+    }
+    if (new_session.password.len == 0) {
+        try errors.addFieldError(.password, .init(error.Required, "required"));
+    }
+    if (errors.isInvalid()) return .{ .failure = errors };
+
+    const user = try repo.findBy(@This(), .{ .email = new_session.email }) orelse {
+        try errors.addFieldError(.email, .init(error.NotFound, "not found"));
+        return .{ .failure = errors };
     };
+
+    if (std.crypto.pwhash.bcrypt.strVerify(user.attributes.password_bcrypt, new_session.password, .{ .silently_truncate_password = false })) {
+        return .{ .success = user };
+    } else |_| {
+        try errors.addFieldError(.password, .init(error.InvalidPassword, "invalid"));
+        return .{ .failure = errors };
+    }
 }
 
 pub fn validate(self: anytype, errors: *mantle.validation.RecordErrors(@TypeOf(self))) !void {

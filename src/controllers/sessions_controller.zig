@@ -32,69 +32,57 @@ const Session = struct {
 pub fn new(context: *Context) !void {
     context.response.status = 200;
 
+    const session: users.NewSession = .{};
+    const form = mantle.forms.build(context, session, .{});
     var response_writer = context.response.writer();
     try ezig_templates.@"layouts/app_layout.html"(
         &response_writer.interface,
         struct {
-            pub fn writeBody(_: *const @This(), writer: *std.Io.Writer) std.Io.Writer.Error!void {
-                try ezig_templates.@"sessions/new.html"(
-                    writer,
-                    struct { email: []const u8, errors: ?mantle.validation.RecordErrors(Session) }{
-                        .email = "",
-                        .errors = null,
-                    },
-                );
-            }
-        }{},
-    );
-}
-
-pub fn create(context: *Context) !void {
-    const form_data = try context.request.formData();
-    var errors: mantle.validation.RecordErrors(Session) = .init(context.response.arena);
-    if (mantle.form_data.parse(Session, form_data, mantle.form_data.empty_prefix)) |new_session| {
-        try new_session.validate(&errors);
-        if (errors.isValid()) {
-            if (try context.repo.findBy(users, .{ .email = new_session.email.? })) |user| {
-                if (user.helpers.authenticatePassword(new_session.password.?)) {
-                    context.session = .{ .user_id = user.attributes.id[0..16].* };
-
-                    context.helpers.redirectTo("/current_user");
-                    return;
-                } else {
-                    try errors.addFieldError(.password, .init(error.InvalidPassword, "invalid password"));
-                }
-            } else {
-                try errors.addFieldError(.email, .init(error.NotFound, "not found"));
-            }
-        }
-    } else |err| {
-        errors.addBaseError(.init(err, "unknonwn error"));
-    }
-
-    context.response.status = 422;
-    var response_writer = context.response.writer();
-    try ezig_templates.@"layouts/app_layout.html"(
-        &response_writer.interface,
-        struct {
-            errors: mantle.validation.RecordErrors(Session),
-            email: []const u8,
+            form: @TypeOf(form),
 
             pub fn writeBody(self: *const @This(), writer: *std.Io.Writer) !void {
                 try ezig_templates.@"sessions/new.html"(
                     writer,
-                    struct {
-                        errors: ?mantle.validation.RecordErrors(Session),
-                        email: []const u8,
-                    }{
-                        .errors = self.errors,
-                        .email = self.email,
+                    struct { form: @TypeOf(form) }{
+                        .form = self.form,
                     },
                 );
             }
-        }{
-            .email = form_data.get("email") orelse "",
-            .errors = errors,
-        },
+        }{ .form = form },
     );
+}
+
+pub fn create(context: *Context) !void {
+    const session = try mantle.forms.formDataProtectedFromForgery(context, users.NewSession) orelse return;
+    switch (try users.authenticate(context.response.arena, &context.repo, session)) {
+        .success => {
+            context.helpers.redirectTo("/current_user");
+            return;
+        },
+        .failure => |errors| {
+            const form = mantle.forms.build(context, session, .{ .errors = errors });
+
+            context.response.status = 422;
+            var response_writer = context.response.writer();
+            try ezig_templates.@"layouts/app_layout.html"(
+                &response_writer.interface,
+                struct {
+                    form: @TypeOf(form),
+
+                    pub fn writeBody(self: *const @This(), writer: *std.Io.Writer) !void {
+                        try ezig_templates.@"sessions/new.html"(
+                            writer,
+                            struct {
+                                form: @TypeOf(form),
+                            }{
+                                .form = self.form,
+                            },
+                        );
+                    }
+                }{
+                    .form = form,
+                },
+            );
+        },
+    }
 }

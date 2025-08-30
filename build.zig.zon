@@ -16,12 +16,12 @@
             .hash = "tailwindcss-0.0.0-hvehw9sXAABOPTfEEIl_2MdZRUxr0ebN0GnM3XkDhYg8",
         },
         .ezig = .{
-            .url = "git+https://github.com/kfinn/ezig#0248034b3e0b2763aed48742d8cb1b6dffdf7a04",
-            .hash = "ezig-0.0.0-r1de5Zh3AAB0jV7TWCgsfCYr1Mk0irFIqctypBr3bkKn",
+            .url = "git+https://github.com/kfinn/ezig#d118c1ca1140d015b2304fdc93719619baed5d1e",
+            .hash = "ezig-0.0.0-r1de5YV3AAAIs9hBt6_TTjAU0GsvxPBA_AenMHBN0fh3",
         },
         .mantle = .{
-            .url = "git+https://github.com/kfinn/mantle#9797abbbe2f2cb8544de9f23caf8910b48081afc",
-            .hash = "mantle-0.0.0-d9oPsKpyAQBoTRBnzsUEinXUsMINYWpB0X51aNjnMsYU",
+            .url = "git+https://github.com/kfinn/mantle#755023a39492e800d52b3c5ad41ff3a618cffa2c",
+            .hash = "mantle-0.0.0-d9oPsEicAQDZEhNFQBpGlPvB6PmXTVbR24e2zQc3ou6-",
         },
     },
     .paths = .{

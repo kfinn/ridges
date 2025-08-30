@@ -1,30 +1,23 @@
 <% const view_helpers = @import("app").view_helpers; %>
-<% const mantle = @import("mantle"); %>
 
 <% try view_helpers.writeH2(writer, "Log in"); %>
-<% try view_helpers.beginForm(writer); %>
+<% try view_helpers.beginForm(writer, props.form); %>
   <%
-    try view_helpers.writeField(
+    try view_helpers.writeFormField(
       writer,
-      props.email,
-      if (props.errors) |errors| errors.field_errors.get(.email).items else &[_]mantle.validation.Error{},
-      "email",
-      .{ .autofocus = props.email.len == 0, .type = "email" }
+      props.form,
+      .email,
+      .{ .input = .{ .autofocus = props.form.model.email.len == 0, .type = "email" } },
     );
   %>
   <%
-    try view_helpers.writeField(
+    try view_helpers.writeFormField(
       writer,
-      "",
-      if (props.errors) |errors| errors.field_errors.get(.password).items else &[_]mantle.validation.Error{},
-      "password",
-      .{ .autofocus = props.email.len > 0, .type = "password"}
+      props.form,
+      .password,
+      .{ .input = .{ .autofocus = props.form.model.email.len > 0, .type = "password"} },
     );
   %>
-  <%
-    if (props.errors) |errors| {
-      try view_helpers.writeErrors(writer, errors.base_errors.items);
-    }
-  %>
+  <% try view_helpers.writeErrors(writer, props.form.errors.base_errors.items); %>
   <% try view_helpers.writeSubmit(writer, "Log In"); %>
-<% try view_helpers.endForm(writer); %>
+<% try view_helpers.endForm(writer, props.form); %>

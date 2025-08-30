@@ -11,12 +11,16 @@ pub const Attributes = struct {
 
 pub fn helpers(comptime Result: type, comptime field_name: []const u8) type {
     return struct {
-        fn place(self: *const @This()) *const Result {
+        fn constPlace(self: *const @This()) *const Result {
+            return @alignCast(@fieldParentPtr(field_name, self));
+        }
+
+        fn mutablePlace(self: *@This()) *Result {
             return @alignCast(@fieldParentPtr(field_name, self));
         }
 
         pub fn point(self: *const @This()) Point {
-            return .fromEwkbPoint(self.place().attributes.location);
+            return .fromEwkbPoint(self.constPlace().attributes.location);
         }
     };
 }
