@@ -28,14 +28,34 @@ pub fn @"users:create"(cli: anytype, args: *std.process.ArgIterator) !void {
 
     const repo = mantle.Repo.init(cli.allocator, conn);
 
-    const user = try repo.create(users, .{
+    switch (try repo.create(users, .{
         .name = name,
         .email = email,
         .password_bcrypt = password_bcrypt,
-    });
-    var std_out = std.fs.File.stdout();
-    var std_out_buffer: [1024]u8 = undefined;
-    var std_out_writer = std_out.writer(&std_out_buffer);
-    try std_out_writer.interface.print("Created user {s} with password: {s}\n", .{ user.email, &password_hex });
-    try std_out_writer.interface.flush();
+    })) {
+        .success => |user| {
+            var std_out = std.fs.File.stdout();
+            var std_out_buffer: [1024]u8 = undefined;
+            var std_out_writer = std_out.writer(&std_out_buffer);
+            try std_out_writer.interface.print("Created user {s} with password: {s}\n", .{ user.attributes.email, &password_hex });
+            try std_out_writer.interface.flush();
+        },
+        .failure => |errors| {
+            var std_err = std.fs.File.stderr();
+            var std_err_buffer: [1024]u8 = undefined;
+            var std_err_writer = std_err.writer(&std_err_buffer);
+
+            var fields_errors = errors.field_errors;
+            var iterator = fields_errors.iterator();
+            while (iterator.next()) |field_errors| {
+                for (field_errors.value.items) |field_error| {
+                    try std_err_writer.interface.print("Error: {s} {s} ({s})\n", .{ @tagName(field_errors.key), field_error.description, @errorName(field_error.err) });
+                }
+            }
+            for (errors.base_errors.items) |base_error| {
+                try std_err_writer.interface.print("Error: {s} ({s})\n", .{ base_error.description, @errorName(base_error.err) });
+            }
+            try std_err_writer.interface.flush();
+        },
+    }
 }

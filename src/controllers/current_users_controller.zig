@@ -12,12 +12,12 @@ pub fn show(context: *Context) !void {
         try ezig_templates.@"layouts/app_layout.html"(
             &response_writer.interface,
             struct {
-                user: users.User,
+                user: @TypeOf(user),
 
                 pub fn writeBody(self: *const @This(), writer: *std.Io.Writer) std.Io.Writer.Error!void {
                     try ezig_templates.@"current_users/show.html"(
                         writer,
-                        struct { user: users.User }{ .user = self.user },
+                        struct { user: @TypeOf(user) }{ .user = self.user },
                     );
                 }
             }{ .user = user },
@@ -27,20 +27,20 @@ pub fn show(context: *Context) !void {
 
 pub fn edit(context: *Context) !void {
     if (try context.helpers.authenticateUser()) |user| {
-        var errors: mantle.validation.RecordErrors(users.User) = .init(context.request.arena);
+        var errors: mantle.validation.RecordErrors(@TypeOf(user.attributes)) = .init(context.request.arena);
         var response_writer = context.response.writer();
         try ezig_templates.@"layouts/app_layout.html"(
             &response_writer.interface,
             struct {
-                user: users.User,
-                errors: *mantle.validation.RecordErrors(users.User),
+                user: @TypeOf(user),
+                errors: *const mantle.validation.RecordErrors(@TypeOf(user.attributes)),
 
                 pub fn writeBody(self: *const @This(), writer: *std.Io.Writer) std.Io.Writer.Error!void {
                     try ezig_templates.@"current_users/edit.html"(
                         writer,
                         struct {
-                            user: users.User,
-                            errors: *mantle.validation.RecordErrors(users.User),
+                            user: @TypeOf(user),
+                            errors: *const mantle.validation.RecordErrors(@TypeOf(user.attributes)),
                         }{
                             .user = self.user,
                             .errors = self.errors,
@@ -61,48 +61,46 @@ const UserUpdate = struct {
 };
 
 pub fn update(context: *Context) !void {
-    if (try context.helpers.authenticateUser()) |user| {
-        var updated_user = user;
-        const form_data = try context.request.formData();
-        var errors: mantle.validation.RecordErrors(users.User) = .init(context.response.arena);
-        if (mantle.form_data.parse(UserUpdate, form_data, mantle.form_data.empty_prefix)) |user_update| {
-            updated_user.name = user_update.name;
-            updated_user.email = user_update.email;
-            if (context.repo.update(users, updated_user)) |_| {
+    var user = try context.helpers.authenticateUser() orelse return;
+    var errors: mantle.validation.RecordErrors(@TypeOf(user.attributes)) = undefined;
+    if (mantle.form_data.parse(UserUpdate, try context.request.formData(), mantle.form_data.empty_prefix)) |user_update| {
+        switch (try context.repo.update(users, user, user_update)) {
+            .success => |_| {
                 context.helpers.redirectTo("/current_user");
                 return;
-            } else |err| {
-                std.log.info("error: {any}", .{err});
-                try users.validate(updated_user, &errors);
-                try errors.addBaseError(.init(err, "something went wrong"));
-            }
-        } else |err| {
-            try errors.addBaseError(.init(err, "unknown error"));
-        }
-
-        var response_writer = context.response.writer();
-        try ezig_templates.@"layouts/app_layout.html"(
-            &response_writer.interface,
-            struct {
-                user: users.User,
-                errors: *mantle.validation.RecordErrors(users.User),
-
-                pub fn writeBody(self: *const @This(), writer: *std.Io.Writer) std.Io.Writer.Error!void {
-                    try ezig_templates.@"current_users/edit.html"(
-                        writer,
-                        struct {
-                            user: users.User,
-                            errors: *mantle.validation.RecordErrors(users.User),
-                        }{
-                            .user = self.user,
-                            .errors = self.errors,
-                        },
-                    );
-                }
-            }{
-                .user = updated_user,
-                .errors = &errors,
             },
-        );
+            .failure => |failure| {
+                errors = failure.errors;
+                user = failure.record;
+            },
+        }
+    } else |err| {
+        errors = .init(context.response.arena);
+        try errors.addBaseError(.init(err, "unknown error"));
     }
+
+    var response_writer = context.response.writer();
+    try ezig_templates.@"layouts/app_layout.html"(
+        &response_writer.interface,
+        struct {
+            user: @TypeOf(user),
+            errors: *const mantle.validation.RecordErrors(@TypeOf(user.attributes)),
+
+            pub fn writeBody(self: *const @This(), writer: *std.Io.Writer) std.Io.Writer.Error!void {
+                try ezig_templates.@"current_users/edit.html"(
+                    writer,
+                    struct {
+                        user: @TypeOf(user),
+                        errors: *const mantle.validation.RecordErrors(@TypeOf(user.attributes)),
+                    }{
+                        .user = self.user,
+                        .errors = self.errors,
+                    },
+                );
+            }
+        }{
+            .user = user,
+            .errors = &errors,
+        },
+    );
 }

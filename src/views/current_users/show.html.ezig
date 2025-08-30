@@ -8,9 +8,9 @@
 
 <dl>
   <dt>Name</dt>
-  <dd><% try cgi_escape.writeEscapedHtml(writer, props.user.name); %></dd>
+  <dd><% try cgi_escape.writeEscapedHtml(writer, props.user.attributes.name); %></dd>
 
   <dt>Email</dt>
-  <dd><% try cgi_escape.writeEscapedHtml(writer, props.user.email); %></dd>
+  <dd><% try cgi_escape.writeEscapedHtml(writer, props.user.attributes.email); %></dd>
 </dl>
 

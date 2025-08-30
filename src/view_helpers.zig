@@ -69,7 +69,7 @@ pub const FieldOpts = struct {
 pub fn writeRecordField(
     writer: *std.Io.Writer,
     model: anytype,
-    errors: *mantle.validation.RecordErrors(@TypeOf(model)),
+    errors: *const mantle.validation.RecordErrors(@TypeOf(model)),
     comptime name: std.meta.FieldEnum(@TypeOf(model)),
     opts: FieldOpts,
 ) !void {

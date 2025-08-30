@@ -56,8 +56,8 @@ pub fn create(context: *Context) !void {
         try new_session.validate(&errors);
         if (errors.isValid()) {
             if (try context.repo.findBy(users, .{ .email = new_session.email.? })) |user| {
-                if (users.authenticatePassword(user, new_session.password.?)) {
-                    context.session = .{ .user_id = user.id[0..16].* };
+                if (user.helpers.authenticatePassword(new_session.password.?)) {
+                    context.session = .{ .user_id = user.attributes.id[0..16].* };
 
                     context.helpers.redirectTo("/current_user");
                     return;

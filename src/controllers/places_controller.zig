@@ -15,10 +15,14 @@ pub fn index(context: *Context) !void {
     try ezig_templates.@"layouts/app_layout.html"(
         &response_writer.interface,
         struct {
-            all_places: []places.Place,
+            all_places: @TypeOf(all_places),
 
             pub fn writeBody(self: *const @This(), writer: *std.Io.Writer) std.Io.Writer.Error!void {
-                try ezig_templates.@"places/index.html"(writer, struct { all_places: []places.Place }{ .all_places = self.all_places });
+                try ezig_templates.@"places/index.html"(writer, struct {
+                    all_places: @TypeOf(all_places),
+                }{
+                    .all_places = self.all_places,
+                });
             }
         }{ .all_places = all_places },
     );

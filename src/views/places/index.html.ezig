@@ -6,9 +6,9 @@
 <% try view_helpers.beginUl(writer); %>
   <% for (props.all_places) |place| { %>
     <li>
-      <% try cgi_escape.writeEscapedHtml(writer, place.name); %>:
+      <% try cgi_escape.writeEscapedHtml(writer, place.attributes.name); %>:
       <span class="font-mono">
-        <% const point = place.point(); %>
+        <% const point = place.helpers.point(); %>
         <%{d}= point.longitude %> <%{d}= point.latitude %>
       </span>
     </li>
