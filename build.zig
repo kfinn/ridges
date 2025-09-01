@@ -1,7 +1,8 @@
 const std = @import("std");
+
 const ezig = @import("ezig");
-const tailwindcss = @import("tailwindcss");
 const mantle = @import("mantle");
+const tailwindcss = @import("tailwindcss");
 
 pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
@@ -38,6 +39,11 @@ pub fn build(b: *std.Build) void {
     const collect_assets_step = b.addWriteFiles();
     _ = collect_assets_step.addCopyFile(tailwindcss_step.output_file, "tailwind/tailwind.css");
     _ = collect_assets_step.addCopyDirectory(b.path("assets"), ".", .{});
+    _ = collect_assets_step.addCopyDirectory(
+        b.path("js"),
+        ".",
+        .{ .exclude_extensions = &[_][]const u8{"jsconfig.json"} },
+    );
 
     const assets_mod = mantle.addAssetsImport(exe_mod, .{ .path = collect_assets_step.getDirectory() });
 

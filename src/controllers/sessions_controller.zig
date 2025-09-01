@@ -43,9 +43,7 @@ pub fn new(context: *Context) !void {
             pub fn writeBody(self: *const @This(), writer: *std.Io.Writer) !void {
                 try ezig_templates.@"sessions/new.html"(
                     writer,
-                    struct { form: @TypeOf(form) }{
-                        .form = self.form,
-                    },
+                    .{ .form = self.form },
                 );
             }
         }{ .form = form },
@@ -72,11 +70,7 @@ pub fn create(context: *Context) !void {
                     pub fn writeBody(self: *const @This(), writer: *std.Io.Writer) !void {
                         try ezig_templates.@"sessions/new.html"(
                             writer,
-                            struct {
-                                form: @TypeOf(form),
-                            }{
-                                .form = self.form,
-                            },
+                            .{ .form = self.form },
                         );
                     }
                 }{

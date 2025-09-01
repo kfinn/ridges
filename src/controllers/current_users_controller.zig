@@ -17,7 +17,7 @@ pub fn show(context: *Context) !void {
                 pub fn writeBody(self: *const @This(), writer: *std.Io.Writer) !void {
                     try ezig_templates.@"current_users/show.html"(
                         writer,
-                        struct { user: @TypeOf(user) }{ .user = self.user },
+                        .{ .user = self.user },
                     );
                 }
             }{ .user = user },
@@ -43,16 +43,10 @@ pub fn edit(context: *Context) !void {
             pub fn writeBody(self: *const @This(), writer: *std.Io.Writer) !void {
                 try ezig_templates.@"current_users/edit.html"(
                     writer,
-                    struct {
-                        form: @TypeOf(form),
-                    }{
-                        .form = self.form,
-                    },
+                    .{ .form = self.form },
                 );
             }
-        }{
-            .form = form,
-        },
+        }{ .form = form },
     );
 }
 
@@ -80,11 +74,7 @@ pub fn update(context: *Context) !void {
                     pub fn writeBody(self: *const @This(), writer: *std.Io.Writer) !void {
                         try ezig_templates.@"current_users/edit.html"(
                             writer,
-                            struct {
-                                form: @TypeOf(form),
-                            }{
-                                .form = self.form,
-                            },
+                            .{ .form = self.form },
                         );
                     }
                 }{

@@ -1,0 +1,35 @@
+<% const view_helpers = @import("app").view_helpers; %>
+<% const mantle = @import("mantle"); %>
+
+<% try view_helpers.beginH2(writer); %>
+  <% try view_helpers.writeLinkTo(writer, "Places", "/places"); %>
+  &gt;
+  New
+<% try view_helpers.endH2(writer); %>
+
+<% try view_helpers.beginForm(writer, props.form); %>
+  <% try view_helpers.writeFormField(writer, props.form, .name, .{ .input= .{ .autofocus = true }}); %>
+  <% try view_helpers.writeFormField(writer, props.form, .description, .{}); %>
+  <% const location_fields = props.form.fields(.location); %>
+  <div
+    class="flex flex-col items-stretch space-y-2"
+    data-react-component-name="LocationField"
+    data-react-component-props="<%
+      var escaped_html_attribute_writer: mantle.cgi_escape.EscapedHtmlAttributeWriter = .init(writer);
+      var json: std.json.Stringify = .{ .writer = &escaped_html_attribute_writer.interface };
+      try json.beginObject();
+      try json.objectField("longitude");
+      try json.write(std.fmt.parseFloat(f64, location_fields.model.longitude) catch 0);
+      try json.objectField("latitude");
+      try json.write(std.fmt.parseFloat(f64, location_fields.model.latitude) catch 0);
+      try json.endObject();
+      try escaped_html_attribute_writer.interface.flush();
+    %>"
+  >
+    <% try view_helpers.writeFormField(writer, location_fields, .latitude, .{ .label = .{ .name = "latitude" }, .input = .{ .type = "number" } } ); %>
+    <% try view_helpers.writeFormField(writer, location_fields, .longitude, .{ . label = .{ .name = "longitude" }, .input = .{ .type = "number" } }); %>
+  </div>
+  <% try view_helpers.writeErrors(writer, props.form.errors.field_errors.get(.location).items); %>
+  <% try view_helpers.writeErrors(writer, props.form.errors.base_errors.items); %>
+  <% try view_helpers.writeSubmit(writer, "Create"); %>
+<% try view_helpers.endForm(writer, props.form); %>

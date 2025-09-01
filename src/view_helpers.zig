@@ -58,14 +58,23 @@ pub fn endForm(writer: *std.Io.Writer, form: anytype) !void {
 pub const field_options: mantle_view_helpers.FieldOptions = .{
     .label = label_options,
     .input = input_options,
+    .errors = errors_options,
 };
 const label_options: mantle_view_helpers.LabelOptions = .{ .class = "flex flex-col items-stretch space-y-1" };
 const input_options: mantle_view_helpers.InputOptions = .{ .class = "rounded outline-1 focus:outline-2 outline-gray-300 dark:outline-gray-600" };
 
-pub fn writeFormField(writer: *std.Io.Writer, form: anytype, comptime name: std.meta.FieldEnum(@TypeOf(form.model)), options: mantle_view_helpers.FieldOptions) !void {
+pub fn writeFormField(
+    writer: *std.Io.Writer,
+    form: anytype,
+    comptime name: anytype,
+    options: mantle_view_helpers.FieldOptions,
+) !void {
     var merged_options: mantle_view_helpers.FieldOptions = field_options;
     if (options.label.class) |label_options_class_override| {
         merged_options.label.class = label_options_class_override;
+    }
+    if (options.label.name) |label_options_class_override| {
+        merged_options.label.name = label_options_class_override;
     }
     if (options.input.autofocus) |input_options_autofocus_override| {
         merged_options.input.autofocus = input_options_autofocus_override;
