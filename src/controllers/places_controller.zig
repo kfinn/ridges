@@ -28,32 +28,33 @@ pub fn index(context: *Context) !void {
 }
 
 const NewPlace = struct {
+    const NewPlaceSelf = @This();
+    const Location = struct {
+        longitude: []const u8,
+        latitude: []const u8,
+    };
+
     name: []const u8 = "",
     description: []const u8 = "",
-    location: struct {
-        longitude: []const u8 = "-73.9029527",
-        latitude: []const u8 = "40.7014435",
-    } = .{},
+    location: Location = .{
+        .longitude = "-73.9029527",
+        .latitude = "40.7014435",
+    },
 
-    pub const cast_fields: []const std.meta.FieldEnum(places.Attributes) = &[_]std.meta.FieldEnum(places.Attributes){.location};
-
-    pub fn castField(self: *const @This(), comptime field: std.meta.FieldEnum(places.Attributes), repo: *const mantle.Repo, errors: *mantle.validation.RecordErrors((@This()))) !mantle.Repo.CastResult(places, field) {
-        std.debug.assert(field == .location);
-
-        var point: Point = undefined;
-        point.latitude = std.fmt.parseFloat(f64, self.location.latitude) catch |err| {
-            try errors.addFieldError(.location, .init(err, "invalid"));
-            return .{ .failure = {} };
-        };
-        point.longitude = std.fmt.parseFloat(f64, self.location.longitude) catch |err| {
-            try errors.addFieldError(.location, .init(err, "invalid"));
-            return .{ .failure = {} };
-        };
-
-        var location_writer: std.Io.Writer.Allocating = .init(repo.allocator);
-        try point.writeStringEncodedGeography(&location_writer.writer);
-        return .{ .success = try location_writer.toOwnedSlice() };
-    }
+    pub const casts = struct {
+        pub fn location(new_place: NewPlaceSelf, repo: *const mantle.Repo, errors: *mantle.validation.RecordErrors(NewPlaceSelf)) !mantle.Repo.CastResult(Point) {
+            _ = repo;
+            const latitude = std.fmt.parseFloat(f64, new_place.location.latitude) catch |err| {
+                try errors.addFieldError(.location, .init(err, "invalid"));
+                return .{ .failure = {} };
+            };
+            const longitude = std.fmt.parseFloat(f64, new_place.location.longitude) catch |err| {
+                try errors.addFieldError(.location, .init(err, "invalid"));
+                return .{ .failure = {} };
+            };
+            return .{ .success = .{ .latitude = latitude, .longitude = longitude } };
+        }
+    };
 
     pub fn errorsAfterCast(_: *const @This(), errors_after_cast: anytype, errors: *mantle.validation.RecordErrors(@This())) !void {
         for (errors_after_cast.base_errors.items) |base_error_after_cast| {
@@ -95,9 +96,6 @@ pub fn new(context: *Context) !void {
 pub fn create(context: *Context) !void {
     const place = try mantle.forms.formDataProtectedFromForgery(context, NewPlace) orelse return;
     switch (context.repo.create(places, place) catch |err| {
-        if (context.repo.conn.err) |pg_err| {
-            std.log.info("pg stuff {s}", .{pg_err.message});
-        }
         return err;
     }) {
         .success => |_| {

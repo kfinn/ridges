@@ -31,9 +31,6 @@ const wkb_ndr = 1; // Little Endian
 const wkb_type_point_s = 0x20000001; // WWKB 2D point with SRID
 
 pub fn fromEwkbPoint(raw_bytes: []const u8) @This() {
-    std.log.info("ewkb: {any}", .{raw_bytes});
-    std.log.info("ewkb: {x}", .{raw_bytes});
-
     std.debug.assert(raw_bytes.len == total_len);
 
     const raw_endian = raw_bytes[endian_start_index];
@@ -59,10 +56,6 @@ pub fn fromEwkbPoint(raw_bytes: []const u8) @This() {
             endian,
         )),
     };
-}
-
-pub fn writeStringEncodedGeography(self: *const @This(), writer: *std.Io.Writer) !void {
-    try writer.print("SRID=4326;POINT({d} {d})", .{ self.longitude, self.latitude });
 }
 
 pub fn toEwkbPoint(self: *const @This()) [total_len]u8 {

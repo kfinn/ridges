@@ -4,8 +4,8 @@
     .fingerprint = 0x4b501ac07458ca30,
     .dependencies = .{
         .pg = .{
-            .url = "git+https://github.com/karlseguin/pg.zig#4c2602bad095f9d85b16711d12aa3a2bc7e169cc",
-            .hash = "pg-0.0.0-Wp_7gQ8FBgCRArfpYn9OdkUhGOUHVRXxB6h9S6lYu7bC",
+            .url = "git+https://github.com/kfinn/pg.zig?ref=kfinn/master/expose-binary-type#8c3552cc1bf12be6ee639158df3c2e77d058bb9f",
+            .hash = "pg-0.0.0-Wp_7gfoJBgDfkQBaWRTwjYcTdNyS8UHRDmMTs4NuSmxY",
         },
         .httpz = .{
             .url = "git+https://github.com/karlseguin/http.zig#90e7fc07ef7157a4da6922571fb4daef38b48998",

@@ -35,7 +35,6 @@ pub const RidgesApp = mantle.App(.{
     .migrations = &[_]type{
         @import("db/migrations/create_users.zig"),
         @import("db/migrations/create_places.zig"),
-        @import("db/migrations/create_invitations.zig"),
     },
     .tasks = &[_]type{
         @import("tasks/users.zig"),

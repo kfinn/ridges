@@ -9,8 +9,7 @@
     <li>
       <% try cgi_escape.writeEscapedHtml(writer, place.attributes.name); %>:
       <span class="font-mono">
-        <% const point = place.helpers.point(); %>
-        <%{d}= point.longitude %> <%{d}= point.latitude %>
+        <%{d}= place.attributes.location.longitude %> <%{d}= place.attributes.location.latitude %>
       </span>
     </li>
   <% } %>
