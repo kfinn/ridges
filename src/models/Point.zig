@@ -2,6 +2,9 @@
 
 const std = @import("std");
 
+const mantle = @import("mantle");
+const pg = @import("pg");
+
 latitude: f64,
 longitude: f64,
 
@@ -66,4 +69,15 @@ pub fn toEwkbPoint(self: *const @This()) [total_len]u8 {
     std.mem.writeInt(u64, result[latitude_start_index..(latitude_start_index + latitude_len)], @bitCast(self.latitude), .big);
     std.mem.writeInt(u64, result[longitude_start_index..(longitude_start_index + longitude_len)], @bitCast(self.longitude), .big);
     return result;
+}
+
+pub fn castFromDb(db_point: []const u8, _: anytype) !@This() {
+    return fromEwkbPoint(db_point);
+}
+
+pub fn castToDb(self: *const @This(), repo: *const mantle.Repo) !pg.Binary {
+    const result = try repo.allocator.alloc(u8, total_len);
+    const ewkb_point = self.toEwkbPoint();
+    @memcpy(result, &ewkb_point);
+    return .{ .data = result };
 }

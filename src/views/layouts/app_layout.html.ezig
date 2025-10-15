@@ -32,8 +32,16 @@
     </script>
     <script type="module">import "application"</script>
   </head>
-  <body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100">
-    <% try view_helpers.writeH1(writer, "Ridges"); %>
-    <% try props.writeBody(writer); %>
+  <body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 lex flex-col justify-stretch w-screen">
+    <%
+      try view_helpers.writeH1(
+        writer,
+        "Ridges",
+        .{ .class = (view_helpers.h1_options.class orelse "") ++ " bg-green-600 dark:bg-green-300 text-gray-50 dark:text-gray-900 px-8 py-4" },
+      );
+    %>
+    <div class="my-4 flex flex-col md:max-w-xl mx-8 justify-self-center">
+      <% try props.writeBody(writer); %>
+    </div>
   </body>
 </html>
