@@ -1,6 +1,6 @@
 <% const assets = @import("assets"); %>
 <% const view_helpers = @import("app").view_helpers; %>
-
+<!DOCTYPE html>
 <html>
   <head>
     <title>
@@ -15,21 +15,21 @@
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
     <link rel="stylesheet" href="<%= assets.@"tailwind/tailwind.css" %>" />
     <link rel="stylesheet" href="https://esm.sh/maplibre-gl@^5.7.0/dist/maplibre-gl.css" />
-    <%= assets.import_map_tag %>
-    <script type="importmap">
-      {
-        "imports": {
-          "react": "https://esm.sh/react@^19.1.1",
-          "react-dom": "https://esm.sh/react-dom@^19.1.1",
-          "react-dom/": "https://esm.sh/react-dom@^19.1.1/",
-          "htm": "https://esm.sh/*htm@^3.1.1",
-          "htm/": "https://esm.sh/*htm@^3.1.1/",
-          "maplibre-gl": "https://esm.sh/maplibre-gl@^5.7.0",
-          "react-map-gl": "https://esm.sh/react-map-gl@^8.0.4?deps=react@^19.1.1,react-dom@19.1.1",
-          "react-map-gl/": "https://esm.sh/react-map-gl@^8.0.4&deps=react@^19.1.1,react-dom@19.1.1/"
-        }
-      }
-    </script>
+    <%
+      const mantle = @import("mantle");
+      var import_map = mantle.ImportMap.init(writer);
+      try import_map.begin();
+      try import_map.writeEntries(assets.import_map_entries);
+      try import_map.writeEntry(.init("react", "https://esm.sh/react@^19.1.1"));
+      try import_map.writeEntry(.init("react-dom", "https://esm.sh/react-dom@^19.1.1"));
+      try import_map.writeEntry(.init("react-dom/", "https://esm.sh/react-dom@^19.1.1/"));
+      try import_map.writeEntry(.init("htm", "https://esm.sh/*htm@^3.1.1"));
+      try import_map.writeEntry(.init("htm/", "https://esm.sh/*htm@^3.1.1/"));
+      try import_map.writeEntry(.init("maplibre-gl", "https://esm.sh/maplibre-gl@^5.7.0"));
+      try import_map.writeEntry(.init("react-map-gl", "https://esm.sh/react-map-gl@^8.0.4?deps=react@^19.1.1,react-dom@19.1.1"));
+      try import_map.writeEntry(.init("react-map-gl/", "https://esm.sh/react-map-gl@^8.0.4&deps=react@^19.1.1,react-dom@19.1.1/"));
+      try import_map.end();
+    %>
     <script type="module">import "application"</script>
   </head>
   <body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 lex flex-col justify-stretch w-screen">
