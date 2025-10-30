@@ -71,6 +71,36 @@ pub fn toEwkbPoint(self: *const @This()) [total_len]u8 {
     return result;
 }
 
+pub fn castFromInput(input_point: anytype) !mantle.Repo.CastResult(@This()) {
+    comptime {
+        const InputPoint = @TypeOf(input_point);
+        var has_valid_latitude_field = false;
+        var has_valid_longitude_field = false;
+        for (std.meta.fields(InputPoint)) |field| {
+            if (std.mem.eql(u8, field.name, "longitude")) {
+                if (field.type == []const u8) {
+                    has_valid_longitude_field = true;
+                }
+            }
+            if (std.mem.eql(u8, field.name, "latitude")) {
+                if (field.type == []const u8) {
+                    has_valid_latitude_field = true;
+                }
+            }
+        }
+        if (!has_valid_latitude_field or !has_valid_longitude_field) {
+            @compileError("unable to cast " ++ @typeName(InputPoint) ++ " to Point");
+        }
+    }
+
+    return .{
+        .success = .{
+            .latitude = try std.fmt.parseFloat(f64, input_point.latitude),
+            .longitude = try std.fmt.parseFloat(f64, input_point.longitude),
+        },
+    };
+}
+
 pub fn castFromDb(db_point: []const u8, _: anytype) !@This() {
     return fromEwkbPoint(db_point);
 }

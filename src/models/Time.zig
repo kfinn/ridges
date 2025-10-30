@@ -44,6 +44,18 @@ pub fn parseHtmlTimeInputValue(html_time_input_value: []const u8) !@This() {
     return .{ .microseconds = parsed_microseconds };
 }
 
+pub fn castFromInput(input_time: []const u8) !mantle.Repo.CastResult(@This()) {
+    if (parseHtmlTimeInputValue(input_time)) |time| {
+        return .{ .success = time };
+    } else |err| {
+        return .{ .failure = .init(err, "unable to parse Time") };
+    }
+}
+
+pub fn isOptionalInputPresent(optional_input_time: []const u8) !bool {
+    return optional_input_time.len > 0;
+}
+
 pub fn castFromDb(db_time: []const u8, _: anytype) !@This() {
     return .{ .microseconds = std.mem.readInt(i64, db_time[0..8], .big) };
 }

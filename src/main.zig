@@ -16,6 +16,6 @@ pub fn main() !void {
     try mantle.cli.main(
         allocator,
         &app,
-        .{ .port = 5882, .request = .{ .max_form_count = 10 } },
+        .{ .port = 5882, .request = .{ .max_form_count = 1024 } },
     );
 }

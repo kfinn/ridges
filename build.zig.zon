@@ -20,8 +20,8 @@
             .hash = "ezig-0.0.0-r1de5YV3AAAIs9hBt6_TTjAU0GsvxPBA_AenMHBN0fh3",
         },
         .mantle = .{
-            .url = "../mantle",
-            .hash = "mantle-0.0.0-d9oPsB8EAgCmlAMwagULn_bkvU4XYuLdDcC8veU1yG3w",
+            .url = "git+https://github.com/kfinn/mantle?ref=kfinn/main/wip-casting#089cf310f61efb4165624483a24f0f09e0c77650",
+            .hash = "mantle-0.0.0-d9oPsPMEAgCxABYwuqoPTL_VF1b5sS3Dqs6Pn6Kcnz78",
         },
     },
     .paths = .{
