@@ -47,6 +47,10 @@ pub fn init(allocator: std.mem.Allocator) !RidgesApp {
         allocator,
         .{
             .db = .{
+                .connect = .{
+                    .host = "db",
+                    .port = 5432,
+                },
                 .auth = .{
                     .username = "ridges",
                     .password = "password",

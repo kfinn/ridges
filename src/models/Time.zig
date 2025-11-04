@@ -7,12 +7,32 @@ microseconds: i64,
 
 pub fn writeHtmlTimeInputValue(self: *const @This(), writer: *std.Io.Writer) !void {
     const total_seconds = @divFloor(self.microseconds, 1000000);
-    const seconds = total_seconds % 60;
+    const seconds = @mod(total_seconds, 60);
     const total_minutes = @divFloor(total_seconds, 60);
-    const minutes = total_minutes % 60;
+    const minutes = @mod(total_minutes, 60);
     const hours = @divFloor(total_minutes, 60);
 
-    try writer.print("{d:0>2}:{d:0>2}:{d:0>2}", .{ hours, minutes, seconds });
+    if (hours > 10) {
+        try writer.print("{d}", .{hours});
+    } else {
+        try writer.print("0{d}", .{hours});
+    }
+    try writer.writeByte(':');
+    if (minutes > 10) {
+        try writer.print("{d}", .{minutes});
+    } else {
+        try writer.print("0{d}", .{minutes});
+    }
+    try writer.writeByte(':');
+    if (seconds > 10) {
+        try writer.print("{d}", .{seconds});
+    } else {
+        try writer.print("0{d}", .{seconds});
+    }
+}
+
+pub fn format(self: *const @This(), writer: *std.Io.Writer) std.Io.Writer.Error!void {
+    try self.writeHtmlTimeInputValue(writer);
 }
 
 pub fn parseHtmlTimeInputValue(html_time_input_value: []const u8) !@This() {
@@ -44,7 +64,7 @@ pub fn parseHtmlTimeInputValue(html_time_input_value: []const u8) !@This() {
     return .{ .microseconds = parsed_microseconds };
 }
 
-pub fn castFromInput(input_time: []const u8) !mantle.Repo.CastResult(@This()) {
+pub fn castFromInput(input_time: []const u8, _: *const mantle.Repo) !mantle.Repo.CastResult(@This()) {
     if (parseHtmlTimeInputValue(input_time)) |time| {
         return .{ .success = time };
     } else |err| {

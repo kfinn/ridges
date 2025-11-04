@@ -5,7 +5,7 @@ pub const version: i64 = 1755020262855;
 
 pub fn up(app: anytype, conn: *pg.Conn) !void {
     _ = app;
-    _ = try conn.exec("CREATE EXTENSION postgis;", .{});
+    _ = try conn.exec("CREATE EXTENSION IF NOT EXISTS postgis;", .{});
     _ = try conn.exec(
         \\CREATE TABLE places (
         \\  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
