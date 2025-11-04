@@ -1,6 +1,6 @@
 import Field from "components/field";
 import { html } from "htm/react";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Map, { Marker } from "react-map-gl/maplibre";
 
 export default function LocationField(props) {
@@ -22,6 +22,16 @@ export default function LocationField(props) {
     },
     [setLongitude, setLatitude]
   );
+  const mapRef = useRef();
+  useEffect(() => {
+    if (!mapRef.current) return;
+
+    const bounds = mapRef.current.getBounds();
+    const lngLat = [longitude, latitude];
+    if (!bounds.contains(lngLat)) {
+      mapRef.current.easeTo({ center: lngLat });
+    }
+  }, [latitude, longitude]);
 
   return html`<div className="flex justify-stretch">
     <div className="flex flex-col space-y-2 items-stretch grow">
@@ -42,6 +52,7 @@ export default function LocationField(props) {
     </div>
     <div className="rounded w-64">
       <${Map}
+        ref=${mapRef}
         initialViewState=${{
           longitude: longitude,
           latitude: latitude,
@@ -55,5 +66,3 @@ export default function LocationField(props) {
     </div>
   </div>`;
 }
-
-// mapStyle="https://demotiles.maplibre.org/globe.json"

@@ -19,8 +19,17 @@ pub fn writeErrors(writer: *std.Io.Writer, errors: []mantle.validation.Error) !v
     try mantle_view_helpers.writeErrors(writer, errors, errors_options);
 }
 
-pub fn writeH1(writer: *std.Io.Writer, body: []const u8) !void {
-    try mantle_view_helpers.writeHtmlTag(writer, "h1", .{ .class = "text-xl" }, .{});
+pub const H1Options = struct { class: ?[]const u8 };
+
+pub const h1_options: H1Options = .{ .class = "text-xl" };
+
+pub fn writeH1(writer: *std.Io.Writer, body: []const u8, options: H1Options) !void {
+    var merged_options: H1Options = h1_options;
+    if (options.class) |class| {
+        merged_options.class = class;
+    }
+
+    try mantle_view_helpers.writeHtmlTag(writer, "h1", merged_options, .{});
     try mantle.cgi_escape.writeEscapedHtml(writer, body);
     try writer.writeAll("</h1>");
 }
@@ -47,8 +56,10 @@ pub fn endUl(writer: *std.Io.Writer) !void {
     try writer.writeAll("</ul>");
 }
 
+pub const form_class = "flex flex-col items-stretch space-y-2";
+
 pub fn beginForm(writer: *std.Io.Writer, form: anytype) !void {
-    try form.beginForm(writer, .{ .class = "flex flex-col items-stretch space-y-2" });
+    try form.beginForm(writer, .{ .class = form_class });
 }
 
 pub fn endForm(writer: *std.Io.Writer, form: anytype) !void {
@@ -61,7 +72,7 @@ pub const field_options: mantle_view_helpers.FieldOptions = .{
     .errors = errors_options,
 };
 const label_options: mantle_view_helpers.LabelOptions = .{ .class = "flex flex-col items-stretch space-y-1" };
-const input_options: mantle_view_helpers.InputOptions = .{ .class = "rounded outline-1 focus:outline-2 outline-gray-300 dark:outline-gray-600" };
+const input_options: mantle_view_helpers.InputOptions = .{ .class = "rounded outline-1 focus:outline-2 outline-gray-300 dark:outline-gray-600 dark:scheme-dark" };
 
 pub fn writeFormField(
     writer: *std.Io.Writer,
@@ -84,6 +95,9 @@ pub fn writeFormField(
     }
     if (options.input.class) |input_options_class_override| {
         merged_options.input.class = input_options_class_override;
+    }
+    if (options.input.autocomplete) |input_options_class_override| {
+        merged_options.input.autocomplete = input_options_class_override;
     }
 
     try form.writeField(writer, name, merged_options);

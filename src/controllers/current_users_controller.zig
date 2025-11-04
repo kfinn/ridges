@@ -53,6 +53,13 @@ pub fn edit(context: *Context) !void {
 const UserUpdate = struct {
     name: []const u8 = "",
     email: []const u8 = "",
+
+    pub fn fromUser(user: anytype) @This() {
+        return .{
+            .name = user.attributes.name,
+            .email = user.attributes.email,
+        };
+    }
 };
 
 pub fn update(context: *Context) !void {
@@ -64,7 +71,7 @@ pub fn update(context: *Context) !void {
             return;
         },
         .failure => |failure| {
-            const form = mantle.forms.build(context, failure.record.attributes, .{ .errors = failure.errors });
+            const form = mantle.forms.build(context, UserUpdate.fromUser(failure.record), .{ .errors = failure.errors });
             var response_writer = context.response.writer();
             try ezig_templates.@"layouts/app_layout.html"(
                 &response_writer.interface,

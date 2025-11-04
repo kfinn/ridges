@@ -1,13 +1,12 @@
-<% const cgi_escape = @import("mantle").cgi_escape; %>
 <% const view_helpers = @import("app").view_helpers; %>
 
 <% try view_helpers.writeH2(writer, "Places"); %>
 <% try view_helpers.writeLinkTo(writer, "New", "/places/new"); %>
 
 <% try view_helpers.beginUl(writer); %>
-  <% for (props.all_places) |place| { %>
+  <% for (props.all_places, props.all_place_urls) |place, place_url| { %>
     <li>
-      <% try cgi_escape.writeEscapedHtml(writer, place.attributes.name); %>:
+      <% try view_helpers.writeLinkTo(writer, place.attributes.name, place_url); %>:
       <span class="font-mono">
         <%{d}= place.attributes.location.longitude %> <%{d}= place.attributes.location.latitude %>
       </span>

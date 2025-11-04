@@ -3,7 +3,9 @@
 <% try view_helpers.beginH2(writer); %>
   <% try view_helpers.writeLinkTo(writer, "Places", "/places"); %>
   &gt;
-  New
+  <% try view_helpers.writeLinkTo(writer, props.place.attributes.name, props.place_url); %>
+  &gt;
+  Edit
 <% try view_helpers.endH2(writer); %>
 
 <% try @"places/form.html"(writer, .{ .form = props.form }); %>
