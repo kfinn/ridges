@@ -12,19 +12,19 @@ pub fn writeHtmlTimeInputValue(self: *const @This(), writer: *std.Io.Writer) !vo
     const minutes = @mod(total_minutes, 60);
     const hours = @divFloor(total_minutes, 60);
 
-    if (hours > 10) {
+    if (hours >= 10) {
         try writer.print("{d}", .{hours});
     } else {
         try writer.print("0{d}", .{hours});
     }
     try writer.writeByte(':');
-    if (minutes > 10) {
+    if (minutes >= 10) {
         try writer.print("{d}", .{minutes});
     } else {
         try writer.print("0{d}", .{minutes});
     }
     try writer.writeByte(':');
-    if (seconds > 10) {
+    if (seconds >= 10) {
         try writer.print("{d}", .{seconds});
     } else {
         try writer.print("0{d}", .{seconds});

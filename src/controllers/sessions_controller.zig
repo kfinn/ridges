@@ -53,7 +53,8 @@ pub fn new(context: *Context) !void {
 pub fn create(context: *Context) !void {
     const session = try mantle.forms.formDataProtectedFromForgery(context, users.NewSession) orelse return;
     switch (try users.authenticate(context.response.arena, &context.repo, session)) {
-        .success => {
+        .success => |user| {
+            context.session.user_id = user.attributes.id[0..16].*;
             context.helpers.redirectTo("/current_user");
             return;
         },
