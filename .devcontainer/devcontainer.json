@@ -2,12 +2,14 @@
   "name": "Zig & PostgreSQL",
   "dockerComposeFile": "docker-compose.yml",
   "service": "app",
-	"workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
   "forwardPorts": [5882],
   "customizations": {
     "vscode": {
       "extensions": [
-        "ziglang.vscode-zig"
+        "ziglang.vscode-zig",
+        "esbenp.prettier-vscode",
+        "bierner.lit-html"
       ]
     }
   }

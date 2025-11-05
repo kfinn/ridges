@@ -56,7 +56,7 @@ fn validateDailyHours(
             try errors.addFieldError(first_day_open_seconds_field, .init(error.OutOfRange, "must be open a positive duration"));
         }
         if (@field(self, @tagName(next_day_opens_at_field))) |next_day_opens_at| {
-            if (microsecondsToSeconds(first_day_opens_at.microseconds) + first_day_open_seconds > microsecondsToSeconds(next_day_opens_at.microseconds)) {
+            if (microsecondsToSeconds(first_day_opens_at.microseconds) + first_day_open_seconds > microsecondsToSeconds(next_day_opens_at.microseconds + end_of_day_microseconds)) {
                 try errors.addFieldError(first_day_open_seconds_field, .init(error.OutOfRange, "cannot overlap with the next day's open hours"));
             }
         }

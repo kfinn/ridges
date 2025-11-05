@@ -21,8 +21,10 @@ export default function HoursFields(props) {
   });
 
   const onChange = useCallback(
-    ({ target: { value: new_value } }) => setValue(new_value),
-    []
+    ({ target: { value: new_value } }) => {
+      setValue(new_value);
+    },
+    [setValue]
   );
 
   return html`

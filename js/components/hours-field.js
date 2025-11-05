@@ -1,31 +1,38 @@
+import classNames from "classnames";
+import Button from "components/button";
 import { INPUT_CLASS_NAME, LABEL_CLASS_NAME } from "components/field";
 import { html } from "htm/react";
-import { useCallback, useMemo } from "react";
+import { useCallback } from "react";
+import { GoArrowDown, GoMoveToBottom } from "react-icons/go";
+import { nextDay, nextDays } from "utils";
 
 function timeToSecondsAfterMidnight(time) {
   const [time_hours, time_minutes, time_seconds] = time.split(":");
   return (
-    (time_seconds || 0) + (time_minutes || 0) * 60 + (time_hours || 0) * 60 * 60
+    (parseInt(time_seconds) || 0) +
+    (parseInt(time_minutes) || 0) * 60 +
+    (parseInt(time_hours) || 0) * 60 * 60
   );
 }
 
-function timeAddSeconds(time, seconds) {
-  if (time.length === 0) {
-    return "";
-  }
+function secondsAfterMidnightToTime(seconds_after_midnight) {
+  const seconds = seconds_after_midnight % 60;
+  const minutes_after_midnight = Math.floor(seconds_after_midnight / 60);
+  const minutes = minutes_after_midnight % 60;
+  const hours_after_midnight = Math.floor(minutes_after_midnight / 60);
+  const hours = hours_after_midnight % 24;
 
+  return `${hours < 10 ? `0${hours}` : hours}:${
+    minutes < 10 ? `0${minutes}` : minutes
+  }:${seconds < 10 ? `0${seconds}` : seconds}`;
+}
+
+function timeAddSeconds(time, seconds) {
   const time_seconds_after_midnight = timeToSecondsAfterMidnight(time);
   const result_seconds_after_midnight =
     (time_seconds_after_midnight + seconds) % (60 * 60 * 24);
 
-  const result_seconds = result_seconds_after_midnight % 60;
-  const total_result_minutes = Math.floor(result_seconds_after_midnight / 60);
-  const result_minutes = total_result_minutes % 60;
-  const result_hours = Math.floor(total_result_minutes / 60);
-
-  return `${result_hours.toString().padStart(2, "0")}:${result_minutes
-    .toString()
-    .padStart(2, "0")}:${result_seconds.toString().padStart(2, "0")}`;
+  return secondsAfterMidnightToTime(result_seconds_after_midnight);
 }
 
 function secondsBetweenTimes(start, end) {
@@ -45,13 +52,14 @@ function secondsBetweenTimes(start, end) {
 }
 
 export default function HoursField({ day, value, onChange, errors }) {
-  const opens_at_field_name = useMemo(() => day + "_opens_at", [day]);
-  const open_seconds_field_name = useMemo(() => day + "_open_seconds", [day]);
-  const closes_at_field_name = useMemo(() => day + "_closes_at", [day]);
+  const opens_at_field_name = day + "_opens_at";
+  const open_seconds_field_name = day + "_open_seconds";
+  const closes_at_field_name = day + "_closes_at";
 
   const opens_at = value[opens_at_field_name];
   const open_seconds = value[open_seconds_field_name];
-  const closes_at = timeAddSeconds(opens_at, open_seconds);
+  const closes_at =
+    opens_at === "" ? "" : timeAddSeconds(opens_at, open_seconds);
 
   const onChangeOpensAt = useCallback(
     ({ target: { value: new_opens_at } }) => {
@@ -84,12 +92,37 @@ export default function HoursField({ day, value, onChange, errors }) {
     [value, opens_at]
   );
 
+  const onClickDuplicateToNext = useCallback(() => {
+    onChange({
+      target: {
+        value: {
+          ...value,
+          [`${nextDay(day)}_opens_at`]: opens_at,
+          [`${nextDay(day)}_open_seconds`]: open_seconds,
+        },
+      },
+    });
+  }, [onChange, value, day, opens_at, open_seconds]);
+
+  const onClickDuplicateToAll = useCallback(() => {
+    let updated_value = { ...value };
+    for (const next_day of nextDays(day)) {
+      updated_value[`${next_day}_opens_at`] = opens_at;
+      updated_value[`${next_day}_open_seconds`] = open_seconds;
+    }
+    onChange({
+      target: {
+        value: updated_value,
+      },
+    });
+  }, [onChange, value, day, opens_at, open_seconds]);
+
   return html`
     <div className=${LABEL_CLASS_NAME}>
       <div className="flex space-x-2 justify-stretch">
         <label
           for=${opens_at_field_name}
-          className=${LABEL_CLASS_NAME + " grow basis-1/2"}
+          className=${classNames(LABEL_CLASS_NAME, "grow", "basis-1/2")}
         >
           <span>${day} open</span>
           <input
@@ -111,7 +144,7 @@ export default function HoursField({ day, value, onChange, errors }) {
         </label>
         <label
           for=${closes_at_field_name}
-          className=${LABEL_CLASS_NAME + " grow basis-1/2"}
+          className=${classNames(LABEL_CLASS_NAME, "grow", "basis-1/2")}
         >
           <span>close</span>
           <input
@@ -136,6 +169,28 @@ export default function HoursField({ day, value, onChange, errors }) {
             `
           }
         </label>
+        <span className=${LABEL_CLASS_NAME}>
+          <span>${'\xA0'}</span>
+          <${Button}
+          type="button"
+          disabled=${day === "sunday"}
+          onClick=${onClickDuplicateToNext}
+          alt="copy to next day"
+          >
+            <${GoArrowDown} />
+          </${Button}>
+        </span>
+        <span className=${LABEL_CLASS_NAME}>
+          <span>${'\xA0'}</span>
+          <${Button}
+            type="button"
+            disabled=${day === "sunday"}
+            onClick=${onClickDuplicateToAll}
+            alt="copy to all following days"
+            >
+            <${GoMoveToBottom} />
+          </${Button}>
+        </span>
       </div>
     </label>
   `;

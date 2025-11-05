@@ -28,6 +28,8 @@
       try import_map.writeEntry(.init("maplibre-gl", "https://esm.sh/maplibre-gl@^5.7.0"));
       try import_map.writeEntry(.init("react-map-gl", "https://esm.sh/react-map-gl@^8.0.4?deps=react@^19.1.1,react-dom@19.1.1"));
       try import_map.writeEntry(.init("react-map-gl/", "https://esm.sh/react-map-gl@^8.0.4&deps=react@^19.1.1,react-dom@19.1.1/"));
+      try import_map.writeEntry(.init("react-icons/", "https://esm.sh/react-icons@^5.5.0/"));
+      try import_map.writeEntry(.init("classnames", "https://esm.sh/classnames@^2.5.1"));
       try import_map.end();
     %>
     <script type="module">import "application"</script>

@@ -38,37 +38,37 @@
         try json.objectField("monday_opens_at");
         try json.write(props.form.model.monday_opens_at);
         try json.objectField("monday_open_seconds");
-        try json.write(std.fmt.parseFloat(f64, props.form.model.monday_open_seconds) catch 0);
+        try json.write(std.fmt.parseInt(i32, props.form.model.monday_open_seconds, 10) catch 0);
 
         try json.objectField("tuesday_opens_at");
         try json.write(props.form.model.tuesday_opens_at);
         try json.objectField("tuesday_open_seconds");
-        try json.write(std.fmt.parseFloat(f64, props.form.model.tuesday_open_seconds) catch 0);
+        try json.write(std.fmt.parseInt(i32, props.form.model.tuesday_open_seconds, 10) catch 0);
 
         try json.objectField("wednesday_opens_at");
         try json.write(props.form.model.wednesday_opens_at);
         try json.objectField("wednesday_open_seconds");
-        try json.write(std.fmt.parseFloat(f64, props.form.model.wednesday_open_seconds) catch 0);
+        try json.write(std.fmt.parseInt(i32, props.form.model.wednesday_open_seconds, 10) catch 0);
 
         try json.objectField("thursday_opens_at");
         try json.write(props.form.model.thursday_opens_at);
         try json.objectField("thursday_open_seconds");
-        try json.write(std.fmt.parseFloat(f64, props.form.model.thursday_open_seconds) catch 0);
+        try json.write(std.fmt.parseInt(i32, props.form.model.thursday_open_seconds, 10) catch 0);
 
         try json.objectField("friday_opens_at");
         try json.write(props.form.model.friday_opens_at);
         try json.objectField("friday_open_seconds");
-        try json.write(std.fmt.parseFloat(f64, props.form.model.friday_open_seconds) catch 0);
+        try json.write(std.fmt.parseInt(i32, props.form.model.friday_open_seconds, 10) catch 0);
 
         try json.objectField("saturday_opens_at");
         try json.write(props.form.model.saturday_opens_at);
         try json.objectField("saturday_open_seconds");
-        try json.write(std.fmt.parseFloat(f64, props.form.model.saturday_open_seconds) catch 0);
+        try json.write(std.fmt.parseInt(i32, props.form.model.saturday_open_seconds, 10) catch 0);
 
         try json.objectField("sunday_opens_at");
         try json.write(props.form.model.sunday_opens_at);
         try json.objectField("sunday_open_seconds");
-        try json.write(std.fmt.parseFloat(f64, props.form.model.sunday_open_seconds) catch 0);
+        try json.write(std.fmt.parseInt(i32, props.form.model.sunday_open_seconds, 10) catch 0);
 
         try json.objectField("errors");
         try json.beginObject();
