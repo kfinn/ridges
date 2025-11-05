@@ -33,8 +33,22 @@ export default function LocationField(props) {
     }
   }, [latitude, longitude]);
 
-  return html`<div className="flex justify-stretch">
-    <div className="flex flex-col space-y-2 items-stretch grow">
+  return html`<div className="flex flex-col space-y-2 justify-stretch">
+    <div className="rounded h-72">
+      <${Map}
+        ref=${mapRef}
+        initialViewState=${{
+          longitude: longitude,
+          latitude: latitude,
+          zoom: 15,
+        }}
+        mapStyle="https://tiles.openfreemap.org/styles/liberty"
+        onClick=${onClickMap}
+      >
+        <${Marker} longitude=${longitude} latitude=${latitude} />
+      </${Map}>
+    </div>
+    <div className="flex space-x-2 items-stretch">
       <${Field}
         type="number"
         label="latitude"
@@ -49,20 +63,6 @@ export default function LocationField(props) {
         value=${longitude}
         onChange=${onChangeLongitude}
       />
-    </div>
-    <div className="rounded w-64">
-      <${Map}
-        ref=${mapRef}
-        initialViewState=${{
-          longitude: longitude,
-          latitude: latitude,
-          zoom: 14,
-        }}
-        mapStyle="https://tiles.openfreemap.org/styles/liberty"
-        onClick=${onClickMap}
-      >
-        <${Marker} longitude=${longitude} latitude=${latitude} />
-      </${Map}>
     </div>
   </div>`;
 }

@@ -8,35 +8,34 @@ import { DAYS, nextDay } from "utils";
 
 export default function HoursFields(props) {
   const [value, setValue] = useState({
-    monday_opens_at: props.monday_opens_at,
-    monday_open_seconds: props.monday_open_seconds,
-    tuesday_opens_at: props.tuesday_opens_at,
-    tuesday_open_seconds: props.tuesday_open_seconds,
-    wednesday_opens_at: props.wednesday_opens_at,
-    wednesday_open_seconds: props.wednesday_open_seconds,
-    thursday_opens_at: props.thursday_opens_at,
-    thursday_open_seconds: props.thursday_open_seconds,
-    friday_opens_at: props.friday_opens_at,
-    friday_open_seconds: props.friday_open_seconds,
-    saturday_opens_at: props.saturday_opens_at,
-    saturday_open_seconds: props.saturday_open_seconds,
-    sunday_opens_at: props.sunday_opens_at,
-    sunday_open_seconds: props.sunday_open_seconds,
+    mondayOpensAt: props.mondayOpensAt,
+    mondayOpenSeconds: props.mondayOpenSeconds,
+    tuesdayOpensAt: props.tuesdayOpensAt,
+    tuesdayOpenSeconds: props.tuesdayOpenSeconds,
+    wednesdayOpensAt: props.wednesdayOpensAt,
+    wednesdayOpenSeconds: props.wednesdayOpenSeconds,
+    thursdayOpensAt: props.thursdayOpensAt,
+    thursdayOpenSeconds: props.thursdayOpenSeconds,
+    fridayOpensAt: props.fridayOpensAt,
+    fridayOpenSeconds: props.fridayOpenSeconds,
+    saturdayOpensAt: props.saturdayOpensAt,
+    saturdayOpenSeconds: props.saturdayOpenSeconds,
+    sundayOpensAt: props.sundayOpensAt,
+    sundayOpenSeconds: props.sundayOpenSeconds,
   });
 
   const onChange = useCallback(
-    ({ target: { value: new_value } }) => {
-      setValue(new_value);
+    ({ target: { value: newValue } }) => {
+      setValue(newValue);
     },
     [setValue]
   );
 
   const mustBeExpanded = useMemo(() => {
     for (const day of DAYS) {
-      const next_day = nextDay(day);
-      if (value[`${day}_opens_at`] !== value[`${next_day}_opens_at`])
-        return true;
-      if (value[`${day}_open_seconds`] !== value[`${next_day}_open_seconds`])
+      const dayNextDay = nextDay(day);
+      if (value[`${day}OpensAt`] !== value[`${dayNextDay}OpensAt`]) return true;
+      if (value[`${day}OpenSeconds`] !== value[`${dayNextDay}OpenSeconds`])
         return true;
     }
     return false;

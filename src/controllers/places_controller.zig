@@ -84,47 +84,6 @@ const ChangeSet = struct {
         };
     }
 
-    pub fn format(self: *const @This(), writer: *std.Io.Writer) !void {
-        try writer.print(
-            \\.{{ .name = "{s}",
-            \\.location = ("{s}", "{s}"),
-            \\.address = "{s}",
-            \\.monday_opens_at = "{s}",
-            \\.monday_open_seconds = "{s}",
-            \\.tuesday_opens_at = "{s}",
-            \\.tuesday_open_seconds = "{s}",
-            \\.wednesday_opens_at = "{s}",
-            \\.wednesday_open_seconds = "{s}",
-            \\.thursday_opens_at = "{s}",
-            \\.thursday_open_seconds = "{s}",
-            \\.friday_opens_at = "{s}",
-            \\.friday_open_seconds = "{s}",
-            \\.saturday_opens_at = "{s}",
-            \\.saturday_open_seconds = "{s}",
-            \\.sunday_opens_at = "{s}",
-            \\.sunday_open_seconds = "{s}", }}
-        , .{
-            self.name,
-            self.location.longitude,
-            self.location.latitude,
-            self.address,
-            self.monday_opens_at,
-            self.monday_open_seconds,
-            self.tuesday_opens_at,
-            self.tuesday_open_seconds,
-            self.wednesday_opens_at,
-            self.wednesday_open_seconds,
-            self.thursday_opens_at,
-            self.thursday_open_seconds,
-            self.friday_opens_at,
-            self.friday_open_seconds,
-            self.saturday_opens_at,
-            self.saturday_open_seconds,
-            self.sunday_opens_at,
-            self.sunday_open_seconds,
-        });
-    }
-
     const Self = @This();
     pub const casts = struct {
         pub fn location(change_set: Self, _: *const mantle.Repo, errors: *mantle.validation.RecordErrors(Self)) !Point {

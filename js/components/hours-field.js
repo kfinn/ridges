@@ -4,25 +4,25 @@ import { INPUT_CLASS_NAME, LABEL_CLASS_NAME } from "components/field";
 import { html } from "htm/react";
 import { useCallback } from "react";
 import { GoArrowDown, GoMoveToBottom } from "react-icons/go";
+import toSnakeCase from "to-snake-case";
 import { nextDay, nextDays, secondsBetweenTimes, timeAddSeconds } from "utils";
 
 export default function HoursField({ day, value, onChange, errors }) {
-  const opens_at_field_name = day + "_opens_at";
-  const open_seconds_field_name = day + "_open_seconds";
-  const closes_at_field_name = day + "_closes_at";
+  const opensAtFieldName = day + "OpensAt";
+  const openSecondsFieldName = day + "OpenSeconds";
+  const closesAtFieldName = day + "ClosesAt";
 
-  const opens_at = value[opens_at_field_name];
-  const open_seconds = value[open_seconds_field_name];
-  const closes_at =
-    opens_at === "" ? "" : timeAddSeconds(opens_at, open_seconds);
+  const opensAt = value[opensAtFieldName];
+  const openSeconds = value[openSecondsFieldName];
+  const closesAt = opensAt === "" ? "" : timeAddSeconds(opensAt, openSeconds);
 
   const onChangeOpensAt = useCallback(
-    ({ target: { value: new_opens_at } }) => {
+    ({ target: { value: newOpensAt } }) => {
       onChange({
         target: {
           value: {
             ...value,
-            [opens_at_field_name]: new_opens_at,
+            [opensAtFieldName]: newOpensAt,
           },
         },
       });
@@ -31,20 +31,17 @@ export default function HoursField({ day, value, onChange, errors }) {
   );
 
   const onChangeClosesAt = useCallback(
-    ({ target: { value: new_closes_at } }) => {
+    ({ target: { value: newClosesAt } }) => {
       onChange({
         target: {
           value: {
             ...value,
-            [open_seconds_field_name]: secondsBetweenTimes(
-              opens_at,
-              new_closes_at
-            ),
+            [openSecondsFieldName]: secondsBetweenTimes(opensAt, newClosesAt),
           },
         },
       });
     },
-    [value, opens_at]
+    [value, opensAt]
   );
 
   const onClickDuplicateToNext = useCallback(() => {
@@ -52,74 +49,74 @@ export default function HoursField({ day, value, onChange, errors }) {
       target: {
         value: {
           ...value,
-          [`${nextDay(day)}_opens_at`]: opens_at,
-          [`${nextDay(day)}_open_seconds`]: open_seconds,
+          [`${nextDay(day)}OpensAt`]: opensAt,
+          [`${nextDay(day)}OpenSeconds`]: openSeconds,
         },
       },
     });
-  }, [onChange, value, day, opens_at, open_seconds]);
+  }, [onChange, value, day, opensAt, openSeconds]);
 
   const onClickDuplicateToAll = useCallback(() => {
-    let updated_value = { ...value };
-    for (const next_day of nextDays(day)) {
-      updated_value[`${next_day}_opens_at`] = opens_at;
-      updated_value[`${next_day}_open_seconds`] = open_seconds;
+    let updatedValue = { ...value };
+    for (const nextDay of nextDays(day)) {
+      updatedValue[`${nextDay}OpensAt`] = opensAt;
+      updatedValue[`${nextDay}OpenSeconds`] = openSeconds;
     }
     onChange({
       target: {
-        value: updated_value,
+        value: updatedValue,
       },
     });
-  }, [onChange, value, day, opens_at, open_seconds]);
+  }, [onChange, value, day, opensAt, openSeconds]);
 
   return html`
     <div className=${LABEL_CLASS_NAME}>
       <div className="flex space-x-2 justify-stretch">
         <label
-          for=${opens_at_field_name}
+          for=${opensAtFieldName}
           className=${classNames(LABEL_CLASS_NAME, "grow", "basis-1/2")}
         >
           <span>${day} open</span>
           <input
-            id=${opens_at_field_name}
-            name=${opens_at_field_name}
+            id=${opensAtFieldName}
+            name=${toSnakeCase(opensAtFieldName)}
             type="time"
-            value=${opens_at}
+            value=${opensAt}
             onChange=${onChangeOpensAt}
             className=${INPUT_CLASS_NAME}
           />
           ${
-            errors[opens_at_field_name].length > 0 &&
+            errors[opensAtFieldName].length > 0 &&
             html`
               <span className="text-red-600 dark:text-red-500">
-                ${errors[opens_at_field_name].join(", ")}
+                ${errors[opensAtFieldName].join(", ")}
               </span>
             `
           }
         </label>
         <label
-          for=${closes_at_field_name}
+          for=${closesAtFieldName}
           className=${classNames(LABEL_CLASS_NAME, "grow", "basis-1/2")}
         >
           <span>close</span>
           <input
-            id=${closes_at_field_name}
-            name=${closes_at_field_name}
+            id=${closesAtFieldName}
+            name=${toSnakeCase(closesAtFieldName)}
             type="time"
-            value=${closes_at}
+            value=${closesAt}
             onChange=${onChangeClosesAt}
             className=${INPUT_CLASS_NAME}
           />
           <input
             type="hidden"
-            value=${open_seconds}
-            name=${open_seconds_field_name}
+            value=${openSeconds}
+            name=${toSnakeCase(openSecondsFieldName)}
           />
           ${
-            errors[open_seconds_field_name].length > 0 &&
+            errors[openSecondsFieldName].length > 0 &&
             html`
               <span className="text-red-600 dark:text-red-500">
-                ${errors[open_seconds_field_name].join(", ")}
+                ${errors[openSecondsFieldName].join(", ")}
               </span>
             `
           }

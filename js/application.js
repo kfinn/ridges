@@ -1,3 +1,4 @@
+import camelize from "camelize";
 import { ALL_COMPONENTS } from "components";
 import { html } from "htm/react";
 import { createRoot } from "react-dom/client";
@@ -12,9 +13,10 @@ onDocumentReady(() => {
       const Component =
         ALL_COMPONENTS[element.getAttribute("data-react-component-name")];
       if (element.hasAttribute("data-react-component-props")) {
-        const props = JSON.parse(
+        const snakeCaseProps = JSON.parse(
           element.getAttribute("data-react-component-props")
         );
+        const props = camelize(snakeCaseProps);
         root.render(html`<${Component} ...${props} />`);
       } else {
         root.render(html`<${Component} />`);

@@ -37,40 +37,40 @@ export function previousDay(day) {
 }
 
 export function nextDays(day) {
-  let next_days = [];
-  let current_day = nextDay(day);
-  while (current_day !== "monday") {
-    next_days.push(current_day);
-    current_day = nextDay(current_day);
+  let nextDays = [];
+  let currentDay = nextDay(day);
+  while (currentDay !== "monday") {
+    nextDays.push(currentDay);
+    currentDay = nextDay(currentDay);
   }
-  return next_days;
+  return nextDays;
 }
 
 export function previousDays(day) {
   let previousDays = [];
-  let current_day = previousDay(day);
-  while (current_day !== "sunday") {
-    previousDays.push(current_day);
-    current_day = previousDay(current_day);
+  let currentDay = previousDay(day);
+  while (currentDay !== "sunday") {
+    previousDays.push(currentDay);
+    currentDay = previousDay(currentDay);
   }
   return previousDays;
 }
 
 export function timeToSecondsAfterMidnight(time) {
-  const [time_hours, time_minutes, time_seconds] = time.split(":");
+  const [timeHours, timeMinutes, timeSeconds] = time.split(":");
   return (
-    (parseInt(time_seconds) || 0) +
-    (parseInt(time_minutes) || 0) * 60 +
-    (parseInt(time_hours) || 0) * 60 * 60
+    (parseInt(timeSeconds) || 0) +
+    (parseInt(timeMinutes) || 0) * 60 +
+    (parseInt(timeHours) || 0) * 60 * 60
   );
 }
 
-export function secondsAfterMidnightToTime(seconds_after_midnight) {
-  const seconds = seconds_after_midnight % 60;
-  const minutes_after_midnight = Math.floor(seconds_after_midnight / 60);
-  const minutes = minutes_after_midnight % 60;
-  const hours_after_midnight = Math.floor(minutes_after_midnight / 60);
-  const hours = hours_after_midnight % 24;
+export function secondsAfterMidnightToTime(secondsAfterMidnight) {
+  const seconds = secondsAfterMidnight % 60;
+  const minutesAfterMidnight = Math.floor(secondsAfterMidnight / 60);
+  const minutes = minutesAfterMidnight % 60;
+  const hoursAfterMidnight = Math.floor(minutesAfterMidnight / 60);
+  const hours = hoursAfterMidnight % 24;
 
   return `${hours < 10 ? `0${hours}` : hours}:${
     minutes < 10 ? `0${minutes}` : minutes
@@ -78,11 +78,11 @@ export function secondsAfterMidnightToTime(seconds_after_midnight) {
 }
 
 export function timeAddSeconds(time, seconds) {
-  const time_seconds_after_midnight = timeToSecondsAfterMidnight(time);
-  const result_seconds_after_midnight =
-    (time_seconds_after_midnight + seconds) % (60 * 60 * 24);
+  const timeSecondsAfterMidnight = timeToSecondsAfterMidnight(time);
+  const resultSecondsAfterMidnight =
+    (timeSecondsAfterMidnight + seconds) % (60 * 60 * 24);
 
-  return secondsAfterMidnightToTime(result_seconds_after_midnight);
+  return secondsAfterMidnightToTime(resultSecondsAfterMidnight);
 }
 
 export function secondsBetweenTimes(start, end) {
@@ -90,13 +90,13 @@ export function secondsBetweenTimes(start, end) {
     return 0;
   }
 
-  const start_time_seconds_after_midnight = timeToSecondsAfterMidnight(start);
-  const end_time_seconds_after_midnight = timeToSecondsAfterMidnight(end);
+  const startTimeSecondsAfterMidnght = timeToSecondsAfterMidnight(start);
+  const endTimeSecondsAfterMidnight = timeToSecondsAfterMidnight(end);
 
-  let seconds_between_time =
-    end_time_seconds_after_midnight - start_time_seconds_after_midnight;
-  while (seconds_between_time < 0) {
-    seconds_between_time += 60 * 60 * 24;
+  let secondsBetweenTime =
+    endTimeSecondsAfterMidnight - startTimeSecondsAfterMidnght;
+  while (secondsBetweenTime < 0) {
+    secondsBetweenTime += 60 * 60 * 24;
   }
-  return seconds_between_time;
+  return secondsBetweenTime;
 }
