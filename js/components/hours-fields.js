@@ -1,6 +1,10 @@
+import classNames from "classnames";
+import AllHoursField from "components/all-hours-field";
 import HoursField from "components/hours-field";
 import { html } from "htm/react";
-import { Fragment, useCallback, useState } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
+import { GoChevronRight } from "react-icons/go";
+import { DAYS, nextDay } from "utils";
 
 export default function HoursFields(props) {
   const [value, setValue] = useState({
@@ -27,15 +31,51 @@ export default function HoursFields(props) {
     [setValue]
   );
 
+  const mustBeExpanded = useMemo(() => {
+    for (const day of DAYS) {
+      const next_day = nextDay(day);
+      if (value[`${day}_opens_at`] !== value[`${next_day}_opens_at`])
+        return true;
+      if (value[`${day}_open_seconds`] !== value[`${next_day}_open_seconds`])
+        return true;
+    }
+    return false;
+  }, [value]);
+  const [isExpanded, setIsExpanded] = useState(mustBeExpanded);
+  useEffect(
+    () => setIsExpanded(isExpanded || mustBeExpanded),
+    [mustBeExpanded, isExpanded]
+  );
+
+  const onClickExpandCollapse = useCallback(() => {
+    setIsExpanded((isExpandedWas) => !isExpandedWas);
+  }, []);
+
   return html`
     <${Fragment}>
-      <${HoursField} value=${value} errors=${props.errors} day="monday" onChange=${onChange} />
-      <${HoursField} value=${value} errors=${props.errors} day="tuesday" onChange=${onChange} />
-      <${HoursField} value=${value} errors=${props.errors} day="wednesday" onChange=${onChange} />
-      <${HoursField} value=${value} errors=${props.errors} day="thursday" onChange=${onChange} />
-      <${HoursField} value=${value} errors=${props.errors} day="friday" onChange=${onChange} />
-      <${HoursField} value=${value} errors=${props.errors} day="saturday" onChange=${onChange} />
-      <${HoursField} value=${value} errors=${props.errors} day="sunday" onChange=${onChange} />
+      <button disabled=${mustBeExpanded} type="button" className="flex justify-start items-center space-x-1 cursor-pointer disabled:cursor-default" onClick=${onClickExpandCollapse}>
+        <span className=${classNames("transition", {
+          "rotate-90": isExpanded || mustBeExpanded,
+        })}><${GoChevronRight} /></span>
+        Hours
+      </button>
+      ${
+        isExpanded || mustBeExpanded
+          ? DAYS.map(
+              (day) => html`<${HoursField}
+                key=${day}
+                value=${value}
+                errors=${props.errors}
+                day=${day}
+                onChange=${onChange}
+              />`
+            )
+          : html`<${AllHoursField}
+              value=${value}
+              errors=${props.errors}
+              onChange=${onChange}
+            />`
+      }
     </${Fragment}>
   `;
 }

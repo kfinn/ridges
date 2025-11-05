@@ -4,52 +4,7 @@ import { INPUT_CLASS_NAME, LABEL_CLASS_NAME } from "components/field";
 import { html } from "htm/react";
 import { useCallback } from "react";
 import { GoArrowDown, GoMoveToBottom } from "react-icons/go";
-import { nextDay, nextDays } from "utils";
-
-function timeToSecondsAfterMidnight(time) {
-  const [time_hours, time_minutes, time_seconds] = time.split(":");
-  return (
-    (parseInt(time_seconds) || 0) +
-    (parseInt(time_minutes) || 0) * 60 +
-    (parseInt(time_hours) || 0) * 60 * 60
-  );
-}
-
-function secondsAfterMidnightToTime(seconds_after_midnight) {
-  const seconds = seconds_after_midnight % 60;
-  const minutes_after_midnight = Math.floor(seconds_after_midnight / 60);
-  const minutes = minutes_after_midnight % 60;
-  const hours_after_midnight = Math.floor(minutes_after_midnight / 60);
-  const hours = hours_after_midnight % 24;
-
-  return `${hours < 10 ? `0${hours}` : hours}:${
-    minutes < 10 ? `0${minutes}` : minutes
-  }:${seconds < 10 ? `0${seconds}` : seconds}`;
-}
-
-function timeAddSeconds(time, seconds) {
-  const time_seconds_after_midnight = timeToSecondsAfterMidnight(time);
-  const result_seconds_after_midnight =
-    (time_seconds_after_midnight + seconds) % (60 * 60 * 24);
-
-  return secondsAfterMidnightToTime(result_seconds_after_midnight);
-}
-
-function secondsBetweenTimes(start, end) {
-  if (start.length === 0 || end.length === 0) {
-    return 0;
-  }
-
-  const start_time_seconds_after_midnight = timeToSecondsAfterMidnight(start);
-  const end_time_seconds_after_midnight = timeToSecondsAfterMidnight(end);
-
-  let seconds_between_time =
-    end_time_seconds_after_midnight - start_time_seconds_after_midnight;
-  while (seconds_between_time < 0) {
-    seconds_between_time += 60 * 60 * 24;
-  }
-  return seconds_between_time;
-}
+import { nextDay, nextDays, secondsBetweenTimes, timeAddSeconds } from "utils";
 
 export default function HoursField({ day, value, onChange, errors }) {
   const opens_at_field_name = day + "_opens_at";
@@ -170,7 +125,7 @@ export default function HoursField({ day, value, onChange, errors }) {
           }
         </label>
         <span className=${LABEL_CLASS_NAME}>
-          <span>${'\xA0'}</span>
+          <span>${"\xA0"}</span>
           <${Button}
           type="button"
           disabled=${day === "sunday"}
@@ -181,7 +136,7 @@ export default function HoursField({ day, value, onChange, errors }) {
           </${Button}>
         </span>
         <span className=${LABEL_CLASS_NAME}>
-          <span>${'\xA0'}</span>
+          <span>${"\xA0"}</span>
           <${Button}
             type="button"
             disabled=${day === "sunday"}
@@ -192,6 +147,6 @@ export default function HoursField({ day, value, onChange, errors }) {
           </${Button}>
         </span>
       </div>
-    </label>
+    </div>
   `;
 }
