@@ -32,11 +32,16 @@
       try import_map.writeEntry(.init("classnames", "https://esm.sh/classnames@^2.5.1"));
       try import_map.writeEntry(.init("camelize", "https://esm.sh/camelize@^1.0.1"));
       try import_map.writeEntry(.init("to-snake-case", "https://esm.sh/to-snake-case@^1.0.0"));
+      try import_map.writeEntry(.init("@tanstack/react-query", "https://esm.sh/@tanstack/react-query@^5.90.7"));
+      try import_map.writeEntry(.init("axios", "https://esm.sh/axios@^1.13.2"));
+      try import_map.writeEntry(.init("qs", "https://esm.sh/qs@^6.14.0"));
+      try import_map.writeEntry(.init("lodash", "https://esm.sh/lodash@4.17.21"));
+      try import_map.writeEntry(.init("lodash/", "https://esm.sh/lodash@4.17.21/"));
       try import_map.end();
     %>
     <script type="module">import "application"</script>
   </head>
-  <body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 lex flex-col justify-stretch w-screen">
+  <body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 flex flex-col justify-stretch w-screen h-screen">
     <%
       try view_helpers.writeH1(
         writer,
@@ -44,8 +49,6 @@
         .{ .class = (view_helpers.h1_options.class orelse "") ++ " bg-green-600 dark:bg-green-300 text-gray-50 dark:text-gray-900 px-8 py-4" },
       );
     %>
-    <div class="my-4 flex flex-col md:max-w-xl mx-8 justify-self-center">
-      <% try props.writeBody(writer); %>
-    </div>
+    <% try props.writeBody(writer); %>
   </body>
 </html>

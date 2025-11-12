@@ -48,7 +48,7 @@ export default function LocationField(props) {
         <${Marker} longitude=${longitude} latitude=${latitude} />
       </${Map}>
     </div>
-    <div className="flex space-x-2 items-stretch">
+    <div className="flex space-x-2 items-stretch justify-stretch">
       <${Field}
         type="number"
         label="latitude"

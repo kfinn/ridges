@@ -1,0 +1,2 @@
+<% _ = props; %>
+<div class="grow flex items-stretch justify-stretch" data-react-component-name="PlacesMap" />

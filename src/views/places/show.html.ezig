@@ -1,5 +1,6 @@
 <% const view_helpers = @import("app").view_helpers; %>
 
+<% try view_helpers.beginCenteredPageContent(writer); %>
 <% try view_helpers.beginH2(writer); %>
   <% try view_helpers.writeLinkTo(writer, "Places", "/places"); %>
   &gt;
@@ -7,3 +8,4 @@
 <% try view_helpers.endH2(writer); %>
 
 <% try view_helpers.writeLinkTo(writer, "Edit", props.edit_place_url); %>
+<% try view_helpers.endCenteredPageContent(writer); %>

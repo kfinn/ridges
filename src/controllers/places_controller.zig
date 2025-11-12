@@ -11,7 +11,7 @@ const places = @import("../relations/places.zig");
 const Context = @import("../ridges_app.zig").RidgesApp.ControllerContext;
 
 pub fn index(context: *Context) !void {
-    const all_places = try context.repo.all(places);
+    const all_places = try context.repo.all(places, .{});
     var all_place_urls = try context.response.arena.alloc([]const u8, all_places.len);
     for (all_places, 0..) |place, place_index| {
         all_place_urls[place_index] = try std.fmt.allocPrint(context.response.arena, "/places/{s}", .{try pg.uuidToHex(place.attributes.id)});

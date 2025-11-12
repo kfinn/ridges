@@ -1,6 +1,7 @@
 const std = @import("std");
 
 const mantle = @import("mantle");
+const pg = @import("pg");
 pub const mantle_view_helpers = mantle.view_helpers;
 
 pub fn writeLinkTo(writer: *std.Io.Writer, body: []const u8, url: []const u8) !void {
@@ -107,4 +108,23 @@ const submit_options: mantle_view_helpers.SubmitOptions = .{ .class = "rounded o
 
 pub fn writeSubmit(writer: *std.Io.Writer, value: []const u8) !void {
     try mantle_view_helpers.writeSubmit(writer, value, submit_options);
+}
+
+pub fn beginCenteredPageContent(writer: *std.Io.Writer) !void {
+    try mantle_view_helpers.writeHtmlTag(
+        writer,
+        "div",
+        .{
+            .class = "my-4 flex flex-col md:max-w-xl mx-8 justify-self-center",
+        },
+        .{},
+    );
+}
+
+pub fn endCenteredPageContent(writer: *std.Io.Writer) !void {
+    try writer.writeAll("</div>");
+}
+
+pub fn uuidToHex(uuid: []const u8) ![36]u8 {
+    return try pg.uuidToHex(uuid);
 }

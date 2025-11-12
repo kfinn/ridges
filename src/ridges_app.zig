@@ -11,6 +11,39 @@ pub const RidgesApp = mantle.App(.{
             .action = "index",
         },
         .routes = &[_]Route{
+            .{ .namespace = .{
+                .name = "api",
+                .routes = &[_]Route{
+                    .{ .namespace = .{
+                        .name = "map",
+                        .routes = &[_]Route{
+                            .{ .namespace = .{
+                                .name = "v1",
+                                .routes = &[_]Route{
+                                    .{ .resources = .{
+                                        .name = "places",
+                                        .Controller = @import("controllers/api/map/v1/places_controller.zig"),
+                                    } },
+                                },
+                            } },
+                        },
+                    } },
+                },
+            } },
+            .{ .resource = .{
+                .name = "current_user",
+                .Controller = @import("controllers/current_users_controller.zig"),
+            } },
+            .{ .resource = .{
+                .name = "map",
+                .Controller = @import("controllers/maps_controller.zig"),
+                .routes = &[_]Route{.{
+                    .resource = .{
+                        .name = "places",
+                        .Controller = @import("controllers/places_maps_controller.zig"),
+                    },
+                }},
+            } },
             .{ .resources = .{
                 .name = "places",
                 .Controller = @import("controllers/places_controller.zig"),
@@ -18,10 +51,6 @@ pub const RidgesApp = mantle.App(.{
             .{ .resources = .{
                 .name = "sessions",
                 .Controller = @import("controllers/sessions_controller.zig"),
-            } },
-            .{ .resource = .{
-                .name = "current_user",
-                .Controller = @import("controllers/current_users_controller.zig"),
             } },
         },
         .assets = &[_]type{@import("assets")},

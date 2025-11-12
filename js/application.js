@@ -1,8 +1,11 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import camelize from "camelize";
 import { ALL_COMPONENTS } from "components";
 import { html } from "htm/react";
 import { createRoot } from "react-dom/client";
 import { onDocumentReady } from "utils";
+
+const queryClient = new QueryClient();
 
 onDocumentReady(() => {
   document
@@ -17,9 +20,17 @@ onDocumentReady(() => {
           element.getAttribute("data-react-component-props")
         );
         const props = camelize(snakeCaseProps);
-        root.render(html`<${Component} ...${props} />`);
+        root.render(
+          html`<${QueryClientProvider} client=${queryClient}>
+            <${Component} ...${props}
+          /></${QueryClientProvider}>`
+        );
       } else {
-        root.render(html`<${Component} />`);
+        root.render(
+          html`<${QueryClientProvider}  client=${queryClient}>
+            <${Component} />
+          </${QueryClientProvider}>`
+        );
       }
     });
 });

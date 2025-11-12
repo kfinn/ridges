@@ -3,6 +3,7 @@ const std = @import("std");
 const mantle = @import("mantle");
 const pg = @import("pg");
 
+const Bounds = @import("../models/Bounds.zig");
 const Point = @import("../models/Point.zig");
 const Time = @import("../models/Time.zig");
 
@@ -69,4 +70,11 @@ fn validateDailyHours(
 
 fn microsecondsToSeconds(microseconds: i64) i64 {
     return @divTrunc(microseconds, 1000000);
+}
+
+pub fn inBounds(repo: *mantle.Repo, bounds: Bounds) !mantle.sql.Where(mantle.sql.ParameterizedSnippet(
+    "ST_CoveredBy(location, ?)",
+    struct { pg.Binary },
+)) {
+    return .{ .expression = .{ .params = .{try bounds.castToDb(repo)} } };
 }

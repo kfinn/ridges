@@ -9,7 +9,8 @@
       "extensions": [
         "ziglang.vscode-zig",
         "esbenp.prettier-vscode",
-        "bierner.lit-html"
+        "bierner.lit-html",
+        "cymonk.sql-formatter"
       ]
     }
   }

@@ -1,5 +1,6 @@
 <% const view_helpers = @import("app").view_helpers; %>
 
+<% try view_helpers.beginCenteredPageContent(writer); %>
 <% try view_helpers.writeH2(writer, "Places"); %>
 <% try view_helpers.writeLinkTo(writer, "New", "/places/new"); %>
 
@@ -13,3 +14,4 @@
     </li>
   <% } %>
 <% try view_helpers.endUl(writer); %>
+<% try view_helpers.endCenteredPageContent(writer); %>

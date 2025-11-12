@@ -1,5 +1,6 @@
 <% const view_helpers = @import("app").view_helpers; %>
 
+<% try view_helpers.beginCenteredPageContent(writer); %>
 <% try view_helpers.writeH2(writer, "Log in"); %>
 <% try view_helpers.beginForm(writer, props.form); %>
   <%
@@ -21,3 +22,4 @@
   <% try view_helpers.writeErrors(writer, props.form.errors.base_errors.items); %>
   <% try view_helpers.writeSubmit(writer, "Log In"); %>
 <% try view_helpers.endForm(writer, props.form); %>
+<% try view_helpers.endCenteredPageContent(writer); %>
