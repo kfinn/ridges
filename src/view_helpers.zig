@@ -1,8 +1,8 @@
 const std = @import("std");
 
 const mantle = @import("mantle");
-const pg = @import("pg");
 pub const mantle_view_helpers = mantle.view_helpers;
+const pg = @import("pg");
 
 pub fn writeLinkTo(writer: *std.Io.Writer, body: []const u8, url: []const u8) !void {
     try mantle_view_helpers.writeHtmlTag(writer, "a", .{ .class = "text-blue-600 dark:text-blue-500 hover:underline", .href = url }, .{});
@@ -69,11 +69,11 @@ pub fn endForm(writer: *std.Io.Writer, form: anytype) !void {
 
 pub const field_options: mantle_view_helpers.FieldOptions = .{
     .label = label_options,
-    .input = input_options,
+    .input = .{ .input = .{ .class = field_input_class } },
     .errors = errors_options,
 };
 const label_options: mantle_view_helpers.LabelOptions = .{ .class = "flex flex-col items-stretch space-y-1" };
-const input_options: mantle_view_helpers.InputOptions = .{ .class = "rounded outline-1 focus:outline-2 outline-gray-300 dark:outline-gray-600 dark:scheme-dark" };
+const field_input_class: []const u8 = "rounded outline-1 focus:outline-2 outline-gray-300 dark:outline-gray-600 dark:scheme-dark";
 
 pub fn writeFormField(
     writer: *std.Io.Writer,
@@ -82,23 +82,46 @@ pub fn writeFormField(
     options: mantle_view_helpers.FieldOptions,
 ) !void {
     var merged_options: mantle_view_helpers.FieldOptions = field_options;
-    if (options.label.class) |label_options_class_override| {
-        merged_options.label.class = label_options_class_override;
-    }
     if (options.label.name) |label_options_class_override| {
         merged_options.label.name = label_options_class_override;
     }
-    if (options.input.autofocus) |input_options_autofocus_override| {
-        merged_options.input.autofocus = input_options_autofocus_override;
-    }
-    if (options.input.type) |input_options_type_override| {
-        merged_options.input.type = input_options_type_override;
-    }
-    if (options.input.class) |input_options_class_override| {
-        merged_options.input.class = input_options_class_override;
-    }
-    if (options.input.autocomplete) |input_options_class_override| {
-        merged_options.input.autocomplete = input_options_class_override;
+    switch (options.input) {
+        .input => |input_options| {
+            if (options.label.class) |label_options_class_override| {
+                merged_options.label.class = label_options_class_override;
+            }
+            if (input_options.autofocus) |input_options_autofocus_override| {
+                merged_options.input.input.autofocus = input_options_autofocus_override;
+            }
+            if (input_options.type) |input_options_type_override| {
+                merged_options.input.input.type = input_options_type_override;
+            }
+            if (input_options.class) |input_options_class_override| {
+                merged_options.input.input.class = input_options_class_override;
+            }
+            if (input_options.autocomplete) |input_options_class_override| {
+                merged_options.input.input.autocomplete = input_options_class_override;
+            }
+        },
+        .select => |select_options| {
+            if (options.label.class) |label_options_class_override| {
+                merged_options.label.class = label_options_class_override;
+            }
+            merged_options.input = .{ .select = select_options };
+            if (select_options.class == null) {
+                merged_options.input.select.class = field_input_class;
+            }
+        },
+        .checkbox => |checkbox_options| {
+            if (options.label.class) |label_options_class_override| {
+                merged_options.label.class = label_options_class_override;
+            }
+            merged_options.label.class = "flex justify-start items-center space-x-1";
+            merged_options.input = .{ .checkbox = checkbox_options };
+            if (checkbox_options.class == null) {
+                merged_options.input.checkbox.class = field_input_class;
+            }
+        },
     }
 
     try form.writeField(writer, name, merged_options);
@@ -115,7 +138,7 @@ pub fn beginCenteredPageContent(writer: *std.Io.Writer) !void {
         writer,
         "div",
         .{
-            .class = "my-4 flex flex-col md:max-w-xl mx-8 justify-self-center",
+            .class = "my-4 flex flex-col md:w-2xl mx-8 md:mx-auto justify-self-center",
         },
         .{},
     );

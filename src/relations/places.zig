@@ -7,6 +7,8 @@ const Bounds = @import("../models/Bounds.zig");
 const Point = @import("../models/Point.zig");
 const Time = @import("../models/Time.zig");
 
+pub const Size = enum { ten_to_fifteen, fifteen_to_thirty, thirty_plus };
+
 pub const Attributes = struct {
     id: []const u8,
     name: []const u8,
@@ -26,6 +28,17 @@ pub const Attributes = struct {
     saturday_open_seconds: i32 = 0,
     sunday_opens_at: ?Time,
     sunday_open_seconds: i32 = 0,
+    pricing_description: []const u8 = "",
+    specials_description: []const u8 = "",
+    events_description: []const u8 = "",
+    bathrooms_description: []const u8 = "",
+    food_description: []const u8 = "",
+    televisions_count: i32 = 0,
+    size: Size = .ten_to_fifteen,
+    is_dog_friendly: bool = false,
+    is_queer: bool = false,
+    google_url: []const u8 = "",
+    instagram_url: []const u8 = "",
 };
 
 const end_of_day_microseconds: i64 = 1000000 * 60 * 60 * 24;

@@ -41,7 +41,7 @@
     %>
     <script type="module">import "application"</script>
   </head>
-  <body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 flex flex-col justify-stretch w-screen h-screen">
+  <body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 flex flex-col justify-stretch w-screen min-h-screen">
     <%
       try view_helpers.writeH1(
         writer,

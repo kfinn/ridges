@@ -2,7 +2,7 @@
 <% const mantle = @import("mantle"); %>
 
 <% try view_helpers.beginForm(writer, props.form); %>
-  <% try view_helpers.writeFormField(writer, props.form, .name, .{ .input= .{ .autofocus = true, .autocomplete = "off" }}); %>
+  <% try view_helpers.writeFormField(writer, props.form, .name, .{ .input = .{ .input = .{ .autofocus = true, .autocomplete = "off" } } }); %>
   <% const location_fields = props.form.fields(.location); %>
   <div
     class="<%= view_helpers.form_class %>"
@@ -21,8 +21,8 @@
       }
     %>"
   >
-    <% try view_helpers.writeFormField(writer, location_fields, .latitude, .{ .label = .{ .name = "latitude" }, .input = .{ .type = "number" } } ); %>
-    <% try view_helpers.writeFormField(writer, location_fields, .longitude, .{ . label = .{ .name = "longitude" }, .input = .{ .type = "number" } }); %>
+    <% try view_helpers.writeFormField(writer, location_fields, .latitude, .{ .label = .{ .name = "latitude" }, .input = .{ .input = .{ .type = "number" } } } ); %>
+    <% try view_helpers.writeFormField(writer, location_fields, .longitude, .{ . label = .{ .name = "longitude" }, .input = .{ .input = .{ .type = "number" } } }); %>
   </div>
   <% try view_helpers.writeErrors(writer, props.form.errors.field_errors.get(.location).items); %>
   <% try view_helpers.writeFormField(writer, props.form, .address, .{}); %>
@@ -179,34 +179,45 @@
     %>"
   >
     <div class="flex flex-row justify-stretch">
-      <% try view_helpers.writeFormField(writer, props.form, .monday_opens_at, .{ .input = .{ .type = "time" } }); %>
-      <% try view_helpers.writeFormField(writer, props.form, .monday_open_seconds, .{ .input = .{ .type = "number" } }); %>
+      <% try view_helpers.writeFormField(writer, props.form, .monday_opens_at, .{ .input = .{ .input = .{ .type = "time" } } }); %>
+      <% try view_helpers.writeFormField(writer, props.form, .monday_open_seconds, .{ .input = .{ .input = .{ .type = "number" } } }); %>
     </div>
     <div class="flex flex-row justify-stretch">
-      <% try view_helpers.writeFormField(writer, props.form, .tuesday_opens_at, .{ .input = .{ .type = "time" } }); %>
-      <% try view_helpers.writeFormField(writer, props.form, .tuesday_open_seconds, .{ .input = .{ .type = "number" } }); %>
+      <% try view_helpers.writeFormField(writer, props.form, .tuesday_opens_at, .{ .input = .{ .input = .{ .type = "time" } } }); %>
+      <% try view_helpers.writeFormField(writer, props.form, .tuesday_open_seconds, .{ .input = .{ .input = .{ .type = "number" } } }); %>
     </div>
     <div class="flex flex-row justify-stretch">
-      <% try view_helpers.writeFormField(writer, props.form, .wednesday_opens_at, .{ .input = .{ .type = "time" } }); %>
-      <% try view_helpers.writeFormField(writer, props.form, .wednesday_open_seconds, .{ .input = .{ .type = "number" } }); %>
+      <% try view_helpers.writeFormField(writer, props.form, .wednesday_opens_at, .{ .input = .{ .input = .{ .type = "time" } } }); %>
+      <% try view_helpers.writeFormField(writer, props.form, .wednesday_open_seconds, .{ .input = .{ .input = .{ .type = "number" } } }); %>
     </div>
     <div class="flex flex-row justify-stretch">
-      <% try view_helpers.writeFormField(writer, props.form, .thursday_opens_at, .{ .input = .{ .type = "time" } }); %>
-      <% try view_helpers.writeFormField(writer, props.form, .thursday_open_seconds, .{ .input = .{ .type = "number" } }); %>
+      <% try view_helpers.writeFormField(writer, props.form, .thursday_opens_at, .{ .input = .{ .input = .{ .type = "time" } } }); %>
+      <% try view_helpers.writeFormField(writer, props.form, .thursday_open_seconds, .{ .input = .{ .input = .{ .type = "number" } } }); %>
     </div>
     <div class="flex flex-row justify-stretch">
-      <% try view_helpers.writeFormField(writer, props.form, .friday_opens_at, .{ .input = .{ .type = "time" } }); %>
-      <% try view_helpers.writeFormField(writer, props.form, .friday_open_seconds, .{ .input = .{ .type = "number" } }); %>
+      <% try view_helpers.writeFormField(writer, props.form, .friday_opens_at, .{ .input = .{ .input = .{ .type = "time" } } }); %>
+      <% try view_helpers.writeFormField(writer, props.form, .friday_open_seconds, .{ .input = .{ .input = .{ .type = "number" } } }); %>
     </div>
     <div class="flex flex-row justify-stretch">
-      <% try view_helpers.writeFormField(writer, props.form, .saturday_opens_at, .{ .input = .{ .type = "time" } }); %>
-      <% try view_helpers.writeFormField(writer, props.form, .saturday_open_seconds, .{ .input = .{ .type = "number" } }); %>
+      <% try view_helpers.writeFormField(writer, props.form, .saturday_opens_at, .{ .input = .{ .input = .{ .type = "time" } } }); %>
+      <% try view_helpers.writeFormField(writer, props.form, .saturday_open_seconds, .{ .input = .{ .input = .{ .type = "number" } } }); %>
     </div>
     <div class="flex flex-row justify-stretch">
-      <% try view_helpers.writeFormField(writer, props.form, .sunday_opens_at, .{ .input = .{ .type = "time" } }); %>
-      <% try view_helpers.writeFormField(writer, props.form, .sunday_open_seconds, .{ .input = .{ .type = "number" } }); %>
+      <% try view_helpers.writeFormField(writer, props.form, .sunday_opens_at, .{ .input = .{ .input = .{ .type = "time" } } }); %>
+      <% try view_helpers.writeFormField(writer, props.form, .sunday_open_seconds, .{ .input = .{ .input = .{ .type = "number" } } }); %>
     </div>
   </div>
+  <% try view_helpers.writeFormField(writer, props.form, .pricing_description, .{}); %>
+  <% try view_helpers.writeFormField(writer, props.form, .specials_description, .{}); %>
+  <% try view_helpers.writeFormField(writer, props.form, .events_description, .{}); %>
+  <% try view_helpers.writeFormField(writer, props.form, .bathrooms_description, .{}); %>
+  <% try view_helpers.writeFormField(writer, props.form, .food_description, .{}); %>
+  <% try view_helpers.writeFormField(writer, props.form, .televisions_count, .{ .input = .{ .input = .{ .type = "number" } }}); %>
+  <% try view_helpers.writeFormField(writer, props.form, .size, .{ .input = .{ .select = .{ .options = @TypeOf(props.form.model).size_options } }}); %>
+  <% try view_helpers.writeFormField(writer, props.form, .is_dog_friendly, .{ .input = .{ .checkbox = .{} }}); %>
+  <% try view_helpers.writeFormField(writer, props.form, .is_queer, .{ .input = .{ .checkbox = .{} }}); %>
+  <% try view_helpers.writeFormField(writer, props.form, .google_url, .{}); %>
+  <% try view_helpers.writeFormField(writer, props.form, .instagram_url, .{}); %>
   <% try view_helpers.writeErrors(writer, props.form.errors.base_errors.items); %>
   <% try view_helpers.writeSubmit(writer, "Save"); %>
 <% try view_helpers.endForm(writer, props.form); %>

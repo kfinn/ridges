@@ -58,6 +58,17 @@ const ChangeSet = struct {
     saturday_open_seconds: []const u8 = "",
     sunday_opens_at: []const u8 = "",
     sunday_open_seconds: []const u8 = "",
+    pricing_description: []const u8 = "",
+    specials_description: []const u8 = "",
+    events_description: []const u8 = "",
+    bathrooms_description: []const u8 = "",
+    food_description: []const u8 = "",
+    televisions_count: []const u8 = "",
+    size: []const u8 = "",
+    is_dog_friendly: []const u8 = "",
+    is_queer: []const u8 = "",
+    google_url: []const u8 = "",
+    instagram_url: []const u8 = "",
 
     pub fn fromPlace(place: anytype, allocator: std.mem.Allocator) !@This() {
         return .{
@@ -81,6 +92,17 @@ const ChangeSet = struct {
             .saturday_open_seconds = try std.fmt.allocPrint(allocator, "{d}", .{place.attributes.saturday_open_seconds}),
             .sunday_opens_at = if (place.attributes.sunday_opens_at) |sunday_opens_at| try std.fmt.allocPrint(allocator, "{f}", .{sunday_opens_at}) else "",
             .sunday_open_seconds = try std.fmt.allocPrint(allocator, "{d}", .{place.attributes.sunday_open_seconds}),
+            .pricing_description = place.attributes.pricing_description,
+            .specials_description = place.attributes.specials_description,
+            .events_description = place.attributes.events_description,
+            .bathrooms_description = place.attributes.bathrooms_description,
+            .food_description = place.attributes.food_description,
+            .televisions_count = try std.fmt.allocPrint(allocator, "{d}", .{place.attributes.televisions_count}),
+            .size = @tagName(place.attributes.size),
+            .is_dog_friendly = if (place.attributes.is_dog_friendly) "1" else "0",
+            .is_queer = if (place.attributes.is_queer) "1" else "0",
+            .google_url = place.attributes.google_url,
+            .instagram_url = place.attributes.instagram_url,
         };
     }
 
@@ -117,6 +139,12 @@ const ChangeSet = struct {
             }
             return error.InvalidCast;
         }
+    };
+
+    pub const size_options = &[_]mantle.view_helpers.SelectOptions.Option{
+        .{ .value = @tagName(places.Size.ten_to_fifteen), .label = "10-15" },
+        .{ .value = @tagName(places.Size.fifteen_to_thirty), .label = "15-30" },
+        .{ .value = @tagName(places.Size.thirty_plus), .label = "30+" },
     };
 };
 
