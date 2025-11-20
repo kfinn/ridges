@@ -3,6 +3,10 @@
 
 <% try view_helpers.beginForm(writer, props.form); %>
   <% try view_helpers.writeFormField(writer, props.form, .name, .{ .input = .{ .input = .{ .autofocus = true, .autocomplete = "off" } } }); %>
+  <div
+    class="<%= view_helpers.form_class %>"
+    data-react-component-name="TagsField"
+  ></div>
   <% const location_fields = props.form.fields(.location); %>
   <div
     class="<%= view_helpers.form_class %>"

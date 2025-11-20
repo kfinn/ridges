@@ -35,9 +35,9 @@ pub fn index(context: *Context) !void {
 
     const all_places = all_places: {
         if (filter.inBounds) |inBounds| {
-            break :all_places try context.repo.all(places, .{ .where = try places.inBounds(&context.repo, try inBounds.toBounds()) });
+            break :all_places try context.repo.all(places, .{ .where = try places.inBounds(&context.repo, try inBounds.toBounds()) }, .{});
         } else {
-            break :all_places try context.repo.all(places, .{});
+            break :all_places try context.repo.all(places, .{}, .{});
         }
     };
     var all_place_urls = try context.response.arena.alloc([]const u8, all_places.len);

@@ -1,0 +1,12 @@
+<%
+  const view_helpers = @import("app").view_helpers;
+
+  var json: std.json.Stringify = .{ .writer = writer };
+
+  try json.beginObject();
+  try json.objectField("id");
+  try json.write(&(try view_helpers.uuidToHex(props.tag.attributes.id)));
+  try json.objectField("name");
+  try json.write(props.tag.attributes.name);
+  try json.endObject();
+%>

@@ -1,0 +1,16 @@
+<%
+  const view_helpers = @import("app").view_helpers;
+
+  var json: std.json.Stringify = .{ .writer = writer };
+
+  try json.beginArray();
+  for (props.all_tags) |tag| {
+    try json.beginObject();
+    try json.objectField("id");
+    try json.write(&(try view_helpers.uuidToHex(tag.attributes.id)));
+    try json.objectField("name");
+    try json.write(tag.attributes.name);
+    try json.endObject();
+  }
+  try json.endArray();
+%>

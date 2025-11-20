@@ -11,25 +11,36 @@ pub const RidgesApp = mantle.App(.{
             .action = "index",
         },
         .routes = &[_]Route{
-            .{ .namespace = .{
-                .name = "api",
-                .routes = &[_]Route{
-                    .{ .namespace = .{
-                        .name = "map",
-                        .routes = &[_]Route{
-                            .{ .namespace = .{
-                                .name = "v1",
-                                .routes = &[_]Route{
-                                    .{ .resources = .{
-                                        .name = "places",
-                                        .Controller = @import("controllers/api/map/v1/places_controller.zig"),
-                                    } },
-                                },
-                            } },
-                        },
-                    } },
-                },
-            } },
+            .{ .namespace = .{ .name = "api", .routes = &[_]Route{
+                .{ .namespace = .{
+                    .name = "map",
+                    .routes = &[_]Route{
+                        .{ .namespace = .{
+                            .name = "v1",
+                            .routes = &[_]Route{
+                                .{ .resources = .{
+                                    .name = "places",
+                                    .Controller = @import("controllers/api/map/v1/places_controller.zig"),
+                                } },
+                            },
+                        } },
+                    },
+                } },
+                .{ .namespace = .{
+                    .name = "tags_multi_select",
+                    .routes = &[_]Route{
+                        .{ .namespace = .{
+                            .name = "v1",
+                            .routes = &[_]Route{
+                                .{ .resources = .{
+                                    .name = "tags",
+                                    .Controller = @import("controllers/api/tags_multi_select/v1/tags_controller.zig"),
+                                } },
+                            },
+                        } },
+                    },
+                } },
+            } } },
             .{ .resource = .{
                 .name = "current_user",
                 .Controller = @import("controllers/current_users_controller.zig"),
@@ -52,6 +63,10 @@ pub const RidgesApp = mantle.App(.{
                 .name = "sessions",
                 .Controller = @import("controllers/sessions_controller.zig"),
             } },
+            .{ .resources = .{
+                .name = "tags",
+                .Controller = @import("controllers/tags_controller.zig"),
+            } },
         },
         .assets = &[_]type{@import("assets")},
     },
@@ -65,6 +80,7 @@ pub const RidgesApp = mantle.App(.{
         @import("db/migrations/create_users.zig"),
         @import("db/migrations/create_places.zig"),
         @import("db/migrations/add_all_simple_attributes_to_places.zig"),
+        @import("db/migrations/create_place_tags.zig"),
     },
     .tasks = &[_]type{
         @import("tasks/users.zig"),

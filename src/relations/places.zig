@@ -41,6 +41,10 @@ pub const Attributes = struct {
     instagram_url: []const u8 = "",
 };
 
+pub const associations = &[_]mantle.Association{
+    .hasMany(@import("place_tags.zig")),
+};
+
 const end_of_day_microseconds: i64 = 1000000 * 60 * 60 * 24;
 
 pub fn validate(self: anytype, errors: *mantle.validation.RecordErrors(@TypeOf(self))) !void {

@@ -1,6 +1,7 @@
 import classNames from "classnames";
 import Button from "components/button";
-import { INPUT_CLASS_NAME, LABEL_CLASS_NAME } from "components/field";
+import { INPUT_CLASS_NAME } from "components/field";
+import { LABEL_CLASS_NAME } from "components/label";
 import { html } from "htm/react";
 import { useCallback } from "react";
 import { GoArrowDown, GoMoveToBottom } from "react-icons/go";
@@ -73,7 +74,7 @@ export default function HoursField({ day, value, onChange, errors }) {
     <div className=${LABEL_CLASS_NAME}>
       <div className="flex space-x-2 justify-stretch">
         <label
-          for=${opensAtFieldName}
+          htmlFor=${opensAtFieldName}
           className=${classNames(LABEL_CLASS_NAME, "grow", "basis-1/2")}
         >
           <span>${day} open</span>
@@ -95,7 +96,7 @@ export default function HoursField({ day, value, onChange, errors }) {
           }
         </label>
         <label
-          for=${closesAtFieldName}
+          htmlFor=${closesAtFieldName}
           className=${classNames(LABEL_CLASS_NAME, "grow", "basis-1/2")}
         >
           <span>close</span>

@@ -7,11 +7,25 @@ const pg = @import("pg");
 
 const Point = @import("../models/Point.zig");
 const Time = @import("../models/Time.zig");
+const place_tags = @import("../relations/place_tags.zig");
 const places = @import("../relations/places.zig");
 const Context = @import("../ridges_app.zig").RidgesApp.ControllerContext;
 
 pub fn index(context: *Context) !void {
-    const all_places = try context.repo.all(places, .{});
+    const all_places = try context.repo.all(
+        places,
+        .{},
+        .{
+            .preloads = &[_]mantle.Repo.Preload{
+                .{
+                    .name = "place_tags",
+                    .preloads = &[_]mantle.Repo.Preload{
+                        .{ .name = "tag" },
+                    },
+                },
+            },
+        },
+    );
     var all_place_urls = try context.response.arena.alloc([]const u8, all_places.len);
     for (all_places, 0..) |place, place_index| {
         all_place_urls[place_index] = try std.fmt.allocPrint(context.response.arena, "/places/{s}", .{try pg.uuidToHex(place.attributes.id)});
@@ -43,6 +57,7 @@ const ChangeSet = struct {
         .longitude = "-73.9029527",
         .latitude = "40.7014435",
     },
+    tag_ids: []const u8 = "",
     address: []const u8 = "",
     monday_opens_at: []const u8 = "",
     monday_open_seconds: []const u8 = "",
@@ -169,8 +184,34 @@ pub fn new(context: *Context) !void {
 
 pub fn create(context: *Context) !void {
     const place = try mantle.forms.formDataProtectedFromForgery(context, ChangeSet) orelse return;
-    switch (try context.repo.create(places, place)) {
-        .success => |_| {
+
+    const place_create_result: mantle.Repo.CreateResult(places, ChangeSet) = transaction: {
+        const transaction = try context.repo.beginTransaction();
+        const result = try context.repo.create(places, place);
+        switch (result) {
+            .success => |created_place| {
+                var tag_ids_iterator = std.mem.splitScalar(u8, place.tag_ids, ',');
+                while (tag_ids_iterator.next()) |tag_id| {
+                    switch (try context.repo.create(place_tags, .{ .place_id = created_place.attributes.id, .tag_id = tag_id })) {
+                        .failure => {
+                            try context.repo.rollbackTransaction(transaction);
+
+                            var errors: mantle.validation.RecordErrors(ChangeSet) = .init(context.response.arena);
+                            try errors.addFieldError(.tag_ids, .init(error.InvalidTag, "invalid tag"));
+                            break :transaction .{ .failure = errors };
+                        },
+                        else => {},
+                    }
+                }
+            },
+            else => {},
+        }
+        try context.repo.commitTransaction(transaction);
+        break :transaction result;
+    };
+
+    switch (place_create_result) {
+        .success => {
             context.helpers.redirectTo("/places");
             return;
         },

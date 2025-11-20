@@ -1,10 +1,11 @@
 import classNames from "classnames";
-import { INPUT_CLASS_NAME, LABEL_CLASS_NAME } from "components/field";
+import { INPUT_CLASS_NAME } from "components/field";
+import { LABEL_CLASS_NAME } from "components/label";
 import { html } from "htm/react";
 import { Fragment, useCallback } from "react";
 import { DAYS, secondsBetweenTimes, timeAddSeconds } from "utils";
 
-export default function AllHoursField({ day, value, onChange, errors }) {
+export default function AllHoursField({ value, onChange, errors }) {
   const opensAt = value.mondayOpensAt;
   const openSeconds = value.mondayOpenSeconds;
   const closesAt = opensAt === "" ? "" : timeAddSeconds(opensAt, openSeconds);
@@ -54,7 +55,7 @@ export default function AllHoursField({ day, value, onChange, errors }) {
     <div className=${LABEL_CLASS_NAME}>
       <div className="flex space-x-2 justify-stretch">
         <label
-          for="opensAt"
+          htmlFor="opensAt"
           className=${classNames(LABEL_CLASS_NAME, "grow", "basis-1/2")}
         >
           <span>open</span>
@@ -74,7 +75,7 @@ export default function AllHoursField({ day, value, onChange, errors }) {
           `}
         </label>
         <label
-          for="closesAt"
+          htmlFor="closesAt"
           className=${classNames(LABEL_CLASS_NAME, "grow", "basis-1/2")}
         >
           <span>close</span>
@@ -96,7 +97,7 @@ export default function AllHoursField({ day, value, onChange, errors }) {
       </div>
       ${DAYS.map(
         (day) =>
-          html`<${Fragment}>
+          html`<${Fragment} key=${day}>
             <input
               type="hidden"
               name=${`${day}_opens_at`}

@@ -7,28 +7,6 @@ const mantle = @import("mantle");
 const users = @import("../relations/users.zig");
 const Context = @import("../ridges_app.zig").RidgesApp.ControllerContext;
 
-const Session = struct {
-    email: ?[]const u8,
-    password: ?[]const u8,
-
-    fn validate(self: *const @This(), errors: *mantle.validation.RecordErrors(@This())) !void {
-        if (self.email) |email| {
-            if (email.len == 0) {
-                try errors.addFieldError(.email, .init(error.Required, "required"));
-            }
-        } else {
-            try errors.addFieldError(.email, .init(error.Required, "required"));
-        }
-        if (self.password) |password| {
-            if (password.len == 0) {
-                try errors.addFieldError(.password, .init(error.Required, "required"));
-            }
-        } else {
-            try errors.addFieldError(.email, .init(error.Required, "required"));
-        }
-    }
-};
-
 pub fn new(context: *Context) !void {
     context.response.status = 200;
 

@@ -22,8 +22,8 @@ onDocumentReady(() => {
         const props = camelize(snakeCaseProps);
         root.render(
           html`<${QueryClientProvider} client=${queryClient}>
-            <${Component} ...${props}
-          /></${QueryClientProvider}>`
+            <${Component} ...${props} />
+          </${QueryClientProvider}>`
         );
       } else {
         root.render(

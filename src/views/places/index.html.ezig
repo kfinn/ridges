@@ -11,6 +11,9 @@
       <span class="font-mono">
         <%{d}= place.attributes.location.longitude %> <%{d}= place.attributes.location.latitude %>
       </span>
+      <% for (place.associations.place_tags) |place_tag| { %>
+        <%= place_tag.associations.tag.attributes.name %>
+      <% } %>
     </li>
   <% } %>
 <% try view_helpers.endUl(writer); %>
