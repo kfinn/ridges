@@ -7,30 +7,41 @@ import tagsQuery from "queries/tags-multi-select/tags-query";
 export default function SearchResults({ q, tagIds, onChangeTagIds }) {
   const { data } = useQuery(tagsQuery(q === "" ? {} : { q }));
 
-  return html`<div className="flex flex-col items-stretch divide-y">
-    ${data !== undefined
-      ? data.map(
-          (tag) =>
-            html`<div
-              key=${tag.id}
-              className=${classNames("cursor-pointer", {
-                "bg-green-300 dark:bg-green-600": _.includes(tagIds, tag.id),
-              })}
-              onClick=${() => {
-                if (_.includes(tagIds, tag.id)) {
-                  onChangeTagIds((previousTagIds) =>
-                    _.without(previousTagIds, tag.id)
-                  );
-                } else {
-                  onChangeTagIds((previousTagIds) =>
-                    _.union(previousTagIds, [tag.id])
-                  );
-                }
-              }}
-            >
-              ${tag.name}
-            </div>`
-        )
-      : "..."}
+  return html`<div className="w-[0] h-[0] overflow-visible self-start">
+    <div
+      className="flex flex-col items-stretch divide-y bg-gray-50 dark:bg-gray-900 w-48 relative z-[1]"
+    >
+      ${data !== undefined
+        ? data.map(
+            (tag) =>
+              html`<div
+                key=${tag.id}
+                className=${classNames(
+                  "cursor-pointer",
+                  "select-none",
+                  "hover:bg-gray-100",
+                  "dark:hover:bg-gray-800",
+                  {
+                    "bg-green-300 hover:bg-green-400 dark:bg-green-600 hover:dark:bg-green-500":
+                      _.includes(tagIds, tag.id),
+                  }
+                )}
+                onClick=${(e) => {
+                  if (_.includes(tagIds, tag.id)) {
+                    onChangeTagIds((previousTagIds) =>
+                      _.without(previousTagIds, tag.id)
+                    );
+                  } else {
+                    onChangeTagIds((previousTagIds) =>
+                      _.union(previousTagIds, [tag.id])
+                    );
+                  }
+                }}
+              >
+                ${tag.name}
+              </div>`
+          )
+        : "..."}
+    </div>
   </div>`;
 }

@@ -10,7 +10,7 @@ import { useState } from "react";
 export default function TagsField({ tagIds: initialTagIds }) {
   const [tagIds, setTagIds] = useState(initialTagIds ?? []);
 
-  return html`<${Label} htmlFor="tag_ids">
+  return html`<${Label} htmlFor="tag_ids" label="tags">
     <div className=${classNames(
       INPUT_CLASS_NAME,
       "flex",
@@ -18,7 +18,7 @@ export default function TagsField({ tagIds: initialTagIds }) {
       "items-center",
       "has-focus:outline-2",
       "space-x-2",
-      "space-y-2"
+      "space-y-2",
     )}>
       ${tagIds.map(
         (tagId) =>
