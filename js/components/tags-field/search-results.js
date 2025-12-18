@@ -3,13 +3,23 @@ import classNames from "classnames";
 import { html } from "htm/react";
 import _ from "lodash";
 import tagsQuery from "queries/tags-multi-select/tags-query";
+import { BASE_CLASS_NAME } from "utils";
 
 export default function SearchResults({ q, tagIds, onChangeTagIds }) {
   const { data } = useQuery(tagsQuery(q === "" ? {} : { q }));
 
   return html`<div className="w-[0] h-[0] overflow-visible self-start">
     <div
-      className="flex flex-col items-stretch divide-y bg-gray-50 dark:bg-gray-900 w-48 relative z-[1]"
+      className=${classNames(
+        BASE_CLASS_NAME,
+        "flex",
+        "flex-col",
+        "items-stretch",
+        "divide-y",
+        "w-48",
+        "relative",
+        "z-[1]"
+      )}
     >
       ${data !== undefined
         ? data.map(
