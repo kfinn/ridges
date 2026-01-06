@@ -2,7 +2,7 @@ const std = @import("std");
 
 const ezig_templates = @import("ezig_templates");
 
-const Context = @import("../ridges_app.zig").RidgesApp.ControllerContext;
+const Context = @import("../ridges.zig").App.ControllerContext;
 
 pub fn show(context: *Context) !void {
     var response_writer = context.response.writer();

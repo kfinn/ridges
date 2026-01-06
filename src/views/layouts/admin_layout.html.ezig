@@ -1,0 +1,20 @@
+<%
+  const view_helpers = @import("app").view_helpers;
+
+  try @"layouts/app_layout.html"(
+    writer,
+    struct {
+      wrapped_props: @TypeOf(props),
+
+      pub fn writeHeader(self: *const @This(), inner_writer: *std.Io.Writer) !void {
+        try @"layouts/admin_header.html"(inner_writer, self.wrapped_props);
+      }
+
+      pub fn writeBody(self: *const @This(), inner_writer: *std.Io.Writer) !void {
+        try view_helpers.beginCenteredPageContent(inner_writer);
+        try self.wrapped_props.writeBody(inner_writer);
+        try view_helpers.endCenteredPageContent(inner_writer);
+      }
+    }{ .wrapped_props = props },
+  );
+%>

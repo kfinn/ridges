@@ -2,7 +2,7 @@ const std = @import("std");
 
 const mantle = @import("mantle");
 
-const users = @This();
+const admins = @This();
 
 pub const Attributes = struct {
     id: []const u8,
@@ -17,7 +17,7 @@ pub const NewSession = struct {
 };
 
 const AuthenticateResult = union(enum) {
-    success: mantle.Repo.relationResultType(users),
+    success: mantle.Repo.relationResultType(admins),
     failure: mantle.validation.RecordErrors(NewSession),
 };
 
@@ -32,13 +32,13 @@ pub fn authenticate(allocator: std.mem.Allocator, repo: *mantle.Repo, new_sessio
     }
     if (errors.isInvalid()) return .{ .failure = errors };
 
-    const user = try repo.findBy(@This(), .{ .email = new_session.email }) orelse {
+    const admin = try repo.findBy(@This(), .{ .email = new_session.email }) orelse {
         try errors.addFieldError(.email, .init(error.NotFound, "not found"));
         return .{ .failure = errors };
     };
 
-    if (std.crypto.pwhash.bcrypt.strVerify(user.attributes.password_bcrypt, new_session.password, .{ .silently_truncate_password = false })) {
-        return .{ .success = user };
+    if (std.crypto.pwhash.bcrypt.strVerify(admin.attributes.password_bcrypt, new_session.password, .{ .silently_truncate_password = false })) {
+        return .{ .success = admin };
     } else |_| {
         try errors.addFieldError(.password, .init(error.InvalidPassword, "invalid"));
         return .{ .failure = errors };

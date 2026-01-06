@@ -1,8 +1,7 @@
 <% const view_helpers = @import("app").view_helpers; %>
 
-<% try view_helpers.beginCenteredPageContent(writer); %>
 <% try view_helpers.writeH2(writer, "Tags"); %>
-<% try view_helpers.writeLinkTo(writer, "New", "/tags/new"); %>
+<% try view_helpers.writeLinkTo(writer, "New", "/tags/new", .{}); %>
 
 <% try view_helpers.beginUl(writer); %>
   <% for (props.all_tags) |tag| { %>
@@ -11,4 +10,3 @@
     </li>
   <% } %>
 <% try view_helpers.endUl(writer); %>
-<% try view_helpers.beginCenteredPageContent(writer); %>

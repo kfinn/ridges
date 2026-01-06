@@ -3,7 +3,7 @@ const std = @import("std");
 const mantle = @import("mantle");
 const pg = @import("pg");
 
-const users = @import("../relations/users.zig");
+const admins = @import("../relations/admins.zig");
 
 fn generateRandomPassword() [32]u8 {
     var password_entropy: [16]u8 = undefined;
@@ -31,9 +31,9 @@ fn passwordToBcrypt(password: []const u8, allocator: std.mem.Allocator) ![]const
     return final;
 }
 
-pub fn @"users:create"(cli: anytype, args: *std.process.ArgIterator) !void {
-    const name = args.next() orelse cli.fatal("Usage: users:create [name] [email]", .{});
-    const email = args.next() orelse cli.fatal("Usage: users:create [name] [email]", .{});
+pub fn @"admins:create"(cli: anytype, args: *std.process.ArgIterator) !void {
+    const name = args.next() orelse cli.fatal("Usage: admins:create [name] [email]", .{});
+    const email = args.next() orelse cli.fatal("Usage: admins:create [name] [email]", .{});
 
     const password = generateRandomPassword();
     const password_bcrypt = try passwordToBcrypt(&password, cli.allocator);
@@ -43,16 +43,16 @@ pub fn @"users:create"(cli: anytype, args: *std.process.ArgIterator) !void {
 
     const repo = mantle.Repo.init(cli.allocator, conn);
 
-    switch (try repo.create(users, .{
+    switch (try repo.create(admins, .{
         .name = name,
         .email = email,
         .password_bcrypt = password_bcrypt,
     })) {
-        .success => |user| {
+        .success => |admin| {
             var std_out = std.fs.File.stdout();
             var std_out_buffer: [1024]u8 = undefined;
             var std_out_writer = std_out.writer(&std_out_buffer);
-            try std_out_writer.interface.print("Created user {s} with password: {s}\n", .{ user.attributes.email, &password });
+            try std_out_writer.interface.print("Created admin {s} with password: {s}\n", .{ admin.attributes.email, &password });
             try std_out_writer.interface.flush();
         },
         .failure => |errors| {
@@ -65,25 +65,25 @@ pub fn @"users:create"(cli: anytype, args: *std.process.ArgIterator) !void {
     }
 }
 
-pub fn @"users:reset_password"(cli: anytype, args: *std.process.ArgIterator) !void {
-    const email = args.next() orelse cli.fatal("Usage: users:reset_password [email]", .{});
+pub fn @"admins:reset_password"(cli: anytype, args: *std.process.ArgIterator) !void {
+    const email = args.next() orelse cli.fatal("Usage: admins:reset_password [email]", .{});
 
     const conn: *pg.Conn = try cli.app.pg_pool.acquire();
     defer conn.release();
 
     const repo = mantle.Repo.init(cli.allocator, conn);
 
-    const user = try repo.findBy(users, .{ .email = email }) orelse cli.fatal("No user exists with email: {s}", .{email});
+    const admin = try repo.findBy(admins, .{ .email = email }) orelse cli.fatal("No admin exists with email: {s}", .{email});
 
     const password = generateRandomPassword();
     const password_bcrypt = try passwordToBcrypt(&password, cli.allocator);
 
-    switch (try repo.update(users, user, .{ .password_bcrypt = password_bcrypt })) {
-        .success => |updated_user| {
+    switch (try repo.update(admins, admin, .{ .password_bcrypt = password_bcrypt })) {
+        .success => |updated_admin| {
             var std_out = std.fs.File.stdout();
             var std_out_buffer: [1024]u8 = undefined;
             var std_out_writer = std_out.writer(&std_out_buffer);
-            try std_out_writer.interface.print("Updated user {s} with password: {s}\n", .{ updated_user.attributes.email, &password });
+            try std_out_writer.interface.print("Updated admin {s} with password: {s}\n", .{ updated_admin.attributes.email, &password });
             try std_out_writer.interface.flush();
         },
         .failure => |failure| {

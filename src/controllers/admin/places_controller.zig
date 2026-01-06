@@ -5,13 +5,15 @@ const httpz = @import("httpz");
 const mantle = @import("mantle");
 const pg = @import("pg");
 
-const Point = @import("../models/Point.zig");
-const Time = @import("../models/Time.zig");
-const place_tags = @import("../relations/place_tags.zig");
-const places = @import("../relations/places.zig");
-const Context = @import("../ridges_app.zig").RidgesApp.ControllerContext;
+const Point = @import("../../models/Point.zig");
+const Time = @import("../../models/Time.zig");
+const place_tags = @import("../../relations/place_tags.zig");
+const places = @import("../../relations/places.zig");
+const Context = @import("../../ridges.zig").App.ControllerContext;
 
 pub fn index(context: *Context) !void {
+    const admin = try context.helpers.authenticateAdmin() orelse return;
+
     const all_places = try context.repo.all(
         places,
         .{},
@@ -28,23 +30,24 @@ pub fn index(context: *Context) !void {
     );
     var all_place_urls = try context.response.arena.alloc([]const u8, all_places.len);
     for (all_places, 0..) |place, place_index| {
-        all_place_urls[place_index] = try std.fmt.allocPrint(context.response.arena, "/places/{s}", .{try pg.uuidToHex(place.attributes.id)});
+        all_place_urls[place_index] = try std.fmt.allocPrint(context.response.arena, "/admin/places/{s}", .{try pg.uuidToHex(place.attributes.id)});
     }
 
     var response_writer = context.response.writer();
-    try ezig_templates.@"layouts/app_layout.html"(
+    try ezig_templates.@"layouts/admin_layout.html"(
         &response_writer.interface,
         struct {
+            admin: @TypeOf(admin),
             all_places: @TypeOf(all_places),
             all_place_urls: []const []const u8,
 
             pub fn writeBody(self: *const @This(), writer: *std.Io.Writer) !void {
-                try ezig_templates.@"places/index.html"(
+                try ezig_templates.@"admin/places/index.html"(
                     writer,
                     .{ .all_places = self.all_places, .all_place_urls = self.all_place_urls },
                 );
             }
-        }{ .all_places = all_places, .all_place_urls = all_place_urls },
+        }{ .admin = admin, .all_places = all_places, .all_place_urls = all_place_urls },
     );
 }
 
@@ -164,25 +167,30 @@ const ChangeSet = struct {
 };
 
 pub fn new(context: *Context) !void {
+    const admin = try context.helpers.authenticateAdmin() orelse return;
+
     const change_set: ChangeSet = .{};
     const form = mantle.forms.build(context, change_set, .{});
     var response_writer = context.response.writer();
-    try ezig_templates.@"layouts/app_layout.html"(
+    try ezig_templates.@"layouts/admin_layout.html"(
         &response_writer.interface,
         struct {
+            admin: @TypeOf(admin),
             form: @TypeOf(form),
 
             pub fn writeBody(self: *const @This(), writer: *std.Io.Writer) !void {
-                try ezig_templates.@"places/new.html"(
+                try ezig_templates.@"admin/places/new.html"(
                     writer,
                     .{ .form = self.form },
                 );
             }
-        }{ .form = form },
+        }{ .admin = admin, .form = form },
     );
 }
 
 pub fn create(context: *Context) !void {
+    const admin = try context.helpers.authenticateAdmin() orelse return;
+
     const place = try mantle.forms.formDataProtectedFromForgery(context, ChangeSet) orelse return;
 
     const place_create_result: mantle.Repo.CreateResult(places, ChangeSet) = transaction: {
@@ -212,78 +220,87 @@ pub fn create(context: *Context) !void {
 
     switch (place_create_result) {
         .success => {
-            context.helpers.redirectTo("/places");
+            context.helpers.redirectTo("/admin/places");
             return;
         },
         .failure => |errors| {
             context.response.status = 422;
             const form = mantle.forms.build(context, place, .{ .errors = errors });
             var response_writer = context.response.writer();
-            try ezig_templates.@"layouts/app_layout.html"(&response_writer.interface, struct {
+            try ezig_templates.@"layouts/admin_layout.html"(&response_writer.interface, struct {
+                admin: @TypeOf(admin),
                 form: @TypeOf(form),
 
                 pub fn writeBody(self: *const @This(), writer: *std.Io.Writer) !void {
-                    try ezig_templates.@"places/new.html"(
+                    try ezig_templates.@"admin/places/new.html"(
                         writer,
                         .{ .form = self.form },
                     );
                 }
-            }{ .form = form });
+            }{ .admin = admin, .form = form });
         },
     }
 }
 
 pub fn show(context: *Context, params: struct { id: []const u8 }) !void {
+    const admin = try context.helpers.authenticateAdmin() orelse return;
+
     const place = try context.repo.find(places, params.id);
-    const edit_place_url = try std.fmt.allocPrint(context.response.arena, "/places/{s}/edit", .{try pg.uuidToHex(place.attributes.id)});
+    const edit_place_url = try std.fmt.allocPrint(context.response.arena, "/admin/places/{s}/edit", .{try pg.uuidToHex(place.attributes.id)});
     var response_writer = context.response.writer();
-    try ezig_templates.@"layouts/app_layout.html"(
+    try ezig_templates.@"layouts/admin_layout.html"(
         &response_writer.interface,
         struct {
+            admin: @TypeOf(admin),
             place: @TypeOf(place),
             edit_place_url: []const u8,
 
             pub fn writeBody(self: *const @This(), writer: *std.Io.Writer) !void {
-                try ezig_templates.@"places/show.html"(
+                try ezig_templates.@"admin/places/show.html"(
                     writer,
                     .{ .place = self.place, .edit_place_url = self.edit_place_url },
                 );
             }
-        }{ .place = place, .edit_place_url = edit_place_url },
+        }{ .admin = admin, .place = place, .edit_place_url = edit_place_url },
     );
 }
 
 pub fn edit(context: *Context, params: struct { id: []const u8 }) !void {
+    const admin = try context.helpers.authenticateAdmin() orelse return;
+
     const place = try context.repo.find(places, params.id);
-    const place_url = try std.fmt.allocPrint(context.response.arena, "/places/{s}", .{try pg.uuidToHex(place.attributes.id)});
+    const place_url = try std.fmt.allocPrint(context.response.arena, "/admin/places/{s}", .{try pg.uuidToHex(place.attributes.id)});
     const change_set = try ChangeSet.fromPlace(place, context.response.arena);
     const form = mantle.forms.build(context, change_set, .{});
     var response_writer = context.response.writer();
-    try ezig_templates.@"layouts/app_layout.html"(
+    try ezig_templates.@"layouts/admin_layout.html"(
         &response_writer.interface,
         struct {
+            admin: @TypeOf(admin),
             place: @TypeOf(place),
             place_url: []const u8,
             form: @TypeOf(form),
 
             pub fn writeBody(self: *const @This(), writer: *std.Io.Writer) !void {
-                try ezig_templates.@"places/edit.html"(
+                try ezig_templates.@"admin/places/edit.html"(
                     writer,
                     .{ .place = self.place, .place_url = self.place_url, .form = self.form },
                 );
             }
-        }{ .place = place, .place_url = place_url, .form = form },
+        }{ .admin = admin, .place = place, .place_url = place_url, .form = form },
     );
 }
 
 pub fn update(context: *Context, params: struct { id: []const u8 }) !void {
+    const admin = try context.helpers.authenticateAdmin() orelse return;
+
     const place = try context.repo.find(places, params.id);
-    const place_url = try std.fmt.allocPrint(context.response.arena, "/places/{s}", .{try pg.uuidToHex(place.attributes.id)});
+    const place_url = try std.fmt.allocPrint(context.response.arena, "/admin/places/{s}", .{try pg.uuidToHex(place.attributes.id)});
     const change_set = try mantle.forms.formDataProtectedFromForgery(context, ChangeSet) orelse return;
 
     switch (try context.repo.update(places, place, change_set)) {
         .success => |updated_place| {
-            const updated_place_url = try std.fmt.allocPrint(context.response.arena, "/places/{s}", .{try pg.uuidToHex(updated_place.attributes.id)});
+            const updated_place_url = try std.fmt.allocPrint(context.response.arena, "/admin/places/{s}", .{try pg.uuidToHex(updated_place.attributes.id)});
             context.helpers.redirectTo(updated_place_url);
             return;
         },
@@ -291,20 +308,21 @@ pub fn update(context: *Context, params: struct { id: []const u8 }) !void {
             const failed_change_set = try ChangeSet.fromPlace(failure.record, context.response.arena);
             const form = mantle.forms.build(context, failed_change_set, .{ .errors = failure.errors });
             var response_writer = context.response.writer();
-            try ezig_templates.@"layouts/app_layout.html"(
+            try ezig_templates.@"layouts/admin_layout.html"(
                 &response_writer.interface,
                 struct {
+                    admin: @TypeOf(admin),
                     place: @TypeOf(place),
                     place_url: []const u8,
                     form: @TypeOf(form),
 
                     pub fn writeBody(self: *const @This(), writer: *std.Io.Writer) !void {
-                        try ezig_templates.@"places/edit.html"(
+                        try ezig_templates.@"admin/places/edit.html"(
                             writer,
                             .{ .place = self.place, .place_url = self.place_url, .form = self.form },
                         );
                     }
-                }{ .place = place, .place_url = place_url, .form = form },
+                }{ .admin = admin, .place = place, .place_url = place_url, .form = form },
             );
         },
     }

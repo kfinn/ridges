@@ -5,7 +5,7 @@ const mantle = @import("mantle");
 const pg = @import("pg");
 
 const tags = @import("../../../../relations/tags.zig");
-const Context = @import("../../../../ridges_app.zig").RidgesApp.ControllerContext;
+const Context = @import("../../../../ridges.zig").App.ControllerContext;
 
 const Filter = struct {
     q: ?[]const u8 = null,

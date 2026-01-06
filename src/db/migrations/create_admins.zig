@@ -1,4 +1,5 @@
 const std = @import("std");
+
 const pg = @import("pg");
 
 pub const version: i64 = 1754109587203;
@@ -6,7 +7,7 @@ pub const version: i64 = 1754109587203;
 pub fn up(app: anytype, conn: *pg.Conn) !void {
     _ = app;
     _ = try conn.exec(
-        \\CREATE TABLE users (
+        \\CREATE TABLE admins (
         \\   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
         \\   name character varying NOT NULL,
         \\   email character varying NOT NULL,
@@ -14,13 +15,13 @@ pub fn up(app: anytype, conn: *pg.Conn) !void {
         \\)
     , .{});
     _ = try conn.exec(
-        \\CREATE UNIQUE INDEX index_users_on_lower_email ON users(lower(email));
+        \\CREATE UNIQUE INDEX index_admins_on_lower_email ON admins(lower(email));
     , .{});
 }
 
 pub fn down(app: anytype, conn: *pg.Conn) !void {
     _ = app;
     _ = try conn.exec(
-        \\DROP TABLE users;
+        \\DROP TABLE admins;
     , .{});
 }

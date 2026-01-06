@@ -45,13 +45,12 @@
     <script type="module">import "application"</script>
   </head>
   <body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 flex flex-col justify-stretch w-screen min-h-screen">
-    <%
-      try view_helpers.writeH1(
-        writer,
-        "Ridges",
-        .{ .class = (view_helpers.h1_options.class orelse "") ++ " bg-green-600 dark:bg-green-300 text-gray-50 dark:text-gray-900 px-8 py-4" },
-      );
-    %>
+    <div class="bg-green-600 dark:bg-green-300 text-gray-50 dark:text-gray-900 px-8 py-4 flex space-x-4 justify-start items-center text-lg">
+      <% try view_helpers.beginH1(writer, .{} ); %>
+      <% try view_helpers.writeLinkTo(writer, "Ridges", "/", .{ .class = "cursor:pointer" }); %>
+      <% try view_helpers.endH1(writer); %>
+      <% if (std.meta.hasMethod(@TypeOf(props), "writeHeader")) try props.writeHeader(writer); %>
+    </div>
     <% try props.writeBody(writer); %>
   </body>
 </html>

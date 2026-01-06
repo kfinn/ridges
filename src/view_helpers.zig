@@ -4,8 +4,26 @@ const mantle = @import("mantle");
 pub const mantle_view_helpers = mantle.view_helpers;
 const pg = @import("pg");
 
-pub fn writeLinkTo(writer: *std.Io.Writer, body: []const u8, url: []const u8) !void {
-    try mantle_view_helpers.writeHtmlTag(writer, "a", .{ .class = "text-blue-600 dark:text-blue-500 hover:underline", .href = url }, .{});
+const ridges = @import("ridges.zig");
+
+pub const LinkOptions = struct { class: ?[]const u8 = null };
+pub const link_options: LinkOptions = .{ .class = "text-blue-600 dark:text-blue-500 hover:underline" };
+
+pub fn writeLinkTo(writer: *std.Io.Writer, body: []const u8, url: []const u8, options: LinkOptions) !void {
+    var merged_options: LinkOptions = link_options;
+    if (options.class) |class| {
+        merged_options.class = class;
+    }
+
+    try mantle_view_helpers.writeHtmlTag(
+        writer,
+        "a",
+        .{
+            .class = merged_options.class,
+            .href = url,
+        },
+        .{},
+    );
     try mantle.cgi_escape.writeEscapedHtml(writer, body);
     try writer.writeAll("</a>");
 }
@@ -20,19 +38,26 @@ pub fn writeErrors(writer: *std.Io.Writer, errors: []mantle.validation.Error) !v
     try mantle_view_helpers.writeErrors(writer, errors, errors_options);
 }
 
-pub const H1Options = struct { class: ?[]const u8 };
-
+pub const H1Options = struct { class: ?[]const u8 = null };
 pub const h1_options: H1Options = .{ .class = "text-xl" };
 
 pub fn writeH1(writer: *std.Io.Writer, body: []const u8, options: H1Options) !void {
+    try beginH1(writer, options);
+    try mantle.cgi_escape.writeEscapedHtml(writer, body);
+    try endH1(writer);
+}
+
+pub fn endH1(writer: *std.Io.Writer) !void {
+    try writer.writeAll("</h1>");
+}
+
+pub fn beginH1(writer: *std.Io.Writer, options: H1Options) !void {
     var merged_options: H1Options = h1_options;
     if (options.class) |class| {
         merged_options.class = class;
     }
 
     try mantle_view_helpers.writeHtmlTag(writer, "h1", merged_options, .{});
-    try mantle.cgi_escape.writeEscapedHtml(writer, body);
-    try writer.writeAll("</h1>");
 }
 
 pub fn writeH2(writer: *std.Io.Writer, body: []const u8) !void {

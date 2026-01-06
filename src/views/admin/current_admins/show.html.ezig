@@ -1,0 +1,15 @@
+<% const cgi_escape = @import("mantle").cgi_escape; %>
+<% const view_helpers = @import("app").view_helpers; %>
+
+<div class="flex items-baseline space-x-2">
+  <% try view_helpers.writeH2(writer, "Current Admin"); %>
+  <% try view_helpers.writeLinkTo(writer, "Edit", "/admin/current_admin/edit", .{}); %>
+</div>
+
+<dl>
+  <dt>Name</dt>
+  <dd><% try cgi_escape.writeEscapedHtml(writer, props.admin.attributes.name); %></dd>
+
+  <dt>Email</dt>
+  <dd><% try cgi_escape.writeEscapedHtml(writer, props.admin.attributes.email); %></dd>
+</dl>

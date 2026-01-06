@@ -1,0 +1,9 @@
+<% const view_helpers = @import("app").view_helpers; %>
+
+<% try view_helpers.beginH2(writer); %>
+  <% try view_helpers.writeLinkTo(writer, "Places", "/admin/places", .{}); %>
+  &gt;
+  New
+<% try view_helpers.endH2(writer); %>
+
+<% try @"admin/places/form.html"(writer, .{ .form = props.form }); %>

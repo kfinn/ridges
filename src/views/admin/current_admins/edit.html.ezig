@@ -1,15 +1,14 @@
 <% const view_helpers = @import("app").view_helpers; %>
 
-<% try view_helpers.beginCenteredPageContent(writer); %>
 <% try view_helpers.beginH2(writer); %>
-  <% try view_helpers.writeLinkTo(writer, "Tags", "/tags"); %>
+  <% try view_helpers.writeLinkTo(writer, "Current Admin", "/admin/current_admin", .{}); %>
   &gt;
-  New
+  Edit
 <% try view_helpers.endH2(writer); %>
 
 <% try view_helpers.beginForm(writer, props.form); %>
-  <% try view_helpers.writeFormField(writer, props.form, .name, .{ .input = .{ .input = .{ .autofocus = true, .autocomplete = "off" } } }); %>
+  <% try view_helpers.writeFormField(writer, props.form, .name, .{}); %>
+  <% try view_helpers.writeFormField(writer, props.form, .email, .{ .input = .{ .input = .{ .type = "email" } } }); %>
   <% try view_helpers.writeErrors(writer, props.form.errors.base_errors.items); %>
   <% try view_helpers.writeSubmit(writer, "Save"); %>
 <% try view_helpers.endForm(writer, props.form); %>
-<% try view_helpers.endCenteredPageContent(writer); %>

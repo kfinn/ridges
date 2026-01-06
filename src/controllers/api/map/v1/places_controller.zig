@@ -6,7 +6,7 @@ const pg = @import("pg");
 
 const Bounds = @import("../../../../models/Bounds.zig");
 const places = @import("../../../../relations/places.zig");
-const Context = @import("../../../../ridges_app.zig").RidgesApp.ControllerContext;
+const Context = @import("../../../../ridges.zig").App.ControllerContext;
 
 const Filter = struct {
     inBounds: ?struct {
@@ -42,7 +42,7 @@ pub fn index(context: *Context) !void {
     };
     var all_place_urls = try context.response.arena.alloc([]const u8, all_places.len);
     for (all_places, 0..) |place, place_index| {
-        all_place_urls[place_index] = try std.fmt.allocPrint(context.response.arena, "/places/{s}", .{try pg.uuidToHex(place.attributes.id)});
+        all_place_urls[place_index] = try std.fmt.allocPrint(context.response.arena, "/admin/places/{s}", .{try pg.uuidToHex(place.attributes.id)});
     }
     var response_writer = context.response.writer();
     try ezig_templates.@"api/map/v1/places/index.json"(

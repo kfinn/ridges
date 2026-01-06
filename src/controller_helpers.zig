@@ -1,23 +1,23 @@
 const mantle = @import("mantle");
 
-const Context = @import("ridges_app.zig").RidgesApp.ControllerContext;
-const users = @import("relations/users.zig");
+const Context = @import("ridges.zig").App.ControllerContext;
+const admins = @import("relations/admins.zig");
 
 fn getContext(self: *@This()) *Context {
     return @alignCast(@fieldParentPtr("helpers", self));
 }
 
-pub fn authenticateUser(self: *@This()) !?mantle.Repo.relationResultType(users) {
+pub fn authenticateAdmin(self: *@This()) !?mantle.Repo.relationResultType(admins) {
     var context = self.getContext();
 
-    if (context.session.user_id) |user_id| {
-        if (context.repo.findBy(users, .{ .id = user_id })) |opt_user| {
-            if (opt_user) |user| {
-                return user;
+    if (context.session.admin_id) |admin_id| {
+        if (context.repo.findBy(admins, .{ .id = admin_id })) |opt_admin| {
+            if (opt_admin) |admin| {
+                return admin;
             }
         } else |_| {}
     }
-    self.redirectTo("/sessions/new");
+    self.redirectTo("/admin/sessions/new");
     return null;
 }
 
