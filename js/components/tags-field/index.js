@@ -7,7 +7,7 @@ import { html } from "htm/react";
 import _ from "lodash";
 import { useState } from "react";
 
-export default function TagsField({ tagIds: initialTagIds }) {
+export default function TagsField({ tagIds: initialTagIds, createTagCsrfToken }) {
   const [tagIds, setTagIds] = useState(initialTagIds ?? []);
 
   return html`<${Label} htmlFor="tag_ids" label="tags">
@@ -30,7 +30,7 @@ export default function TagsField({ tagIds: initialTagIds }) {
             }}
           />`
       )}
-      <${SearchInput} tagIds=${tagIds} onChangeTagIds=${setTagIds} />
+      <${SearchInput} tagIds=${tagIds} onChangeTagIds=${setTagIds} createTagCsrfToken=${createTagCsrfToken} />
       <input type="hidden" name="tag_ids" value=${_.join(tagIds, ",")} />
     </div>
   </${Label}>`;

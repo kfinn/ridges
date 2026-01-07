@@ -6,6 +6,27 @@
   <div
     class="<%= view_helpers.form_class %>"
     data-react-component-name="TagsField"
+    data-react-component-props="<%
+      {
+        var escaped_html_attribute_writer: mantle.cgi_escape.EscapedHtmlAttributeWriter = .init(writer);
+        var json: std.json.Stringify = .{ .writer = &escaped_html_attribute_writer.interface };
+        try json.beginObject();
+        try json.objectField("tag_ids");
+        try json.beginArray();
+        if (props.form.model.tag_ids.len > 0) {
+          var tag_ids_iterator = std.mem.splitScalar(u8, props.form.model.tag_ids, ',');
+          while (tag_ids_iterator.next()) |tag_id| {
+            if (tag_id.len == 0) break;
+            try json.write(tag_id);
+          }
+        }
+        try json.endArray();
+        try json.objectField("create_tag_csrf_token");
+        try json.write(props.create_tag_csrf_token);
+        try json.endObject();
+        try escaped_html_attribute_writer.interface.flush();
+      }
+    %>"
   ></div>
   <% const location_fields = props.form.fields(.location); %>
   <div

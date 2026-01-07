@@ -171,20 +171,29 @@ pub fn new(context: *Context) !void {
 
     const change_set: ChangeSet = .{};
     const form = mantle.forms.build(context, change_set, .{});
+    const create_tag_csrf_token = context.session.csrf_token.formScoped("/api/tags_multi_select/v1/tags/new", "POST");
     var response_writer = context.response.writer();
     try ezig_templates.@"layouts/admin_layout.html"(
         &response_writer.interface,
         struct {
             admin: @TypeOf(admin),
             form: @TypeOf(form),
+            create_tag_csrf_token: @TypeOf(create_tag_csrf_token),
 
             pub fn writeBody(self: *const @This(), writer: *std.Io.Writer) !void {
                 try ezig_templates.@"admin/places/new.html"(
                     writer,
-                    .{ .form = self.form },
+                    .{
+                        .form = self.form,
+                        .create_tag_csrf_token = self.create_tag_csrf_token,
+                    },
                 );
             }
-        }{ .admin = admin, .form = form },
+        }{
+            .admin = admin,
+            .form = form,
+            .create_tag_csrf_token = create_tag_csrf_token,
+        },
     );
 }
 
@@ -226,18 +235,28 @@ pub fn create(context: *Context) !void {
         .failure => |errors| {
             context.response.status = 422;
             const form = mantle.forms.build(context, place, .{ .errors = errors });
+            const create_tag_csrf_token = context.session.csrf_token.formScoped("/api/tags_multi_select/v1/tags/new", "POST");
+
             var response_writer = context.response.writer();
             try ezig_templates.@"layouts/admin_layout.html"(&response_writer.interface, struct {
                 admin: @TypeOf(admin),
                 form: @TypeOf(form),
+                create_tag_csrf_token: @TypeOf(create_tag_csrf_token),
 
                 pub fn writeBody(self: *const @This(), writer: *std.Io.Writer) !void {
                     try ezig_templates.@"admin/places/new.html"(
                         writer,
-                        .{ .form = self.form },
+                        .{
+                            .form = self.form,
+                            .create_tag_csrf_token = self.create_tag_csrf_token,
+                        },
                     );
                 }
-            }{ .admin = admin, .form = form });
+            }{
+                .admin = admin,
+                .form = form,
+                .create_tag_csrf_token = create_tag_csrf_token,
+            });
         },
     }
 }
@@ -271,6 +290,7 @@ pub fn edit(context: *Context, params: struct { id: []const u8 }) !void {
     const place = try context.repo.find(places, params.id);
     const place_url = try std.fmt.allocPrint(context.response.arena, "/admin/places/{s}", .{try pg.uuidToHex(place.attributes.id)});
     const change_set = try ChangeSet.fromPlace(place, context.response.arena);
+    const create_tag_csrf_token = context.session.csrf_token.formScoped("/api/tags_multi_select/v1/tags/new", "POST");
     const form = mantle.forms.build(context, change_set, .{});
     var response_writer = context.response.writer();
     try ezig_templates.@"layouts/admin_layout.html"(
@@ -280,14 +300,26 @@ pub fn edit(context: *Context, params: struct { id: []const u8 }) !void {
             place: @TypeOf(place),
             place_url: []const u8,
             form: @TypeOf(form),
+            create_tag_csrf_token: @TypeOf(create_tag_csrf_token),
 
             pub fn writeBody(self: *const @This(), writer: *std.Io.Writer) !void {
                 try ezig_templates.@"admin/places/edit.html"(
                     writer,
-                    .{ .place = self.place, .place_url = self.place_url, .form = self.form },
+                    .{
+                        .place = self.place,
+                        .place_url = self.place_url,
+                        .form = self.form,
+                        .create_tag_csrf_token = self.create_tag_csrf_token,
+                    },
                 );
             }
-        }{ .admin = admin, .place = place, .place_url = place_url, .form = form },
+        }{
+            .admin = admin,
+            .place = place,
+            .place_url = place_url,
+            .form = form,
+            .create_tag_csrf_token = create_tag_csrf_token,
+        },
     );
 }
 
@@ -307,6 +339,7 @@ pub fn update(context: *Context, params: struct { id: []const u8 }) !void {
         .failure => |failure| {
             const failed_change_set = try ChangeSet.fromPlace(failure.record, context.response.arena);
             const form = mantle.forms.build(context, failed_change_set, .{ .errors = failure.errors });
+            const create_tag_csrf_token = context.session.csrf_token.formScoped("/api/tags_multi_select/v1/tags/new", "POST");
             var response_writer = context.response.writer();
             try ezig_templates.@"layouts/admin_layout.html"(
                 &response_writer.interface,
@@ -315,14 +348,25 @@ pub fn update(context: *Context, params: struct { id: []const u8 }) !void {
                     place: @TypeOf(place),
                     place_url: []const u8,
                     form: @TypeOf(form),
-
+                    create_tag_csrf_token: @TypeOf(create_tag_csrf_token),
                     pub fn writeBody(self: *const @This(), writer: *std.Io.Writer) !void {
                         try ezig_templates.@"admin/places/edit.html"(
                             writer,
-                            .{ .place = self.place, .place_url = self.place_url, .form = self.form },
+                            .{
+                                .place = self.place,
+                                .place_url = self.place_url,
+                                .form = self.form,
+                                .create_tag_csrf_token = self.create_tag_csrf_token,
+                            },
                         );
                     }
-                }{ .admin = admin, .place = place, .place_url = place_url, .form = form },
+                }{
+                    .admin = admin,
+                    .place = place,
+                    .place_url = place_url,
+                    .form = form,
+                    .create_tag_csrf_token = create_tag_csrf_token,
+                },
             );
         },
     }

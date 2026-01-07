@@ -4,7 +4,7 @@ import toSnakeCase from "to-snake-case";
 
 const api = axios.create({
   baseURL: "/api",
-  paramSerializer: {
+  paramsSerializer: {
     encode: toSnakeCase,
   },
 });

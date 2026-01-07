@@ -8,4 +8,4 @@
   Edit
 <% try view_helpers.endH2(writer); %>
 
-<% try @"admin/places/form.html"(writer, .{ .form = props.form }); %>
+<% try @"admin/places/form.html"(writer, .{ .form = props.form, .create_tag_csrf_token = props.create_tag_csrf_token }); %>
