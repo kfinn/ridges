@@ -4,15 +4,27 @@ const ezig = @import("ezig");
 const mantle = @import("mantle");
 const tailwindcss = @import("tailwindcss");
 
+const environment = @import("src/environment.zig");
+
 pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
+    const environment_option = b.option(environment.Environment, "environment", "Runtime environment to target");
 
     const exe_mod = b.createModule(.{
         .root_source_file = b.path("src/main.zig"),
         .target = target,
         .optimize = optimize,
     });
+
+    const environment_options = b.addOptions();
+    environment_options.addOption(
+        environment.Environment,
+        "environment",
+        environment_option orelse environment.Environment.development,
+    );
+
+    exe_mod.addOptions("environment", environment_options);
 
     const httpz_mod = b.dependency("httpz", .{
         .target = target,

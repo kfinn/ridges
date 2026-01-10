@@ -12,16 +12,16 @@
             .hash = "httpz-0.0.0-PNVzrHLABgDoVnzqKpEbx2rZIzmMclEdoEmdJDfZmxsv",
         },
         .tailwindcss = .{
-            .url = "git+https://github.com/kfinn/tailwindcss-zig.git#dc9762819de9ecdc3e43f1e3dec818fa06b3c4a4",
-            .hash = "tailwindcss-0.0.0-hvehw8sYAACMFN3m4PX45EDQZxFAJLgWqUErN7eTuWw7",
+            .url = "git+https://github.com/kfinn/tailwindcss-zig#a6039b117740174514bdeec7ffc74eda49062067",
+            .hash = "tailwindcss-0.0.0-hvehw00ZAAAJWG8s3gNTWDTwgQ94-LJ5LHLqkWGEJlxC",
         },
         .ezig = .{
             .url = "git+https://github.com/kfinn/ezig#d118c1ca1140d015b2304fdc93719619baed5d1e",
             .hash = "ezig-0.0.0-r1de5YV3AAAIs9hBt6_TTjAU0GsvxPBA_AenMHBN0fh3",
         },
         .mantle = .{
-            .url = "git+https://github.com/kfinn/mantle#be2fe1c4a02692bc9be9c655e7896430b43a0f40",
-            .hash = "mantle-0.0.0-d9oPsJN6AgDCUW9VGw_ZikIBrGIMaRU0VJueUFCPy7Ew",
+            .url = "git+https://github.com/kfinn/mantle#4cf62eb539b0273420514765d27b0f86940b66e1",
+            .hash = "mantle-0.0.0-d9oPsPB4AgCEfPCuCqy79IbhNRk61-Yk3_q9OhkKQqA4",
         },
     },
     .paths = .{

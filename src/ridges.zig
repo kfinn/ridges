@@ -1,5 +1,6 @@
 const std = @import("std");
 
+const environment_options = @import("environment");
 const mantle = @import("mantle");
 
 pub const App = mantle.App(.{
@@ -51,25 +52,12 @@ pub const App = mantle.App(.{
     .controller_helpers = @import("controller_helpers.zig"),
 });
 
-pub fn init(allocator: std.mem.Allocator) !App {
+pub fn init(allocator: std.mem.Allocator, env_map: *const std.process.EnvMap) !App {
     return try App.init(
         allocator,
-        .{
-            .db = .{
-                .connect = .{
-                    .host = "db",
-                    .port = 5432,
-                },
-                .auth = .{
-                    .username = "ridges",
-                    .password = "password",
-                    .database = "ridges",
-                    .application_name = "Ridges",
-                },
-            },
-            .session = .{
-                .cookie_secret_key = "de86040470140bcaa6cf34b4dc34edf3",
-            },
+        switch (environment_options.environment) {
+            .development => @import("environment/development.zig").config,
+            .production => try @import("environment/production.zig").buildConfig(allocator, env_map),
         },
     );
 }

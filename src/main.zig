@@ -10,18 +10,11 @@ pub fn main() !void {
     var gpa: std.heap.GeneralPurposeAllocator(.{}) = .init;
     const allocator = gpa.allocator();
 
-    var app = try ridges.init(allocator);
+    var env_map = try std.process.getEnvMap(allocator);
+    defer env_map.deinit();
+
+    var app = try ridges.init(allocator, &env_map);
     defer app.deinit();
 
-    try mantle.cli.main(
-        allocator,
-        &app,
-        .{
-            .port = 5882,
-            .request = .{
-                .max_query_count = 1024,
-                .max_form_count = 1024,
-            },
-        },
-    );
+    try mantle.cli.main(allocator, &app);
 }
