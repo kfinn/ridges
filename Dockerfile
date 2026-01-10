@@ -12,5 +12,3 @@ COPY --from=0 app/zig-out/bin/ridges bin/ridges
 
 ENTRYPOINT ["bin/ridges"]
 CMD ["server"]
-
-EXPOSE 5882
