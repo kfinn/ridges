@@ -7,7 +7,7 @@ RUN cd app && zig build -Denvironment=production; cd /
 
 FROM alpine:3.23
 WORKDIR /app
-COPY --from=0 app/zig-out/assets .
+COPY --from=0 app/zig-out/assets assets
 COPY --from=0 app/zig-out/bin/ridges bin/ridges
 
 ENTRYPOINT ["bin/ridges"]
