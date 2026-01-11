@@ -13,6 +13,10 @@ pub fn main() !void {
     var env_map = try std.process.getEnvMap(allocator);
     defer env_map.deinit();
 
+    for (env_map.keys()) |key| {
+        std.log.info("env key: {s}", .{key});
+    }
+
     var app = try ridges.init(allocator, &env_map);
     defer app.deinit();
 
