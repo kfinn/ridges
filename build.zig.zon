@@ -20,8 +20,8 @@
             .hash = "ezig-0.0.0-r1de5YV3AAAIs9hBt6_TTjAU0GsvxPBA_AenMHBN0fh3",
         },
         .mantle = .{
-            .url = "git+https://github.com/kfinn/mantle#4cf62eb539b0273420514765d27b0f86940b66e1",
-            .hash = "mantle-0.0.0-d9oPsPB4AgCEfPCuCqy79IbhNRk61-Yk3_q9OhkKQqA4",
+            .url = "git+https://github.com/kfinn/mantle#7e4b552be5c12c04427fa88cdbd8d2fe570baa56",
+            .hash = "mantle-0.0.0-d9oPsD95AgCERUeP9XrICpZ1XyWdnyOIql47v68PgjMa",
         },
     },
     .paths = .{
