@@ -1,5 +1,7 @@
 const std = @import("std");
 
+const assets = @import("assets");
+const environment_options = @import("environment");
 const mantle = @import("mantle");
 pub const mantle_view_helpers = mantle.view_helpers;
 const pg = @import("pg");
@@ -175,4 +177,41 @@ pub fn endCenteredPageContent(writer: *std.Io.Writer) !void {
 
 pub fn uuidToHex(uuid: []const u8) ![36]u8 {
     return try pg.uuidToHex(uuid);
+}
+
+pub fn writeImportMap(writer: *std.Io.Writer) !void {
+    var import_map = mantle.ImportMap.init(writer);
+    try import_map.begin();
+    try import_map.writeEntries(assets.import_map_entries);
+    switch (environment_options.environment) {
+        .development => {
+            try import_map.writeEntry(.init("react", "https://esm.sh/react@^19.1.1?dev"));
+            try import_map.writeEntry(.init("react-dom", "https://esm.sh/react-dom@^19.1.1?dev"));
+            try import_map.writeEntry(.init("react-dom/", "https://esm.sh/react-dom@^19.1.1&dev/"));
+            try import_map.writeEntry(.init("react-map-gl", "https://esm.sh/react-map-gl@^8.0.4?dev&deps=react@^19.1.1,react-dom@19.1.1"));
+            try import_map.writeEntry(.init("react-map-gl/", "https://esm.sh/react-map-gl@^8.0.4&dev&deps=react@^19.1.1,react-dom@19.1.1/"));
+            try import_map.writeEntry(.init("react-icons/", "https://esm.sh/react-icons@^5.5.0&dev&deps=react@^19.1.1,react-dom@19.1.1/"));
+            try import_map.writeEntry(.init("@tanstack/react-query", "https://esm.sh/@tanstack/react-query@^5.90.7?dev&deps=react@^19.1.1,react-dom@19.1.1"));
+        },
+        .production => {
+            try import_map.writeEntry(.init("react", "https://esm.sh/react@^19.1.1"));
+            try import_map.writeEntry(.init("react-dom", "https://esm.sh/react-dom@^19.1.1"));
+            try import_map.writeEntry(.init("react-dom/", "https://esm.sh/react-dom@^19.1.1/"));
+            try import_map.writeEntry(.init("react-map-gl", "https://esm.sh/react-map-gl@^8.0.4&deps=react@^19.1.1,react-dom@19.1.1"));
+            try import_map.writeEntry(.init("react-map-gl/", "https://esm.sh/react-map-gl@^8.0.4&deps=react@^19.1.1,react-dom@19.1.1/"));
+            try import_map.writeEntry(.init("react-icons/", "https://esm.sh/react-icons@^5.5.0&deps=react@^19.1.1,react-dom@19.1.1/"));
+            try import_map.writeEntry(.init("@tanstack/react-query", "https://esm.sh/@tanstack/react-query@^5.90.7&deps=react@^19.1.1,react-dom@19.1.1"));
+        },
+    }
+    try import_map.writeEntry(.init("htm", "https://esm.sh/*htm@^3.1.1"));
+    try import_map.writeEntry(.init("htm/", "https://esm.sh/*htm@^3.1.1/"));
+    try import_map.writeEntry(.init("maplibre-gl", "https://esm.sh/maplibre-gl@^5.7.0"));
+    try import_map.writeEntry(.init("classnames", "https://esm.sh/classnames@^2.5.1"));
+    try import_map.writeEntry(.init("camelize", "https://esm.sh/camelize@^1.0.1"));
+    try import_map.writeEntry(.init("to-snake-case", "https://esm.sh/to-snake-case@^1.0.0"));
+    try import_map.writeEntry(.init("axios", "https://esm.sh/axios@^1.13.2"));
+    try import_map.writeEntry(.init("qs", "https://esm.sh/qs@^6.14.0"));
+    try import_map.writeEntry(.init("lodash", "https://esm.sh/lodash@4.17.21"));
+    try import_map.writeEntry(.init("lodash/", "https://esm.sh/lodash@4.17.21/"));
+    try import_map.end();
 }
