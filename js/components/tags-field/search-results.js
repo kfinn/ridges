@@ -1,19 +1,15 @@
-import { useQuery } from "@tanstack/react-query";
 import classNames from "classnames";
-import NewTagForm from "components/tags-field/new-tag-form";
+import SearchResult from "components/tags-field/search-result";
 import { html } from "htm/react";
 import _ from "lodash";
-import tagsQuery from "queries/tags-multi-select/tags-query";
 import { BASE_CLASS_NAME } from "utils";
 
 export default function SearchResults({
-  q,
+  tags,
   tagIds,
-  onChangeTagIds,
-  createTagCsrfToken,
+  onToggleTagId,
+  highlightedSearchResultId,
 }) {
-  const { data } = useQuery(tagsQuery(q === "" ? {} : { q }));
-
   return html`<div className="w-[0] h-[0] overflow-visible self-start">
     <div
       className=${classNames(
@@ -27,46 +23,17 @@ export default function SearchResults({
         "z-[1]"
       )}
     >
-      ${data !== undefined
-        ? _.isEmpty(data)
-          ? html`<${NewTagForm}
-              name=${q}
-              createTagCsrfToken=${createTagCsrfToken}
-              onSuccess=${(tag) =>
-                onChangeTagIds((previousTagIds) =>
-                  _.union(previousTagIds, [tag.id])
-                )}
-            />`
-          : data.map(
-              (tag) =>
-                html`<div
-                  key=${tag.id}
-                  className=${classNames(
-                    "cursor-pointer",
-                    "select-none",
-                    "hover:bg-gray-100",
-                    "dark:hover:bg-gray-800",
-                    {
-                      "bg-green-300 hover:bg-green-400 dark:bg-green-600 hover:dark:bg-green-500":
-                        _.includes(tagIds, tag.id),
-                    }
-                  )}
-                  onClick=${(e) => {
-                    if (_.includes(tagIds, tag.id)) {
-                      onChangeTagIds((previousTagIds) =>
-                        _.without(previousTagIds, tag.id)
-                      );
-                    } else {
-                      onChangeTagIds((previousTagIds) =>
-                        _.union(previousTagIds, [tag.id])
-                      );
-                    }
-                  }}
-                >
-                  ${tag.name}
-                </div>`
-            )
-        : "..."}
+      ${_.map(
+        tags,
+        (tag) =>
+          html`<${SearchResult}
+            key=${tag.id}
+            tag=${tag}
+            onClick=${() => onToggleTagId(tag.id)}
+            isSelected=${_.includes(tagIds, tag.id)}
+            isHighlighted=${tag.id === highlightedSearchResultId}
+          />`
+      )}
     </div>
   </div>`;
 }

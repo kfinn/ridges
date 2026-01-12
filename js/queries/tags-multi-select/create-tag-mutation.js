@@ -3,7 +3,6 @@ import api from "api";
 export default function createTagMutation(csrfToken) {
   return {
     mutationFn: async (tag, context) => {
-      console.log(tag, csrfToken);
       try {
         const response = await api.post("tags_multi_select/v1/tags/new", {
           ...tag,
