@@ -43,11 +43,15 @@ pub fn @"admins:create"(cli: anytype, args: *std.process.ArgIterator) !void {
 
     const repo = mantle.Repo.init(cli.allocator, conn);
 
-    switch (try repo.create(admins, .{
-        .name = name,
-        .email = email,
-        .password_bcrypt = password_bcrypt,
-    })) {
+    switch (try repo.create(
+        admins,
+        .{
+            .name = name,
+            .email = email,
+            .password_bcrypt = password_bcrypt,
+        },
+        .{},
+    )) {
         .success => |admin| {
             var std_out = std.fs.File.stdout();
             var std_out_buffer: [1024]u8 = undefined;
@@ -73,12 +77,12 @@ pub fn @"admins:reset_password"(cli: anytype, args: *std.process.ArgIterator) !v
 
     const repo = mantle.Repo.init(cli.allocator, conn);
 
-    const admin = try repo.findBy(admins, .{ .email = email }) orelse cli.fatal("No admin exists with email: {s}", .{email});
+    const admin = try repo.findBy(admins, .{ .email = email }, .{}) orelse cli.fatal("No admin exists with email: {s}", .{email});
 
     const password = generateRandomPassword();
     const password_bcrypt = try passwordToBcrypt(&password, cli.allocator);
 
-    switch (try repo.update(admins, admin, .{ .password_bcrypt = password_bcrypt })) {
+    switch (try repo.update(admin, .{ .password_bcrypt = password_bcrypt })) {
         .success => |updated_admin| {
             var std_out = std.fs.File.stdout();
             var std_out_buffer: [1024]u8 = undefined;

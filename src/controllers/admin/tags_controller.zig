@@ -7,7 +7,7 @@ const tags = @import("../../relations/tags.zig");
 const Context = @import("../../ridges.zig").App.ControllerContext;
 
 pub fn index(context: *Context) !void {
-    const admin = try context.helpers.authenticateAdmin() orelse return;
+    const admin = try context.helpers.authenticateAdmin(.{}) orelse return;
 
     const all_tags = try context.repo.all(tags, .{}, .{});
     var response_writer = context.response.writer();
@@ -32,7 +32,7 @@ const ChangeSet = struct {
 };
 
 pub fn new(context: *Context) !void {
-    const admin = try context.helpers.authenticateAdmin() orelse return;
+    const admin = try context.helpers.authenticateAdmin(.{}) orelse return;
 
     const change_set: ChangeSet = .{};
     const form = mantle.forms.build(context, change_set, .{});
@@ -54,10 +54,10 @@ pub fn new(context: *Context) !void {
 }
 
 pub fn create(context: *Context) !void {
-    const admin = try context.helpers.authenticateAdmin() orelse return;
+    const admin = try context.helpers.authenticateAdmin(.{}) orelse return;
 
     const tag = try mantle.forms.formDataProtectedFromForgery(context, ChangeSet) orelse return;
-    switch (try context.repo.create(tags, tag)) {
+    switch (try context.repo.create(tags, tag, .{})) {
         .success => {
             context.helpers.redirectTo("/tags");
             return;

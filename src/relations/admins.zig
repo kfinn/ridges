@@ -17,7 +17,7 @@ pub const NewSession = struct {
 };
 
 const AuthenticateResult = union(enum) {
-    success: mantle.Repo.relationResultType(admins),
+    success: mantle.Repo.relationResultTypeWithOpts(admins, .{}),
     failure: mantle.validation.RecordErrors(NewSession),
 };
 
@@ -32,7 +32,7 @@ pub fn authenticate(allocator: std.mem.Allocator, repo: *mantle.Repo, new_sessio
     }
     if (errors.isInvalid()) return .{ .failure = errors };
 
-    const admin = try repo.findBy(@This(), .{ .email = new_session.email }) orelse {
+    const admin = try repo.findBy(@This(), .{ .email = new_session.email }, .{}) orelse {
         try errors.addFieldError(.email, .init(error.NotFound, "not found"));
         return .{ .failure = errors };
     };

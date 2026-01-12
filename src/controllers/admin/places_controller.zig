@@ -12,7 +12,7 @@ const places = @import("../../relations/places.zig");
 const Context = @import("../../ridges.zig").App.ControllerContext;
 
 pub fn index(context: *Context) !void {
-    const admin = try context.helpers.authenticateAdmin() orelse return;
+    const admin = try context.helpers.authenticateAdmin(.{}) orelse return;
 
     const all_places = try context.repo.all(
         places,
@@ -95,6 +95,18 @@ const ChangeSet = struct {
                 .longitude = try std.fmt.allocPrint(allocator, "{d}", .{place.attributes.location.longitude}),
                 .latitude = try std.fmt.allocPrint(allocator, "{d}", .{place.attributes.location.latitude}),
             },
+            .tag_ids = tag_ids: {
+                var buffer: std.Io.Writer.Allocating = .init(allocator);
+                var requires_leading_comma = false;
+                for (place.associations.place_tags) |place_tag| {
+                    if (requires_leading_comma) try buffer.writer.writeByte(',');
+                    const uuid_hex = try pg.uuidToHex(place_tag.attributes.tag_id);
+                    try buffer.writer.writeAll(&uuid_hex);
+                    requires_leading_comma = true;
+                }
+                try buffer.writer.flush();
+                break :tag_ids try buffer.toOwnedSlice();
+            },
             .address = place.attributes.address,
             .monday_opens_at = if (place.attributes.monday_opens_at) |monday_opens_at| try std.fmt.allocPrint(allocator, "{f}", .{monday_opens_at}) else "",
             .monday_open_seconds = try std.fmt.allocPrint(allocator, "{d}", .{place.attributes.monday_open_seconds}),
@@ -167,7 +179,7 @@ const ChangeSet = struct {
 };
 
 pub fn new(context: *Context) !void {
-    const admin = try context.helpers.authenticateAdmin() orelse return;
+    const admin = try context.helpers.authenticateAdmin(.{}) orelse return;
 
     const change_set: ChangeSet = .{};
     const form = mantle.forms.build(context, change_set, .{});
@@ -198,18 +210,22 @@ pub fn new(context: *Context) !void {
 }
 
 pub fn create(context: *Context) !void {
-    const admin = try context.helpers.authenticateAdmin() orelse return;
+    const admin = try context.helpers.authenticateAdmin(.{}) orelse return;
 
     const place = try mantle.forms.formDataProtectedFromForgery(context, ChangeSet) orelse return;
 
-    const place_create_result: mantle.Repo.CreateResult(places, ChangeSet) = transaction: {
+    const place_create_result: mantle.Repo.CreateResult(
+        places,
+        ChangeSet,
+        .{ .preloads = &[_]mantle.Repo.Preload{.{ .name = "place_tags" }} },
+    ) = transaction: {
         const transaction = try context.repo.beginTransaction();
-        const result = try context.repo.create(places, place);
+        const result = try context.repo.create(places, place, .{ .preloads = &[_]mantle.Repo.Preload{.{ .name = "place_tags" }} });
         switch (result) {
             .success => |created_place| {
                 var tag_ids_iterator = std.mem.splitScalar(u8, place.tag_ids, ',');
                 while (tag_ids_iterator.next()) |tag_id| {
-                    switch (try context.repo.create(place_tags, .{ .place_id = created_place.attributes.id, .tag_id = tag_id })) {
+                    switch (try context.repo.create(place_tags, .{ .place_id = created_place.attributes.id, .tag_id = tag_id }, .{})) {
                         .failure => {
                             try context.repo.rollbackTransaction(transaction);
 
@@ -262,9 +278,9 @@ pub fn create(context: *Context) !void {
 }
 
 pub fn show(context: *Context, params: struct { id: []const u8 }) !void {
-    const admin = try context.helpers.authenticateAdmin() orelse return;
+    const admin = try context.helpers.authenticateAdmin(.{}) orelse return;
 
-    const place = try context.repo.find(places, params.id);
+    const place = try context.repo.find(places, params.id, .{});
     const edit_place_url = try std.fmt.allocPrint(context.response.arena, "/admin/places/{s}/edit", .{try pg.uuidToHex(place.attributes.id)});
     var response_writer = context.response.writer();
     try ezig_templates.@"layouts/admin_layout.html"(
@@ -285,9 +301,9 @@ pub fn show(context: *Context, params: struct { id: []const u8 }) !void {
 }
 
 pub fn edit(context: *Context, params: struct { id: []const u8 }) !void {
-    const admin = try context.helpers.authenticateAdmin() orelse return;
+    const admin = try context.helpers.authenticateAdmin(.{}) orelse return;
 
-    const place = try context.repo.find(places, params.id);
+    const place = try context.repo.find(places, params.id, .{ .preloads = &[_]mantle.Repo.Preload{.{ .name = "place_tags" }} });
     const place_url = try std.fmt.allocPrint(context.response.arena, "/admin/places/{s}", .{try pg.uuidToHex(place.attributes.id)});
     const change_set = try ChangeSet.fromPlace(place, context.response.arena);
     const create_tag_csrf_token = context.session.csrf_token.formScoped("/api/tags_multi_select/v1/tags/new", "POST");
@@ -324,13 +340,83 @@ pub fn edit(context: *Context, params: struct { id: []const u8 }) !void {
 }
 
 pub fn update(context: *Context, params: struct { id: []const u8 }) !void {
-    const admin = try context.helpers.authenticateAdmin() orelse return;
+    const admin = try context.helpers.authenticateAdmin(.{}) orelse return;
 
-    const place = try context.repo.find(places, params.id);
+    const place = try context.repo.find(places, params.id, .{ .preloads = &[_]mantle.Repo.Preload{.{ .name = "place_tags" }} });
     const place_url = try std.fmt.allocPrint(context.response.arena, "/admin/places/{s}", .{try pg.uuidToHex(place.attributes.id)});
     const change_set = try mantle.forms.formDataProtectedFromForgery(context, ChangeSet) orelse return;
 
-    switch (try context.repo.update(places, place, change_set)) {
+    const place_update_result: mantle.Repo.UpdateResult(@TypeOf(place), ChangeSet) = transaction: {
+        const transaction = try context.repo.beginTransaction();
+        const result = try context.repo.update(place, change_set);
+        switch (result) {
+            .success => |updated_place| {
+                var tag_ids_iterator = std.mem.splitScalar(u8, change_set.tag_ids, ',');
+                var visited_tags = try std.DynamicBitSet.initEmpty(context.response.arena, updated_place.associations.place_tags.len);
+                defer visited_tags.deinit();
+
+                tags_to_create: while (tag_ids_iterator.next()) |tag_id| {
+                    if (tag_id.len == 0) break :tags_to_create;
+                    for (updated_place.associations.place_tags, 0..) |existing_place_tag, place_tag_index| {
+                        const uuid_hex = try pg.uuidToHex(existing_place_tag.attributes.tag_id);
+                        if (std.mem.eql(u8, &uuid_hex, tag_id)) {
+                            visited_tags.set(place_tag_index);
+                            continue :tags_to_create;
+                        }
+                    }
+
+                    switch (try context.repo.create(place_tags, .{ .place_id = updated_place.attributes.id, .tag_id = tag_id }, .{})) {
+                        .failure => {
+                            try context.repo.rollbackTransaction(transaction);
+
+                            var errors: mantle.validation.RecordErrors(ChangeSet) = .init(context.response.arena);
+                            try errors.addFieldError(.tag_ids, .init(error.InvalidTag, "invalid tag"));
+                            break :transaction .{
+                                .failure = .{
+                                    .record = updated_place,
+                                    .errors = errors,
+                                },
+                            };
+                        },
+                        else => {},
+                    }
+                }
+
+                const tags_to_delete_count = visited_tags.capacity() - visited_tags.count();
+                var tag_ids_to_delete = try context.response.arena.alloc([]const u8, tags_to_delete_count);
+                defer context.response.arena.free(tag_ids_to_delete);
+                var unvisited_tags_iterator = visited_tags.iterator(.{ .kind = .unset });
+                var next_tag_id_to_delete_index: usize = 0;
+                while (unvisited_tags_iterator.next()) |unvisited_tag_index| {
+                    tag_ids_to_delete[next_tag_id_to_delete_index] = place.associations.place_tags[unvisited_tag_index].attributes.tag_id;
+                    next_tag_id_to_delete_index += 1;
+                }
+
+                switch (try context.repo.deleteAll(place_tags, .{
+                    .where = try place_tags.withAnyTagId(&context.repo, tag_ids_to_delete),
+                })) {
+                    .failure => {
+                        try context.repo.rollbackTransaction(transaction);
+
+                        var errors: mantle.validation.RecordErrors(ChangeSet) = .init(context.response.arena);
+                        try errors.addFieldError(.tag_ids, .init(error.InvalidTag, "invalid tags"));
+                        break :transaction .{
+                            .failure = .{
+                                .record = updated_place,
+                                .errors = errors,
+                            },
+                        };
+                    },
+                    else => {},
+                }
+            },
+            else => {},
+        }
+        try context.repo.commitTransaction(transaction);
+        break :transaction result;
+    };
+
+    switch (place_update_result) {
         .success => |updated_place| {
             const updated_place_url = try std.fmt.allocPrint(context.response.arena, "/admin/places/{s}", .{try pg.uuidToHex(updated_place.attributes.id)});
             context.helpers.redirectTo(updated_place_url);

@@ -7,11 +7,11 @@ fn getContext(self: *@This()) *Context {
     return @alignCast(@fieldParentPtr("helpers", self));
 }
 
-pub fn authenticateAdmin(self: *@This()) !?mantle.Repo.relationResultType(admins) {
+pub fn authenticateAdmin(self: *@This(), comptime result_opts: mantle.Repo.ResultOptions) !?mantle.Repo.relationResultTypeWithOpts(admins, result_opts) {
     var context = self.getContext();
 
     if (context.session.admin_id) |admin_id| {
-        if (context.repo.findBy(admins, .{ .id = admin_id })) |opt_admin| {
+        if (context.repo.findBy(admins, .{ .id = admin_id }, result_opts)) |opt_admin| {
             if (opt_admin) |admin| {
                 return admin;
             }

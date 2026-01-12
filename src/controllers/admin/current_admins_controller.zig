@@ -7,7 +7,7 @@ const admins = @import("../../relations/admins.zig");
 const Context = @import("../../ridges.zig").App.ControllerContext;
 
 pub fn show(context: *Context) !void {
-    if (try context.helpers.authenticateAdmin()) |admin| {
+    if (try context.helpers.authenticateAdmin(.{})) |admin| {
         var response_writer = context.response.writer();
         try ezig_templates.@"layouts/admin_layout.html"(
             &response_writer.interface,
@@ -26,7 +26,7 @@ pub fn show(context: *Context) !void {
 }
 
 pub fn edit(context: *Context) !void {
-    const admin = try context.helpers.authenticateAdmin() orelse return;
+    const admin = try context.helpers.authenticateAdmin(.{}) orelse return;
 
     const form = mantle.forms.build(
         context,
@@ -64,9 +64,9 @@ const AdminUpdate = struct {
 };
 
 pub fn update(context: *Context) !void {
-    const admin = try context.helpers.authenticateAdmin() orelse return;
+    const admin = try context.helpers.authenticateAdmin(.{}) orelse return;
     const admin_update = try mantle.forms.formDataProtectedFromForgery(context, AdminUpdate) orelse return;
-    switch (try context.repo.update(admins, admin, admin_update)) {
+    switch (try context.repo.update(admin, admin_update)) {
         .success => |_| {
             context.helpers.redirectTo("/admin/current_admin");
             return;
