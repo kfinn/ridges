@@ -55,6 +55,7 @@ export default function LocationField(props) {
         name="location[latitude]"
         value=${latitude}
         onChange=${onChangeLatitude}
+        className="min-w-0 shrink"
       />
       <${Field}
         type="number"
@@ -62,6 +63,7 @@ export default function LocationField(props) {
         name="location[longitude]"
         value=${longitude}
         onChange=${onChangeLongitude}
+        className="min-w-0 shrink"
       />
     </div>
   </div>`;

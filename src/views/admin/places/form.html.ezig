@@ -239,8 +239,8 @@
   <% try view_helpers.writeFormField(writer, props.form, .food_description, .{}); %>
   <% try view_helpers.writeFormField(writer, props.form, .televisions_count, .{ .input = .{ .input = .{ .type = "number" } }}); %>
   <% try view_helpers.writeFormField(writer, props.form, .size, .{ .input = .{ .select = .{ .options = @TypeOf(props.form.model).size_options } }}); %>
-  <% try view_helpers.writeFormField(writer, props.form, .is_dog_friendly, .{ .input = .{ .checkbox = .{} }}); %>
-  <% try view_helpers.writeFormField(writer, props.form, .is_queer, .{ .input = .{ .checkbox = .{} }}); %>
+  <% try view_helpers.writeFormField(writer, props.form, .is_dog_friendly, .{ .label = .{ .name = "dog friendly" }, .input = .{ .checkbox = .{} }}); %>
+  <% try view_helpers.writeFormField(writer, props.form, .is_queer, .{ .label = .{ .name = "queer" }, .input = .{ .checkbox = .{} }}); %>
   <% try view_helpers.writeFormField(writer, props.form, .google_url, .{}); %>
   <% try view_helpers.writeFormField(writer, props.form, .instagram_url, .{}); %>
   <% try view_helpers.writeErrors(writer, props.form.errors.base_errors.items); %>
