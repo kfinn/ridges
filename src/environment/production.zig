@@ -23,6 +23,13 @@ pub fn buildConfig(_: std.mem.Allocator, env_map: *const std.process.EnvMap) !ri
         .httpz = .{
             .port = if (env_map.get("PORT")) |env_port| try std.fmt.parseInt(u16, env_port, 10) else 5882,
             .address = "0.0.0.0",
+            .thread_pool = .{
+                .count = count: {
+                    const web_concurrency_string = env_map.get("WEB_CONCURRENCY") orelse break :count null;
+                    const web_concurrency = try std.fmt.parseInt(u16, web_concurrency_string, 10);
+                    break :count web_concurrency * 4;
+                },
+            },
             .request = .{
                 .max_query_count = 1024,
                 .max_form_count = 1024,
