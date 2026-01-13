@@ -1,7 +1,7 @@
 import Field from "components/field";
+import LocationMap from "components/location-map";
 import { html } from "htm/react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import Map, { Marker } from "react-map-gl/maplibre";
 
 export default function LocationField(props) {
   const [latitude, setLatitude] = useState(props.latitude);
@@ -35,18 +35,12 @@ export default function LocationField(props) {
 
   return html`<div className="flex flex-col space-y-2 justify-stretch">
     <div className="rounded h-72">
-      <${Map}
-        ref=${mapRef}
-        initialViewState=${{
-          longitude: longitude,
-          latitude: latitude,
-          zoom: 15,
-        }}
-        mapStyle="https://tiles.openfreemap.org/styles/liberty"
+      <${LocationMap}
+        latitude=${latitude}
+        longitude=${longitude}
         onClick=${onClickMap}
-      >
-        <${Marker} longitude=${longitude} latitude=${latitude} />
-      </${Map}>
+        ref=${mapRef}
+      />
     </div>
     <div className="flex space-x-2 items-stretch justify-stretch">
       <${Field}

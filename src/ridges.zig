@@ -26,7 +26,6 @@ pub const App = mantle.App(.{
                 .initResource("current_admin", @import("controllers/admin/current_admins_controller.zig"), .{}),
                 .initResources("places", @import("controllers/admin/places_controller.zig"), .{}),
                 .initResources("sessions", @import("controllers/admin/sessions_controller.zig"), .{}),
-                .initResources("tags", @import("controllers/admin/tags_controller.zig"), .{}),
             } }),
             .initResource("map", @import("controllers/maps_controller.zig"), .{ .routes = &[_]mantle.routing.Route{
                 .initResource("places", @import("controllers/places_maps_controller.zig"), .{}),

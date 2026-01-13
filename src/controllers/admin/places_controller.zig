@@ -19,12 +19,7 @@ pub fn index(context: *Context) !void {
         .{},
         .{
             .preloads = &[_]mantle.Repo.Preload{
-                .{
-                    .name = "place_tags",
-                    .preloads = &[_]mantle.Repo.Preload{
-                        .{ .name = "tag" },
-                    },
-                },
+                .init("place_tags", .{ .preloads = &[_]mantle.Repo.Preload{.init("tag", .{})} }),
             },
         },
     );
@@ -217,10 +212,10 @@ pub fn create(context: *Context) !void {
     const place_create_result: mantle.Repo.CreateResult(
         places,
         ChangeSet,
-        .{ .preloads = &[_]mantle.Repo.Preload{.{ .name = "place_tags" }} },
+        .{ .preloads = &[_]mantle.Repo.Preload{.init("place_tags", .{})} },
     ) = transaction: {
         const transaction = try context.repo.beginTransaction();
-        const result = try context.repo.create(places, place, .{ .preloads = &[_]mantle.Repo.Preload{.{ .name = "place_tags" }} });
+        const result = try context.repo.create(places, place, .{ .preloads = &[_]mantle.Repo.Preload{.init("place_tags", .{})} });
         switch (result) {
             .success => |created_place| {
                 var tag_ids_iterator = std.mem.splitScalar(u8, place.tag_ids, ',');
@@ -280,7 +275,16 @@ pub fn create(context: *Context) !void {
 pub fn show(context: *Context, params: struct { id: []const u8 }) !void {
     const admin = try context.helpers.authenticateAdmin(.{}) orelse return;
 
-    const place = try context.repo.find(places, params.id, .{});
+    const place = try context.repo.find(
+        places,
+        params.id,
+        .{
+            .preloads = &[_]mantle.Repo.Preload{
+                .init("place_tags", .{ .preloads = &[_]mantle.Repo.Preload{.init("tag", .{})} }),
+            },
+        },
+    );
+
     const edit_place_url = try std.fmt.allocPrint(context.response.arena, "/admin/places/{s}/edit", .{try pg.uuidToHex(place.attributes.id)});
     var response_writer = context.response.writer();
     try ezig_templates.@"layouts/admin_layout.html"(
@@ -303,7 +307,7 @@ pub fn show(context: *Context, params: struct { id: []const u8 }) !void {
 pub fn edit(context: *Context, params: struct { id: []const u8 }) !void {
     const admin = try context.helpers.authenticateAdmin(.{}) orelse return;
 
-    const place = try context.repo.find(places, params.id, .{ .preloads = &[_]mantle.Repo.Preload{.{ .name = "place_tags" }} });
+    const place = try context.repo.find(places, params.id, .{ .preloads = &[_]mantle.Repo.Preload{.init("place_tags", .{})} });
     const place_url = try std.fmt.allocPrint(context.response.arena, "/admin/places/{s}", .{try pg.uuidToHex(place.attributes.id)});
     const change_set = try ChangeSet.fromPlace(place, context.response.arena);
     const create_tag_csrf_token = context.session.csrf_token.formScoped("/api/tags_multi_select/v1/tags/new", "POST");

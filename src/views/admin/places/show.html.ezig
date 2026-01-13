@@ -1,9 +1,181 @@
 <% const view_helpers = @import("app").view_helpers; %>
+<% const mantle = @import("mantle"); %>
 
 <% try view_helpers.beginH2(writer); %>
   <% try view_helpers.writeLinkTo(writer, "Places", "/admin/places", .{}); %>
   &gt;
   <%= props.place.attributes.name %>
 <% try view_helpers.endH2(writer); %>
-
 <% try view_helpers.writeLinkTo(writer, "Edit", props.edit_place_url, .{}); %>
+
+<dl>
+  <dt>Tags</dt>
+  <dd>
+    <% for (props.place.associations.place_tags) |place_tag| { %>
+      <div class="inline-block px-1 py-0.5 border rounded border-green-600 dark:border-green-500 hover:background-green-200 dark:hover:background-green-100"><%= place_tag.associations.tag.attributes.name %></div>
+    <% } %>
+  </dd>
+
+  <dt>Location</dt>
+  <dd
+    class="h-36 flex justify-stretch"
+    data-react-component-name="LocationMap"
+    data-react-component-props="<%
+      {
+        var escaped_html_attribute_writer: mantle.cgi_escape.EscapedHtmlAttributeWriter = .init(writer);
+        var json: std.json.Stringify = .{ .writer = &escaped_html_attribute_writer.interface };
+        try json.beginObject();
+        try json.objectField("longitude");
+        try json.write(props.place.attributes.location.longitude);
+        try json.objectField("latitude");
+        try json.write(props.place.attributes.location.latitude);
+        try json.endObject();
+        try escaped_html_attribute_writer.interface.flush();
+      }
+    %>"
+  >
+  </dd>
+
+  <dt>Hours</dt>
+  <dd>
+    <table>
+      <tbody>
+        <tr>
+          <td>
+            Monday
+          </td>
+          <td>
+            <% if (props.place.attributes.monday_opens_at) |monday_opens_at| { %>
+              <%{f}= monday_opens_at %> - <%{f}= monday_opens_at.plusSeconds(props.place.attributes.monday_open_seconds) %>
+            <% } else { %>
+              &mdash;
+            <% } %>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            Tuesday:
+          </td>
+          <td>
+            <% if (props.place.attributes.tuesday_opens_at) |tuesday_opens_at| { %>
+              <%{f}= tuesday_opens_at %> - <%{f}= tuesday_opens_at.plusSeconds(props.place.attributes.tuesday_open_seconds) %>
+            <% } else { %>
+              &mdash;
+            <% } %>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            Wednesday:
+          </td>
+          <td>
+            <% if (props.place.attributes.wednesday_opens_at) |wednesday_opens_at| { %>
+              <%{f}= wednesday_opens_at %> - <%{f}= wednesday_opens_at.plusSeconds(props.place.attributes.wednesday_open_seconds) %>
+            <% } else { %>
+              &mdash;
+            <% } %>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            Thursday:
+          </td>
+          <td>
+            <% if (props.place.attributes.thursday_opens_at) |thursday_opens_at| { %>
+              <%{f}= thursday_opens_at %> - <%{f}= thursday_opens_at.plusSeconds(props.place.attributes.thursday_open_seconds) %>
+            <% } else { %>
+              &mdash;
+            <% } %>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            Friday:
+          </td>
+          <td>
+            <% if (props.place.attributes.friday_opens_at) |friday_opens_at| { %>
+              <%{f}= friday_opens_at %> - <%{f}= friday_opens_at.plusSeconds(props.place.attributes.friday_open_seconds) %>
+            <% } else { %>
+              &mdash;
+            <% } %>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            Saturday:
+          </td>
+          <td>
+            <% if (props.place.attributes.saturday_opens_at) |saturday_opens_at| { %>
+              <%{f}= saturday_opens_at %> - <%{f}= saturday_opens_at.plusSeconds(props.place.attributes.saturday_open_seconds) %>
+            <% } else { %>
+              &mdash;
+            <% } %>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            Sunday:
+          </td>
+          <td>
+            <% if (props.place.attributes.sunday_opens_at) |sunday_opens_at| { %>
+              <%{f}= sunday_opens_at %> - <%{f}= sunday_opens_at.plusSeconds(props.place.attributes.sunday_open_seconds) %>
+            <% } else { %>
+              &mdash;
+            <% } %>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </dd>
+
+  <dt>Pricing</dt>
+  <dd><%= if (props.place.attributes.pricing_description.len > 0) props.place.attributes.pricing_description else "&mdash;" %></dd>
+
+  <dt>Specials</dt>
+  <dd><%= if (props.place.attributes.specials_description.len > 0) props.place.attributes.specials_description else "&mdash;" %></dd>
+
+  <dt>Events</dt>
+  <dd><%= if (props.place.attributes.events_description.len > 0) props.place.attributes.events_description else "&mdash;" %></dd>
+
+  <dt>Bathrooms</dt>
+  <dd><%= if (props.place.attributes.bathrooms_description.len > 0) props.place.attributes.bathrooms_description else "&mdash;" %></dd>
+
+  <dt>Food</dt>
+  <dd><%= if (props.place.attributes.food_description.len > 0) props.place.attributes.food_description else "&mdash;" %></dd>
+
+  <dt>Televisions Count</dt>
+  <dd><%{d}= props.place.attributes.televisions_count %></dd>
+
+  <dt>Size</dt>
+  <dd><%= switch (props.place.attributes.size) { .ten_to_fifteen => "10-15", .fifteen_to_thirty => "15-30", .thirty_plus => "30+" } %></dd>
+
+  <dt>Dog Friendly</dt>
+  <dd><%= if (props.place.attributes.is_dog_friendly) "yes" else "no" %></dd>
+
+  <dt>Queer</dt>
+  <dd><%= if (props.place.attributes.is_queer) "yes" else "no" %></dd>
+
+  <dt>Google URL</dt>
+  <dd>
+    <% { %>
+      <% const google_url = props.place.attributes.google_url; %>
+      <% if (google_url.len > 0) { %>
+        <% try view_helpers.writeLinkTo(writer, google_url, google_url, .{}); %>
+      <% } else { %>
+        &mdash;
+      <% } %>
+    <% } %>
+  </dd>
+
+  <dt>Instagram URL</dt>
+  <dd>
+    <% { %>
+      <% const instagram_url = props.place.attributes.instagram_url; %>
+      <% if (instagram_url.len > 0) { %>
+        <% try view_helpers.writeLinkTo(writer, instagram_url, instagram_url, .{}); %>
+      <% } else { %>
+        &mdash;
+      <% } %>
+    <% } %>
+  </dd>
+</dl>

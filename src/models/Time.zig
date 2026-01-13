@@ -5,8 +5,17 @@ const pg = @import("pg");
 
 microseconds: i64,
 
+const microseconds_per_second = 1000000;
+const microseconds_per_day = microseconds_per_second * 60 * 60 * 24;
+
+pub fn plusSeconds(self: *const @This(), seconds: i64) @This() {
+    return .{
+        .microseconds = @mod(self.microseconds + seconds * microseconds_per_second, microseconds_per_day),
+    };
+}
+
 pub fn writeHtmlTimeInputValue(self: *const @This(), writer: *std.Io.Writer) !void {
-    const total_seconds = @divFloor(self.microseconds, 1000000);
+    const total_seconds = @divFloor(self.microseconds, microseconds_per_second);
     const seconds = @mod(total_seconds, 60);
     const total_minutes = @divFloor(total_seconds, 60);
     const minutes = @mod(total_minutes, 60);
