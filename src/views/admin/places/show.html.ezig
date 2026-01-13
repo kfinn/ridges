@@ -12,7 +12,7 @@
   <dt>Tags</dt>
   <dd>
     <% for (props.place.associations.place_tags) |place_tag| { %>
-      <div class="inline-block px-1 py-0.5 border rounded border-green-600 dark:border-green-500 hover:background-green-200 dark:hover:background-green-100"><%= place_tag.associations.tag.attributes.name %></div>
+      <% try view_helpers.writePlaceTag(writer, place_tag); %>
     <% } %>
   </dd>
 

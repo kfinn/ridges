@@ -24,8 +24,18 @@ pub fn index(context: *Context) !void {
         },
     );
     var all_place_urls = try context.response.arena.alloc([]const u8, all_places.len);
+    var all_edit_place_urls = try context.response.arena.alloc([]const u8, all_places.len);
     for (all_places, 0..) |place, place_index| {
-        all_place_urls[place_index] = try std.fmt.allocPrint(context.response.arena, "/admin/places/{s}", .{try pg.uuidToHex(place.attributes.id)});
+        all_place_urls[place_index] = try std.fmt.allocPrint(
+            context.response.arena,
+            "/admin/places/{s}",
+            .{try pg.uuidToHex(place.attributes.id)},
+        );
+        all_edit_place_urls[place_index] = try std.fmt.allocPrint(
+            context.response.arena,
+            "/admin/places/{s}/edit",
+            .{try pg.uuidToHex(place.attributes.id)},
+        );
     }
 
     var response_writer = context.response.writer();
@@ -35,14 +45,24 @@ pub fn index(context: *Context) !void {
             admin: @TypeOf(admin),
             all_places: @TypeOf(all_places),
             all_place_urls: []const []const u8,
+            all_edit_place_urls: []const []const u8,
 
             pub fn writeBody(self: *const @This(), writer: *std.Io.Writer) !void {
                 try ezig_templates.@"admin/places/index.html"(
                     writer,
-                    .{ .all_places = self.all_places, .all_place_urls = self.all_place_urls },
+                    .{
+                        .all_places = self.all_places,
+                        .all_place_urls = self.all_place_urls,
+                        .all_edit_place_urls = self.all_edit_place_urls,
+                    },
                 );
             }
-        }{ .admin = admin, .all_places = all_places, .all_place_urls = all_place_urls },
+        }{
+            .admin = admin,
+            .all_places = all_places,
+            .all_place_urls = all_place_urls,
+            .all_edit_place_urls = all_edit_place_urls,
+        },
     );
 }
 

@@ -215,3 +215,16 @@ pub fn writeImportMap(writer: *std.Io.Writer) !void {
     try import_map.writeEntry(.init("lodash/", "https://esm.sh/lodash@4.17.21/"));
     try import_map.end();
 }
+
+pub fn writePlaceTag(writer: *std.Io.Writer, place_tag: anytype) !void {
+    try mantle_view_helpers.writeHtmlTag(
+        writer,
+        "div",
+        .{
+            .class = "inline-block px-1 py-0.5 border rounded border-green-600 dark:border-green-500 hover:background-green-200 dark:hover:background-green-100",
+        },
+        .{},
+    );
+    try mantle.cgi_escape.writeEscapedHtml(writer, place_tag.associations.tag.attributes.name);
+    try writer.writeAll("</div>");
+}

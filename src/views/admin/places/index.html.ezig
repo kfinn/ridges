@@ -3,16 +3,27 @@
 <% try view_helpers.writeH2(writer, "Places"); %>
 <% try view_helpers.writeLinkTo(writer, "New", "/admin/places/new", .{}); %>
 
-<% try view_helpers.beginUl(writer); %>
-  <% for (props.all_places, props.all_place_urls) |place, place_url| { %>
-    <li>
-      <% try view_helpers.writeLinkTo(writer, place.attributes.name, place_url, .{}); %>:
-      <span class="font-mono">
-        <%{d}= place.attributes.location.longitude %> <%{d}= place.attributes.location.latitude %>
-      </span>
-      <% for (place.associations.place_tags) |place_tag| { %>
-        <%= place_tag.associations.tag.attributes.name %>
-      <% } %>
-    </li>
-  <% } %>
-<% try view_helpers.endUl(writer); %>
+<table>
+  <thead>
+    <th>Name</th>
+    <th>Tags</th>
+    <th>Edit</th>
+  </thead>
+  <tbody>
+    <% for (props.all_places, props.all_place_urls, props.all_edit_place_urls) |place, place_url, edit_place_url| { %>
+      <tr>
+        <td>
+          <% try view_helpers.writeLinkTo(writer, place.attributes.name, place_url, .{}); %>
+        </td>
+        <td>
+        <% for (place.associations.place_tags) |place_tag| { %>
+          <% try view_helpers.writePlaceTag(writer, place_tag); %>
+        <% } %>
+        </td>
+        <td>
+          <% try view_helpers.writeLinkTo(writer, "Edit", edit_place_url, .{}); %>
+        </td>
+      </tr>
+    <% } %>
+  </tbody>
+</table>

@@ -5,6 +5,7 @@ import _ from "lodash";
 import placesQuery from "queries/map/places-query";
 import { useCallback, useMemo, useRef, useState } from "react";
 import Map, { Layer, Popup, Source } from "react-map-gl/maplibre";
+import { useColorScheme } from "utils/use-color-scheme";
 
 export default function PlacesMap() {
   const mapRef = useRef();
@@ -66,10 +67,16 @@ export default function PlacesMap() {
     return places && _.find(places, (place) => place.id === selectedPlaceId);
   }, [places, selectedPlaceId]);
 
+  const colorScheme = useColorScheme();
+
   return html`<${Map}
     style=${{ height: undefined }}
     cursor=${hoveredPlaceId !== null ? "pointer" : undefined}
-    mapStyle="https://tiles.openfreemap.org/styles/liberty"
+    mapStyle=${
+      colorScheme === "light"
+        ? "https://tiles.openfreemap.org/styles/positron"
+        : "https://tiles.openfreemap.org/styles/dark"
+    }
     ref=${mapRef}
     onMove=${onMove}
     onMouseMove=${onMouseMove}
