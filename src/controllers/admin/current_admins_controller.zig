@@ -67,7 +67,7 @@ pub fn update(context: *Context) !void {
     const admin = try context.helpers.authenticateAdmin(.{}) orelse return;
     const admin_update = try mantle.forms.formDataProtectedFromForgery(context, AdminUpdate) orelse return;
     switch (try context.repo.update(admin, admin_update)) {
-        .success => |_| {
+        .success => {
             context.helpers.redirectTo("/admin/current_admin");
             return;
         },

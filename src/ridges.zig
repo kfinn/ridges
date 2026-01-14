@@ -23,7 +23,11 @@ pub const App = mantle.App(.{
                 }),
             }),
             .initResource("admin", @import("controllers/admins_controller.zig"), .{ .routes = &[_]mantle.routing.Route{
-                .initResource("current_admin", @import("controllers/admin/current_admins_controller.zig"), .{}),
+                .initResource("current_admin", @import("controllers/admin/current_admins_controller.zig"), .{
+                    .routes = &[_]mantle.routing.Route{
+                        .initResource("password_change", @import("controllers/admin/password_changes_controller.zig"), .{}),
+                    },
+                }),
                 .initResources("places", @import("controllers/admin/places_controller.zig"), .{}),
                 .initResources("sessions", @import("controllers/admin/sessions_controller.zig"), .{}),
             } }),

@@ -4,6 +4,7 @@
 <div class="flex items-baseline space-x-2">
   <% try view_helpers.writeH2(writer, "Current Admin"); %>
   <% try view_helpers.writeLinkTo(writer, "Edit", "/admin/current_admin/edit", .{}); %>
+  <% try view_helpers.writeLinkTo(writer, "Change Password", "/admin/current_admin/password_change/new", .{}); %>
 </div>
 
 <dl>

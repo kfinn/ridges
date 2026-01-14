@@ -18,25 +18,12 @@ fn generateRandomPassword() [32]u8 {
     return password_hex;
 }
 
-fn passwordToBcrypt(password: []const u8, allocator: std.mem.Allocator) ![]const u8 {
-    var buf: [std.crypto.pwhash.bcrypt.hash_length * 2]u8 = undefined;
-    const password_hash = try std.crypto.pwhash.bcrypt.strHash(password, .{
-        .encoding = .phc,
-        .allocator = allocator,
-        .params = .owasp,
-    }, &buf);
-
-    const final = try allocator.alloc(u8, password_hash.len);
-    @memcpy(final, password_hash);
-    return final;
-}
-
 pub fn @"admins:create"(cli: anytype, args: *std.process.ArgIterator) !void {
     const name = args.next() orelse cli.fatal("Usage: admins:create [name] [email]", .{});
     const email = args.next() orelse cli.fatal("Usage: admins:create [name] [email]", .{});
 
     const password = generateRandomPassword();
-    const password_bcrypt = try passwordToBcrypt(&password, cli.allocator);
+    const password_bcrypt = try admins.passwordToBcrypt(&password, cli.allocator);
 
     const conn: *pg.Conn = try cli.app.pg_pool.acquire();
     defer conn.release();
@@ -80,7 +67,7 @@ pub fn @"admins:reset_password"(cli: anytype, args: *std.process.ArgIterator) !v
     const admin = try repo.findBy(admins, .{ .email = email }, .{}) orelse cli.fatal("No admin exists with email: {s}", .{email});
 
     const password = generateRandomPassword();
-    const password_bcrypt = try passwordToBcrypt(&password, cli.allocator);
+    const password_bcrypt = try admins.passwordToBcrypt(&password, cli.allocator);
 
     switch (try repo.update(admin, .{ .password_bcrypt = password_bcrypt })) {
         .success => |updated_admin| {

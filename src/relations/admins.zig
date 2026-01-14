@@ -37,12 +37,34 @@ pub fn authenticate(allocator: std.mem.Allocator, repo: *mantle.Repo, new_sessio
         return .{ .failure = errors };
     };
 
-    if (std.crypto.pwhash.bcrypt.strVerify(admin.attributes.password_bcrypt, new_session.password, .{ .silently_truncate_password = false })) {
+    if (admin.helpers.verifyPassword(new_session.password)) {
         return .{ .success = admin };
-    } else |_| {
+    } else {
         try errors.addFieldError(.password, .init(error.InvalidPassword, "invalid"));
         return .{ .failure = errors };
     }
+}
+
+pub fn Helpers(comptime Admin: type, comptime field_name: []const u8) type {
+    return struct {
+        pub fn getAdmin(self: *const @This()) *const Admin {
+            return @alignCast(@fieldParentPtr(field_name, self));
+        }
+
+        pub fn verifyPassword(self: *const @This(), password: []const u8) bool {
+            if (std.crypto.pwhash.bcrypt.strVerify(
+                self.getAdmin().attributes.password_bcrypt,
+                password,
+                .{
+                    .silently_truncate_password = false,
+                },
+            )) {
+                return true;
+            } else |_| {
+                return false;
+            }
+        }
+    };
 }
 
 pub fn validate(self: anytype, errors: *mantle.validation.RecordErrors(@TypeOf(self))) !void {
@@ -95,4 +117,17 @@ fn validateEmail(self: anytype, errors: *mantle.validation.RecordErrors(@TypeOf(
     if (!has_at_sign or !has_characters_before_at_sign or !has_characters_after_at_sign) {
         try errors.addFieldError(.email, .init(error.InvalidEmailFormat, "must be a valid email address"));
     }
+}
+
+pub fn passwordToBcrypt(password: []const u8, allocator: std.mem.Allocator) ![]const u8 {
+    var buf: [std.crypto.pwhash.bcrypt.hash_length * 2]u8 = undefined;
+    const password_hash = try std.crypto.pwhash.bcrypt.strHash(password, .{
+        .encoding = .phc,
+        .allocator = allocator,
+        .params = .owasp,
+    }, &buf);
+
+    const final = try allocator.alloc(u8, password_hash.len);
+    @memcpy(final, password_hash);
+    return final;
 }
