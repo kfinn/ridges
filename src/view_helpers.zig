@@ -228,3 +228,26 @@ pub fn writePlaceTag(writer: *std.Io.Writer, place_tag: anytype) !void {
     try mantle.cgi_escape.writeEscapedHtml(writer, place_tag.associations.tag.attributes.name);
     try writer.writeAll("</div>");
 }
+
+pub fn writeDt(writer: *std.Io.Writer, body: []const u8) !void {
+    try mantle_view_helpers.writeHtmlTag(writer, "dt", .{ .class = "font-bold" }, .{});
+    try mantle.cgi_escape.writeEscapedHtml(writer, body);
+    try writer.writeAll("</dt>");
+}
+
+pub const dd_class = "mb-4";
+pub const DdOptions = struct { class: []const u8 = dd_class };
+
+pub fn writeDd(writer: *std.Io.Writer, body: []const u8, options: DdOptions) !void {
+    try beginDd(writer, options);
+    try mantle.cgi_escape.writeEscapedHtml(writer, body);
+    try endDd(writer);
+}
+
+pub fn beginDd(writer: *std.Io.Writer, options: DdOptions) !void {
+    try mantle_view_helpers.writeHtmlTag(writer, "dd", options, .{});
+}
+
+pub fn endDd(writer: *std.Io.Writer) !void {
+    try writer.writeAll("</dd>");
+}

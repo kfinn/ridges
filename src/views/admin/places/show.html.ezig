@@ -9,16 +9,16 @@
 <% try view_helpers.writeLinkTo(writer, "Edit", props.edit_place_url, .{}); %>
 
 <dl>
-  <dt>Tags</dt>
-  <dd>
+  <% try view_helpers.writeDt(writer, "Tags"); %>
+    <% try view_helpers.beginDd(writer, .{}); %>
     <% for (props.place.associations.place_tags) |place_tag| { %>
       <% try view_helpers.writePlaceTag(writer, place_tag); %>
     <% } %>
   </dd>
 
-  <dt>Location</dt>
+  <% try view_helpers.writeDt(writer, "Location"); %>
   <dd
-    class="h-36 flex justify-stretch"
+    class="<%= view_helpers.dd_class %> h-36 flex justify-stretch"
     data-react-component-name="LocationMap"
     data-react-component-props="<%
       {
@@ -36,8 +36,8 @@
   >
   </dd>
 
-  <dt>Hours</dt>
-  <dd>
+  <% try view_helpers.writeDt(writer, "Hours"); %>
+  <% try view_helpers.beginDd(writer, .{}); %>
     <table>
       <tbody>
         <tr>
@@ -126,37 +126,39 @@
         </tr>
       </tbody>
     </table>
-  </dd>
+  <% try view_helpers.endDd(writer); %>
 
-  <dt>Pricing</dt>
-  <dd><%= if (props.place.attributes.pricing_description.len > 0) props.place.attributes.pricing_description else "&mdash;" %></dd>
+  <% try view_helpers.writeDt(writer, "Pricing"); %>
+  <% try view_helpers.writeDd(writer, if (props.place.attributes.pricing_description.len > 0) props.place.attributes.pricing_description else "&mdash;", .{}); %>
 
-  <dt>Specials</dt>
-  <dd><%= if (props.place.attributes.specials_description.len > 0) props.place.attributes.specials_description else "&mdash;" %></dd>
+  <% try view_helpers.writeDt(writer, "Specials"); %>
+  <% try view_helpers.writeDd(writer, if (props.place.attributes.specials_description.len > 0) props.place.attributes.specials_description else "&mdash;", .{}); %>
 
-  <dt>Events</dt>
-  <dd><%= if (props.place.attributes.events_description.len > 0) props.place.attributes.events_description else "&mdash;" %></dd>
+  <% try view_helpers.writeDt(writer, "Events"); %>
+  <% try view_helpers.writeDd(writer, if (props.place.attributes.events_description.len > 0) props.place.attributes.events_description else "&mdash;", .{}); %>
 
-  <dt>Bathrooms</dt>
-  <dd><%= if (props.place.attributes.bathrooms_description.len > 0) props.place.attributes.bathrooms_description else "&mdash;" %></dd>
+  <% try view_helpers.writeDt(writer, "Bathrooms"); %>
+  <% try view_helpers.writeDd(writer, if (props.place.attributes.bathrooms_description.len > 0) props.place.attributes.bathrooms_description else "&mdash;", .{}); %>
 
-  <dt>Food</dt>
-  <dd><%= if (props.place.attributes.food_description.len > 0) props.place.attributes.food_description else "&mdash;" %></dd>
+  <% try view_helpers.writeDt(writer, "Food"); %>
+  <% try view_helpers.writeDd(writer, if (props.place.attributes.food_description.len > 0) props.place.attributes.food_description else "&mdash;", .{}); %>
 
-  <dt>Televisions Count</dt>
-  <dd><%{d}= props.place.attributes.televisions_count %></dd>
+  <% try view_helpers.writeDt(writer, "Televisions Count"); %>
+  <% try view_helpers.beginDd(writer, .{}); %>
+    <%{d}= props.place.attributes.televisions_count %>
+  <% try view_helpers.endDd(writer); %>
 
-  <dt>Size</dt>
-  <dd><%= switch (props.place.attributes.size) { .ten_to_fifteen => "10-15", .fifteen_to_thirty => "15-30", .thirty_plus => "30+" } %></dd>
+  <% try view_helpers.writeDt(writer, "Size"); %>
+  <% try view_helpers.writeDd(writer, switch (props.place.attributes.size) { .ten_to_fifteen => "10-15", .fifteen_to_thirty => "15-30", .thirty_plus => "30+" }, .{}); %>
 
-  <dt>Dog Friendly</dt>
-  <dd><%= if (props.place.attributes.is_dog_friendly) "yes" else "no" %></dd>
+  <% try view_helpers.writeDt(writer, "Dog Friendly"); %>
+  <% try view_helpers.writeDd(writer, if (props.place.attributes.is_dog_friendly) "yes" else "no", .{}); %>
 
-  <dt>Queer</dt>
-  <dd><%= if (props.place.attributes.is_queer) "yes" else "no" %></dd>
+  <% try view_helpers.writeDt(writer, "Queer"); %>
+  <% try view_helpers.writeDd(writer, if (props.place.attributes.is_queer) "yes" else "no", .{}); %>
 
-  <dt>Google URL</dt>
-  <dd>
+  <% try view_helpers.writeDt(writer, "Google URL"); %>
+  <% try view_helpers.beginDd(writer, .{}); %>
     <% { %>
       <% const google_url = props.place.attributes.google_url; %>
       <% if (google_url.len > 0) { %>
@@ -165,10 +167,10 @@
         &mdash;
       <% } %>
     <% } %>
-  </dd>
+  <% try view_helpers.endDd(writer); %>
 
-  <dt>Instagram URL</dt>
-  <dd>
+  <% try view_helpers.writeDt(writer, "Instagram URL"); %>
+  <% try view_helpers.beginDd(writer, .{}); %>
     <% { %>
       <% const instagram_url = props.place.attributes.instagram_url; %>
       <% if (instagram_url.len > 0) { %>
@@ -177,5 +179,5 @@
         &mdash;
       <% } %>
     <% } %>
-  </dd>
+  <% try view_helpers.endDd(writer); %>
 </dl>
