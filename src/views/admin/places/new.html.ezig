@@ -1,9 +1,11 @@
 <% const view_helpers = @import("app").view_helpers; %>
 
-<% try view_helpers.beginH2(writer); %>
-  <% try view_helpers.writeLinkTo(writer, "Places", "/admin/places", .{}); %>
-  &gt;
-  New
-<% try view_helpers.endH2(writer); %>
+<div class="flex items-baseline space-x-2">
+  <% try view_helpers.beginH2(writer); %>
+    <% try view_helpers.writeLinkTo(writer, "Places", "/admin/places", .{}); %>
+  <% try view_helpers.endH2(writer); %>
+  <div>&gt;</div>
+  <div>New</div>
+</div>
 
 <% try @"admin/places/form.html"(writer, .{ .form = props.form, .create_tag_csrf_token = props.create_tag_csrf_token }); %>

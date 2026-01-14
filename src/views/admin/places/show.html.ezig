@@ -1,12 +1,14 @@
 <% const view_helpers = @import("app").view_helpers; %>
 <% const mantle = @import("mantle"); %>
 
-<% try view_helpers.beginH2(writer); %>
-  <% try view_helpers.writeLinkTo(writer, "Places", "/admin/places", .{}); %>
-  &gt;
-  <%= props.place.attributes.name %>
-<% try view_helpers.endH2(writer); %>
-<% try view_helpers.writeLinkTo(writer, "Edit", props.edit_place_url, .{}); %>
+<div class="flex items-baseline space-x-2">
+  <% try view_helpers.beginH2(writer); %>
+    <% try view_helpers.writeLinkTo(writer, "Places", "/admin/places", .{}); %>
+  <% try view_helpers.endH2(writer); %>
+  <div>&gt;</div>
+  <% try view_helpers.writeH2(writer, props.place.attributes.name); %>
+  <% try view_helpers.writeLinkTo(writer, "Edit", props.edit_place_url, .{}); %>
+</div>
 
 <dl>
   <% try view_helpers.writeDt(writer, "Tags"); %>

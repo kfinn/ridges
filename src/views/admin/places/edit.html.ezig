@@ -1,11 +1,15 @@
 <% const view_helpers = @import("app").view_helpers; %>
 
-<% try view_helpers.beginH2(writer); %>
-  <% try view_helpers.writeLinkTo(writer, "Places", "/admin/places", .{}); %>
-  &gt;
-  <% try view_helpers.writeLinkTo(writer, props.place.attributes.name, props.place_url, .{}); %>
-  &gt;
-  Edit
-<% try view_helpers.endH2(writer); %>
+<div class="flex items-baseline space-x-2">
+  <% try view_helpers.beginH2(writer); %>
+    <% try view_helpers.writeLinkTo(writer, "Places", "/admin/places", .{}); %>
+  <% try view_helpers.endH2(writer); %>
+  <div>&gt;</div>
+  <% try view_helpers.beginH2(writer); %>
+    <% try view_helpers.writeLinkTo(writer, props.place.attributes.name, props.place_url, .{}); %>
+  <% try view_helpers.endH2(writer); %>
+  <div>&gt;</div>
+  <div>Edit</div>
+</div>
 
 <% try @"admin/places/form.html"(writer, .{ .form = props.form, .create_tag_csrf_token = props.create_tag_csrf_token }); %>

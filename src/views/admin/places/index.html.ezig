@@ -1,7 +1,9 @@
 <% const view_helpers = @import("app").view_helpers; %>
 
-<% try view_helpers.writeH2(writer, "Places"); %>
-<% try view_helpers.writeLinkTo(writer, "New", "/admin/places/new", .{}); %>
+<div class="flex items-baseline space-x-2">
+  <% try view_helpers.writeH2(writer, "Places"); %>
+  <% try view_helpers.writeLinkTo(writer, "New", "/admin/places/new", .{}); %>
+</div>
 
 <table>
   <thead>

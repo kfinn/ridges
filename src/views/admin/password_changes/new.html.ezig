@@ -1,10 +1,12 @@
 <% const view_helpers = @import("app").view_helpers; %>
 
-<% try view_helpers.beginH2(writer); %>
-  <% try view_helpers.writeLinkTo(writer, "Current Admin", "/admin/current_admin", .{}); %>
-  &gt;
-  Change Password
-<% try view_helpers.endH2(writer); %>
+<div class="flex items-baseline space-x-2">
+  <% try view_helpers.beginH2(writer); %>
+    <% try view_helpers.writeLinkTo(writer, "Current Admin", "/admin/current_admin", .{}); %>
+  <% try view_helpers.endH2(writer); %>
+  <div>&gt;</div>
+  <div>Change Password</div>
+</div>
 
 <% try view_helpers.beginForm(writer, props.form); %>
   <% try view_helpers.writeFormField(writer, props.form, .old_password, .{ .input = .{ .input = .{ .type = "password" } } } ); %>
