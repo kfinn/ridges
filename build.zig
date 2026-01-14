@@ -50,7 +50,11 @@ pub fn build(b: *std.Build) void {
 
     const collect_assets_step = b.addWriteFiles();
     _ = collect_assets_step.addCopyFile(tailwindcss_step.output_file, "tailwind/tailwind.css");
-    _ = collect_assets_step.addCopyDirectory(b.path("assets"), ".", .{});
+    _ = collect_assets_step.addCopyDirectory(
+        b.path("assets"),
+        ".",
+        .{ .exclude_extensions = &[_][]const u8{".keep"} },
+    );
     _ = collect_assets_step.addCopyDirectory(
         b.path("js"),
         ".",

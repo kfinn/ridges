@@ -19,6 +19,7 @@
     <link rel="stylesheet" href="https://esm.sh/maplibre-gl@^5.7.0/dist/maplibre-gl.css" />
     <% try view_helpers.writeImportMap(writer); %>
     <script type="module">import "application"</script>
+    <link rel="preload" href="<%= assets.@"fonts/Beon-Regular.woff2" %>" as="font" type="font/woff" crossorigin />
   </head>
   <body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 flex flex-col justify-stretch w-screen min-h-screen">
     <nav class="bg-purple-600 dark:bg-inherit text-gray-50 dark:text-gray-900 px-8 py-4 flex space-x-4 justify-start items-center text-lg dark:inset-shadow-[0_-15px_15px_-15px_white] dark:inset-shadow-purple-500">
