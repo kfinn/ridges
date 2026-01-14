@@ -16,7 +16,7 @@ export default function NewTagForm({ name, onClick }) {
       )}
     >
       <div
-        className="cursor-pointer select-none bg-green-300 hover:bg-green-400 dark:bg-green-600 hover:dark:bg-green-500"
+        className="cursor-pointer select-none bg-purple-300 hover:bg-purple-400 dark:bg-purple-600 hover:dark:bg-purple-500"
         onClick=${onClick}
       >
         Create tag named <span className="font-bold">${name}</span>

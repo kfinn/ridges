@@ -9,7 +9,7 @@ const pg = @import("pg");
 const ridges = @import("ridges.zig");
 
 pub const LinkOptions = struct { class: ?[]const u8 = null };
-pub const link_options: LinkOptions = .{ .class = "text-blue-600 dark:text-blue-500 hover:underline" };
+pub const link_options: LinkOptions = .{ .class = "text-purple-600 dark:text-purple-500 hover:underline" };
 
 pub fn writeLinkTo(writer: *std.Io.Writer, body: []const u8, url: []const u8, options: LinkOptions) !void {
     var merged_options: LinkOptions = link_options;
@@ -38,28 +38,6 @@ pub fn writeFieldErrors(writer: *std.Io.Writer, errors: anytype, field: @TypeOf(
 
 pub fn writeErrors(writer: *std.Io.Writer, errors: []mantle.validation.Error) !void {
     try mantle_view_helpers.writeErrors(writer, errors, errors_options);
-}
-
-pub const H1Options = struct { class: ?[]const u8 = null };
-pub const h1_options: H1Options = .{ .class = "text-xl" };
-
-pub fn writeH1(writer: *std.Io.Writer, body: []const u8, options: H1Options) !void {
-    try beginH1(writer, options);
-    try mantle.cgi_escape.writeEscapedHtml(writer, body);
-    try endH1(writer);
-}
-
-pub fn endH1(writer: *std.Io.Writer) !void {
-    try writer.writeAll("</h1>");
-}
-
-pub fn beginH1(writer: *std.Io.Writer, options: H1Options) !void {
-    var merged_options: H1Options = h1_options;
-    if (options.class) |class| {
-        merged_options.class = class;
-    }
-
-    try mantle_view_helpers.writeHtmlTag(writer, "h1", merged_options, .{});
 }
 
 pub fn writeH2(writer: *std.Io.Writer, body: []const u8) !void {
@@ -221,7 +199,7 @@ pub fn writePlaceTag(writer: *std.Io.Writer, place_tag: anytype) !void {
         writer,
         "div",
         .{
-            .class = "inline-block px-1 py-0.5 border rounded border-green-600 dark:border-green-500 hover:background-green-200 dark:hover:background-green-100",
+            .class = "inline-block px-1 py-0.5 border rounded border-purple-600 dark:border-purple-500 hover:background-purple-200 dark:hover:background-purple-100",
         },
         .{},
     );

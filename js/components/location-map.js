@@ -20,7 +20,16 @@ const LocationMap = forwardRef(({ latitude, longitude, onClick }, ref) => {
       }
       onClick=${onClick}
     >
-      <${Marker} longitude=${longitude} latitude=${latitude} />
+      <${Marker} longitude=${longitude} latitude=${latitude}>
+        <img
+          width="16"
+          src=${
+            colorScheme === "light"
+              ? MANTLE_ASSET_URL("images/pin-light.png")
+              : MANTLE_ASSET_URL("images/pin-dark.png")
+          }
+        />
+      </${Marker}>
     </${Map}>`;
 });
 export default LocationMap;

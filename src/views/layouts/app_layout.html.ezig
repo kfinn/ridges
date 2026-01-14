@@ -8,24 +8,25 @@
         if (std.meta.hasMethod(@TypeOf(props), "writeTitle")) {
           try props.writeTitle(writer);
         } else {
-          try writer.writeAll("Ridges");
+          try writer.writeAll("Happy Hour");
         }
       %>
     </title>
     <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
     <meta name="viewport" content="width=device-width" />
     <link rel="stylesheet" href="<%= assets.@"tailwind/tailwind.css" %>" />
+    <link rel="stylesheet" href="<%= assets.@"stylesheets/fonts.css" %>" />
     <link rel="stylesheet" href="https://esm.sh/maplibre-gl@^5.7.0/dist/maplibre-gl.css" />
     <% try view_helpers.writeImportMap(writer); %>
     <script type="module">import "application"</script>
   </head>
   <body class="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-100 flex flex-col justify-stretch w-screen min-h-screen">
-    <div class="bg-green-600 dark:bg-green-300 text-gray-50 dark:text-gray-900 px-8 py-4 flex space-x-4 justify-start items-center text-lg">
-      <% try view_helpers.beginH1(writer, .{} ); %>
-      <% try view_helpers.writeLinkTo(writer, "Ridges", "/", .{ .class = "cursor:pointer" }); %>
-      <% try view_helpers.endH1(writer); %>
+    <nav class="bg-purple-600 dark:bg-inherit text-gray-50 dark:text-gray-900 px-8 py-4 flex space-x-4 justify-start items-center text-lg dark:inset-shadow-[0_-15px_15px_-15px_white] dark:inset-shadow-purple-500">
+      <h1 class="text-4xl font-[Beon] text-shadow-[0_0_20px_white] text-shadow-white dark:text-shadow-purple-500 dark:text-purple-500 uppercase -my-1">
+        <% try view_helpers.writeLinkTo(writer, "Happy Hour", "/", .{ .class = "cursor:pointer" }); %>
+      </h1>
       <% if (std.meta.hasMethod(@TypeOf(props), "writeHeader")) try props.writeHeader(writer); %>
-    </div>
+    </nav>
     <% try props.writeBody(writer); %>
   </body>
 </html>

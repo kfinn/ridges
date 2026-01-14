@@ -1,7 +1,7 @@
 <% const view_helpers = @import("app").view_helpers; %>
 
-<% try view_helpers.writeLinkTo(writer, "Places", "/admin/places", .{ .class = "hover:underline" }); %>
+<% try view_helpers.writeLinkTo(writer, "Places", "/admin/places", .{ .class = "text-purple-600 dark:text-white hover:underline" }); %>
 
 <div class="grow justify-self-stretch"></div>
 
-<% try view_helpers.writeLinkTo(writer, props.admin.attributes.name, "/admin/current_admin", .{ .class = "hover:underline justify-self-end" }); %>
+<% try view_helpers.writeLinkTo(writer, props.admin.attributes.name, "/admin/current_admin", .{ .class = "text-purple-600 dark:text-white hover:underline justify-self-end" }); %>

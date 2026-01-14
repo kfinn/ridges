@@ -69,6 +69,17 @@ export default function PlacesMap() {
 
   const colorScheme = useColorScheme();
 
+  const onLoad = useCallback(() => {
+    (async () => {
+      const [pinLight, pinDark] = await Promise.all([
+        mapRef.current.loadImage(MANTLE_ASSET_URL("images/pin-light.png")),
+        mapRef.current.loadImage(MANTLE_ASSET_URL("images/pin-dark.png")),
+      ]);
+      mapRef.current.addImage("pin-light", pinLight.data);
+      mapRef.current.addImage("pin-dark", pinDark.data);
+    })();
+  }, []);
+
   return html`<${Map}
     style=${{ height: undefined }}
     cursor=${hoveredPlaceId !== null ? "pointer" : undefined}
@@ -78,6 +89,7 @@ export default function PlacesMap() {
         : "https://tiles.openfreemap.org/styles/dark"
     }
     ref=${mapRef}
+    onLoad=${onLoad}
     onMove=${onMove}
     onMouseMove=${onMouseMove}
     interactiveLayerIds=${["places-layer"]}
@@ -91,7 +103,15 @@ export default function PlacesMap() {
     ${
       placesGeojson &&
       html`<${Source} id="places-source" type="geojson" data=${placesGeojson}>
-        <${Layer} id="places-layer" type="circle" />
+        <${Layer}
+          id="places-layer"
+          type="symbol"
+          layout=${{
+            "icon-image": colorScheme === "light" ? "pin-light" : "pin-dark",
+            "icon-anchor": "bottom",
+            "icon-size": 0.4,
+          }}
+        />
       </${Source}>`
     }
     ${

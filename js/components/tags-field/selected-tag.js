@@ -10,11 +10,11 @@ export default function SelectedTag({ id, onClick, isHighlighted }) {
   return html`<div
     className=${classNames(
       "rounded",
-      "bg-green-200",
-      "dark:bg-green-700",
+      "bg-purple-200",
+      "dark:bg-purple-700",
       "border",
-      "border-green-400",
-      "dark:border-green-500",
+      "border-purple-400",
+      "dark:border-purple-500",
       "text-gray-900",
       "dark:text-gray-50",
       "cursor-pointer",
@@ -28,14 +28,14 @@ export default function SelectedTag({ id, onClick, isHighlighted }) {
         "flex",
         "items-center",
         "rounded-right",
-        "group-hover:bg-green-600",
-        "group-hover:dark:bg-green-300",
+        "group-hover:bg-purple-600",
+        "group-hover:dark:bg-purple-300",
         "group-hover:text-gray-50",
         "group-hover:dark:text-gray-900",
         "rounded-r",
         {
-          "bg-green-400 dark:bg-green-500": !isHighlighted,
-          "bg-green-600 dark:bg-green-300 text-gray-50 dark:text-gray-900":
+          "bg-purple-400 dark:bg-purple-500": !isHighlighted,
+          "bg-purple-600 dark:bg-purple-300 text-gray-50 dark:text-gray-900":
             isHighlighted,
         }
       )}
