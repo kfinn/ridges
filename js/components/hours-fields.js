@@ -1,8 +1,9 @@
 import classNames from "classnames";
 import AllHoursField from "components/all-hours-field";
 import HoursField from "components/hours-field";
+import UnavailableAllHoursField from "components/unavailable-all-hours-field";
 import { html } from "htm/react";
-import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
+import { Fragment, useCallback, useMemo, useState } from "react";
 import { GoChevronRight } from "react-icons/go";
 import { DAYS, nextDay } from "utils";
 
@@ -31,20 +32,17 @@ export default function HoursFields(props) {
     [setValue]
   );
 
-  const mustBeExpanded = useMemo(() => {
+  const isAllHoursFieldAvailable = useMemo(() => {
     for (const day of DAYS) {
       const dayNextDay = nextDay(day);
-      if (value[`${day}OpensAt`] !== value[`${dayNextDay}OpensAt`]) return true;
+      if (value[`${day}OpensAt`] !== value[`${dayNextDay}OpensAt`])
+        return false;
       if (value[`${day}OpenSeconds`] !== value[`${dayNextDay}OpenSeconds`])
-        return true;
+        return false;
     }
-    return false;
+    return true;
   }, [value]);
-  const [isExpanded, setIsExpanded] = useState(mustBeExpanded);
-  useEffect(
-    () => setIsExpanded(isExpanded || mustBeExpanded),
-    [mustBeExpanded, isExpanded]
-  );
+  const [isExpanded, setIsExpanded] = useState(!isAllHoursFieldAvailable);
 
   const onClickExpandCollapse = useCallback(() => {
     setIsExpanded((isExpandedWas) => !isExpandedWas);
@@ -52,14 +50,14 @@ export default function HoursFields(props) {
 
   return html`
     <${Fragment}>
-      <button disabled=${mustBeExpanded} type="button" className="flex justify-start items-center space-x-1 cursor-pointer disabled:cursor-default" onClick=${onClickExpandCollapse}>
+      <button type="button" className="flex justify-start items-center space-x-1 cursor-pointer" onClick=${onClickExpandCollapse}>
         <span className=${classNames("transition", {
-          "rotate-90": isExpanded || mustBeExpanded,
+          "rotate-90": isExpanded,
         })}><${GoChevronRight} /></span>
         Hours
       </button>
       ${
-        isExpanded || mustBeExpanded
+        isExpanded
           ? DAYS.map(
               (day) => html`<${HoursField}
                 key=${day}
@@ -69,10 +67,15 @@ export default function HoursFields(props) {
                 onChange=${onChange}
               />`
             )
-          : html`<${AllHoursField}
+          : isAllHoursFieldAvailable
+          ? html`<${AllHoursField}
               value=${value}
               errors=${props.errors}
               onChange=${onChange}
+            />`
+          : html`<${UnavailableAllHoursField}
+              value=${value}
+              onClick=${onClickExpandCollapse}
             />`
       }
     </${Fragment}>
