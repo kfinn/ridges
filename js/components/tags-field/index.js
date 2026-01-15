@@ -17,6 +17,8 @@ export default function TagsField({
   createTagCsrfToken,
 }) {
   const [q, setQ] = useState("");
+  const [isFocused, setIsFocused] = useState(false);
+
   const { isSuccess: searchQueryIsSuccess, data: searchQueryData } = useQuery(
     tagsQuery(q === "" ? {} : { q })
   );
@@ -75,15 +77,15 @@ export default function TagsField({
 
   const onEnterKeyDown = useCallback(
     (event) => {
-      if (q === "") return;
+      if (!isFocused && q === "") return;
 
       event.preventDefault();
     },
-    [q]
+    [isFocused, q]
   );
 
   const onEnterKeyUp = useCallback(() => {
-    if (q === "") return;
+    if (!isFocused && q === "") return;
 
     if (searchQueryIsSuccess) {
       if (_.isEmpty(searchQueryData)) {
@@ -105,8 +107,18 @@ export default function TagsField({
     onSelectTagId,
   ]);
 
+  const [qAtCurrentBackspaceKeyDown, setQAtCurrentBackspaceKeyDown] =
+    useState(null);
+
+  const onBackspaceKeyDown = useCallback(() => {
+    setQAtCurrentBackspaceKeyDown(q);
+  }, [q]);
+
   const onBackspaceKeyUp = useCallback(() => {
-    if (q !== "") return;
+    if (qAtCurrentBackspaceKeyDown !== "") return;
+
+    setQAtCurrentBackspaceKeyDown(null);
+
     if (tagHighlightedForBackspaceDeselectId) {
       onDeselectTagId(tagHighlightedForBackspaceDeselectId);
       setTagHighlightedForBackspaceDeselectId(null);
@@ -114,7 +126,12 @@ export default function TagsField({
     } else {
       setTagHighlightedForBackspaceDeselectId(_.last(tagIds));
     }
-  }, [q, tagHighlightedForBackspaceDeselectId, onDeselectTagId, tagIds]);
+  }, [
+    qAtCurrentBackspaceKeyDown,
+    tagHighlightedForBackspaceDeselectId,
+    onDeselectTagId,
+    tagIds,
+  ]);
 
   const onArrowDownKeyDown = useCallback((event) => {
     event.preventDefault();
@@ -158,6 +175,10 @@ export default function TagsField({
         onEnterKeyDown(event);
         return;
       }
+      if (event.key === "Backspace") {
+        onBackspaceKeyDown(event);
+        return;
+      }
       if (event.key === "ArrowDown") {
         onArrowDownKeyDown(event);
         return;
@@ -194,6 +215,11 @@ export default function TagsField({
 
   const onBlur = useCallback(() => {
     setTagHighlightedForBackspaceDeselectId(null);
+    setIsFocused(false);
+  }, []);
+
+  const onFocus = useCallback(() => {
+    setIsFocused(true);
   }, []);
 
   const onChangeQ = useCallback(({ target: { value } }) => setQ(value), []);
@@ -219,18 +245,19 @@ export default function TagsField({
             isHighlighted=${tagHighlightedForBackspaceDeselectId === tagId}
           />`
       )}
-      <div>
+      <div className="justify-self-stretch flex flex-col grow shrink items-stretch justify-stretch min-w-1">
         <input
           id="tag_ids"
           value=${q}
           onChange=${onChangeQ}
           onKeyUp=${onKeyUp}
           onKeyDown=${onKeyDown}
+          onFocus=${onFocus}
           onBlur=${onBlur}
-          className="focus:outline-0"
+          className="focus:outline-0 min-w-1"
         />
         ${
-          q !== "" &&
+          (isFocused || q !== "") &&
           (searchQueryIsSuccess
             ? !_.isEmpty(searchQueryData)
               ? html`<${SearchResults}

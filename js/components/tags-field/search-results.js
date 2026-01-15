@@ -10,7 +10,9 @@ export default function SearchResults({
   onToggleTagId,
   highlightedSearchResultId,
 }) {
-  return html`<div className="w-[0] h-[0] overflow-visible self-start">
+  return html`<div
+    className="min-w-[0] w-[0] h-[0] overflow-visible self-start shrink"
+  >
     <div
       className=${classNames(
         BASE_CLASS_NAME,
