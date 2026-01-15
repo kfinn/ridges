@@ -4,7 +4,12 @@ import { html } from "htm/react";
 import _ from "lodash";
 import placesQuery from "queries/map/places-query";
 import { useCallback, useMemo, useRef, useState } from "react";
-import Map, { Layer, Popup, Source } from "react-map-gl/maplibre";
+import Map, {
+  GeolocateControl,
+  Layer,
+  Popup,
+  Source,
+} from "react-map-gl/maplibre";
 import { useColorScheme } from "utils/use-color-scheme";
 
 export default function PlacesMap() {
@@ -114,6 +119,7 @@ export default function PlacesMap() {
         />
       </${Source}>`
     }
+    <${GeolocateControl} />
     ${
       selectedPlace &&
       html`<${Popup}

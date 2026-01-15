@@ -1,6 +1,6 @@
 import { html } from "htm/react";
 import { forwardRef } from "react";
-import Map, { Marker } from "react-map-gl/maplibre";
+import Map, { GeolocateControl, Marker } from "react-map-gl/maplibre";
 import { useColorScheme } from "utils/use-color-scheme";
 
 const LocationMap = forwardRef(({ latitude, longitude, onClick }, ref) => {
@@ -20,7 +20,7 @@ const LocationMap = forwardRef(({ latitude, longitude, onClick }, ref) => {
       }
       onClick=${onClick}
     >
-      <${Marker} longitude=${longitude} latitude=${latitude}>
+      <${Marker} longitude=${longitude} latitude=${latitude} anchor="bottom">
         <img
           width="16"
           src=${
@@ -30,6 +30,7 @@ const LocationMap = forwardRef(({ latitude, longitude, onClick }, ref) => {
           }
         />
       </${Marker}>
+      <${GeolocateControl} />
     </${Map}>`;
 });
 export default LocationMap;
