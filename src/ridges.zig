@@ -48,6 +48,7 @@ pub const App = mantle.App(.{
         @import("db/migrations/create_places.zig"),
         @import("db/migrations/add_all_simple_attributes_to_places.zig"),
         @import("db/migrations/create_place_tags.zig"),
+        @import("db/migrations/change_places_pricing_description_to_a_number.zig"),
     },
     .tasks = &[_]type{
         @import("tasks/admins.zig"),

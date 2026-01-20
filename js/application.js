@@ -11,6 +11,7 @@ const COMPONENT_IMPORT_PATHS = {
   LocationField: "components/location-field",
   LocationMap: "components/location-map",
   PlacesMap: "components/places-map",
+  PriceRatingField: "components/price-rating-field",
   TagsField: "components/tags-field",
 };
 
@@ -27,19 +28,19 @@ onDocumentReady(() => {
           const root = createRoot(element);
           if (element.hasAttribute("data-react-component-props")) {
             const snakeCaseProps = JSON.parse(
-              element.getAttribute("data-react-component-props")
+              element.getAttribute("data-react-component-props"),
             );
             const props = camelize(snakeCaseProps);
             root.render(
               html`<${QueryClientProvider} client=${queryClient}>
               <${Component} ...${props} />
-            </${QueryClientProvider}>`
+            </${QueryClientProvider}>`,
             );
           } else {
             root.render(
               html`<${QueryClientProvider}  client=${queryClient}>
               <${Component} />
-            </${QueryClientProvider}>`
+            </${QueryClientProvider}>`,
             );
           }
         })

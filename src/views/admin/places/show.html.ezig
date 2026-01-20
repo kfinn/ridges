@@ -130,20 +130,31 @@
     </table>
   <% try view_helpers.endDd(writer); %>
 
-  <% try view_helpers.writeDt(writer, "Pricing"); %>
-  <% try view_helpers.writeDd(writer, if (props.place.attributes.pricing_description.len > 0) props.place.attributes.pricing_description else "&mdash;", .{}); %>
+  <% try view_helpers.writeDt(writer, "Price"); %>
+  <% try view_helpers.beginDd(writer, .{}); %>
+  <%
+    for (0..@intCast(props.place.attributes.price_rating)) |_| {
+      try writer.writeByte('$');
+    }
+    try writer.writeAll("<span class=\"text-gray-300 dark:text-gray-600\">");
+    for (@intCast(props.place.attributes.price_rating)..5) |_| {
+      try writer.writeByte('$');
+    }
+    try writer.writeAll("</span>");
+  %>
+  <% try view_helpers.endDd(writer); %>
 
   <% try view_helpers.writeDt(writer, "Specials"); %>
-  <% try view_helpers.writeDd(writer, if (props.place.attributes.specials_description.len > 0) props.place.attributes.specials_description else "&mdash;", .{}); %>
+  <% try view_helpers.writeDd(writer, if (props.place.attributes.specials_description.len > 0) props.place.attributes.specials_description else "—", .{}); %>
 
   <% try view_helpers.writeDt(writer, "Events"); %>
-  <% try view_helpers.writeDd(writer, if (props.place.attributes.events_description.len > 0) props.place.attributes.events_description else "&mdash;", .{}); %>
+  <% try view_helpers.writeDd(writer, if (props.place.attributes.events_description.len > 0) props.place.attributes.events_description else "—", .{}); %>
 
   <% try view_helpers.writeDt(writer, "Bathrooms"); %>
-  <% try view_helpers.writeDd(writer, if (props.place.attributes.bathrooms_description.len > 0) props.place.attributes.bathrooms_description else "&mdash;", .{}); %>
+  <% try view_helpers.writeDd(writer, if (props.place.attributes.bathrooms_description.len > 0) props.place.attributes.bathrooms_description else "—", .{}); %>
 
   <% try view_helpers.writeDt(writer, "Food"); %>
-  <% try view_helpers.writeDd(writer, if (props.place.attributes.food_description.len > 0) props.place.attributes.food_description else "&mdash;", .{}); %>
+  <% try view_helpers.writeDd(writer, if (props.place.attributes.food_description.len > 0) props.place.attributes.food_description else "—", .{}); %>
 
   <% try view_helpers.writeDt(writer, "Televisions Count"); %>
   <% try view_helpers.beginDd(writer, .{}); %>

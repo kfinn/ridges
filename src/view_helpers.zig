@@ -73,12 +73,17 @@ pub fn endForm(writer: *std.Io.Writer, form: anytype) !void {
 }
 
 pub const field_options: mantle_view_helpers.FieldOptions = .{
-    .label = label_options,
-    .input = .{ .input = .{ .class = field_input_class } },
+    .label = .{ .class = field_label_class },
+    .input = .{ .text = .{ .class = field_input_class } },
     .errors = errors_options,
 };
-const label_options: mantle_view_helpers.LabelOptions = .{ .class = "flex flex-col items-stretch space-y-1" };
+const field_label_class: []const u8 = "flex flex-col items-stretch space-y-1";
+const checkbox_field_label_class: []const u8 = "flex justify-start items-center space-x-1";
 const field_input_class: []const u8 = "rounded outline-1 focus:outline-2 outline-gray-300 dark:outline-gray-600 dark:scheme-dark";
+
+fn applyInputDefaults(input_options: anytype) void {
+    if (input_options.class == null) input_options.class = field_input_class;
+}
 
 pub fn writeFormField(
     writer: *std.Io.Writer,
@@ -86,50 +91,35 @@ pub fn writeFormField(
     comptime name: anytype,
     options: mantle_view_helpers.FieldOptions,
 ) !void {
-    var merged_options: mantle_view_helpers.FieldOptions = field_options;
-    if (options.label.name) |label_options_class_override| {
-        merged_options.label.name = label_options_class_override;
-    }
-    switch (options.input) {
-        .input => |input_options| {
-            if (options.label.class) |label_options_class_override| {
-                merged_options.label.class = label_options_class_override;
-            }
-            if (input_options.autofocus) |input_options_autofocus_override| {
-                merged_options.input.input.autofocus = input_options_autofocus_override;
-            }
-            if (input_options.type) |input_options_type_override| {
-                merged_options.input.input.type = input_options_type_override;
-            }
-            if (input_options.class) |input_options_class_override| {
-                merged_options.input.input.class = input_options_class_override;
-            }
-            if (input_options.autocomplete) |input_options_class_override| {
-                merged_options.input.input.autocomplete = input_options_class_override;
-            }
+    var options_with_defaults = options;
+    if (options_with_defaults.label.class == null) options_with_defaults.label.class = field_label_class;
+
+    switch (options_with_defaults.input) {
+        .checkbox => |*checkbox_options| {
+            options_with_defaults.label.class = checkbox_field_label_class;
+            applyInputDefaults(checkbox_options);
         },
-        .select => |select_options| {
-            if (options.label.class) |label_options_class_override| {
-                merged_options.label.class = label_options_class_override;
-            }
-            merged_options.input = .{ .select = select_options };
-            if (select_options.class == null) {
-                merged_options.input.select.class = field_input_class;
-            }
+        .text => |*text_options| {
+            applyInputDefaults(text_options);
         },
-        .checkbox => |checkbox_options| {
-            if (options.label.class) |label_options_class_override| {
-                merged_options.label.class = label_options_class_override;
-            }
-            merged_options.label.class = "flex justify-start items-center space-x-1";
-            merged_options.input = .{ .checkbox = checkbox_options };
-            if (checkbox_options.class == null) {
-                merged_options.input.checkbox.class = field_input_class;
-            }
+        .email => |*email_options| {
+            applyInputDefaults(email_options);
+        },
+        .password => |*password_options| {
+            applyInputDefaults(password_options);
+        },
+        .number => |*number_options| {
+            applyInputDefaults(number_options);
+        },
+        .time => |*time_options| {
+            applyInputDefaults(time_options);
+        },
+        .select => |*select_options| {
+            applyInputDefaults(select_options);
         },
     }
 
-    try form.writeField(writer, name, merged_options);
+    try form.writeField(writer, name, options_with_defaults);
 }
 
 const submit_options: mantle_view_helpers.SubmitOptions = .{ .class = "rounded outline-1 focus:outline-2 outline-gray-300 dark:outline-gray-600 cursor-pointer" };

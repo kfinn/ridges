@@ -8,7 +8,7 @@
       writer,
       props.form,
       .email,
-      .{ .input = .{ .input = .{ .autofocus = props.form.model.email.len == 0, .type = "email" } } },
+      .{ .input = .{ .email = .{ .autofocus = props.form.model.email.len == 0 } } },
     );
   %>
   <%
@@ -16,7 +16,7 @@
       writer,
       props.form,
       .password,
-      .{ .input = .{ .input = .{ .autofocus = props.form.model.email.len > 0, .type = "password"} } },
+      .{ .input = .{ .password = .{ .autofocus = props.form.model.email.len > 0 } } },
     );
   %>
   <% try view_helpers.writeErrors(writer, props.form.errors.base_errors.items); %>

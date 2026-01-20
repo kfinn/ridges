@@ -10,7 +10,7 @@
 
 <% try view_helpers.beginForm(writer, props.form); %>
   <% try view_helpers.writeFormField(writer, props.form, .name, .{}); %>
-  <% try view_helpers.writeFormField(writer, props.form, .email, .{ .input = .{ .input = .{ .type = "email" } } }); %>
+  <% try view_helpers.writeFormField(writer, props.form, .email, .{ .input = .{ .email = .{} } }); %>
   <% try view_helpers.writeErrors(writer, props.form.errors.base_errors.items); %>
   <% try view_helpers.writeSubmit(writer, "Save"); %>
 <% try view_helpers.endForm(writer, props.form); %>

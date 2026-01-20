@@ -28,7 +28,7 @@ pub const Attributes = struct {
     saturday_open_seconds: i32 = 0,
     sunday_opens_at: ?Time,
     sunday_open_seconds: i32 = 0,
-    pricing_description: []const u8 = "",
+    price_rating: i16,
     specials_description: []const u8 = "",
     events_description: []const u8 = "",
     bathrooms_description: []const u8 = "",
@@ -56,6 +56,10 @@ pub fn validate(self: anytype, errors: *mantle.validation.RecordErrors(@TypeOf(s
     try validateDailyHours(self, .friday_opens_at, .friday_open_seconds, .saturday_opens_at, errors);
     try validateDailyHours(self, .saturday_opens_at, .saturday_open_seconds, .sunday_opens_at, errors);
     try validateDailyHours(self, .sunday_opens_at, .sunday_open_seconds, .monday_opens_at, errors);
+
+    if (self.price_rating < 1 or self.price_rating > 5) {
+        try errors.addFieldError(.price_rating, .init(error.InvalidPriceRating, "must be between 1 and 5"));
+    }
 }
 
 fn validateDailyHours(

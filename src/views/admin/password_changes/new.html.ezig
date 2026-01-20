@@ -9,9 +9,9 @@
 </div>
 
 <% try view_helpers.beginForm(writer, props.form); %>
-  <% try view_helpers.writeFormField(writer, props.form, .old_password, .{ .input = .{ .input = .{ .type = "password" } } } ); %>
-  <% try view_helpers.writeFormField(writer, props.form, .new_password, .{ .input = .{ .input = .{ .type = "password" } } } ); %>
-  <% try view_helpers.writeFormField(writer, props.form, .new_password_confirmation, .{ .input = .{ .input = .{ .type = "password" } } } ); %>
+  <% try view_helpers.writeFormField(writer, props.form, .old_password, .{ .input = .{ .password = .{} } } ); %>
+  <% try view_helpers.writeFormField(writer, props.form, .new_password, .{ .input = .{ .password = .{} } } ); %>
+  <% try view_helpers.writeFormField(writer, props.form, .new_password_confirmation, .{ .input = .{ .password = .{} } } ); %>
   <% try view_helpers.writeErrors(writer, props.form.errors.base_errors.items); %>
   <% try view_helpers.writeSubmit(writer, "Save"); %>
 <% try view_helpers.endForm(writer, props.form); %>
