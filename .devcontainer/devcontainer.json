@@ -1,9 +1,14 @@
 {
-  "name": "Zig and PostgreSQL",
+  "name": "Ridges Zig and PostgreSQL",
   "dockerComposeFile": "docker-compose.yml",
   "service": "app",
   "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
-  "forwardPorts": [5882],
+  "forwardPorts": [5882, "db:5432"],
+  "features": {
+    "ghcr.io/devcontainers-extra/features/zig:1.1.2": {
+      "version": "latest"
+    }
+  },
   "customizations": {
     "vscode": {
       "extensions": [

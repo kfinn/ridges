@@ -30,7 +30,7 @@ export default function PlacesMap() {
           properties: _.pick(place, "id", "name", "address", "url"),
         })),
       },
-    [places]
+    [places],
   );
 
   const onMove = useMemo(
@@ -46,7 +46,7 @@ export default function PlacesMap() {
           },
         });
       }, 150),
-    [setFilter]
+    [setFilter],
   );
 
   const [hoveredPlaceId, setHoveredPlaceId] = useState(null);
@@ -60,13 +60,7 @@ export default function PlacesMap() {
 
   const [selectedPlaceId, setSelectedPlaceId] = useState(null);
   const onClick = useCallback(({ features }) => {
-    setSelectedPlaceId((oldSelectedPlaceId) => {
-      if (_.isEmpty(features) || oldSelectedPlaceId) {
-        return null;
-      } else {
-        return features[0].properties.id;
-      }
-    });
+    setSelectedPlaceId(_.isEmpty(features) ? null : features[0].properties.id);
   }, []);
   const selectedPlace = useMemo(() => {
     return places && _.find(places, (place) => place.id === selectedPlaceId);
@@ -123,6 +117,7 @@ export default function PlacesMap() {
     ${
       selectedPlace &&
       html`<${Popup}
+        offset=${[0, -30]}
         longitude=${selectedPlace.location.longitude}
         latitude=${selectedPlace.location.latitude}
         onClose=${() => setSelectedPlaceId(null)}
@@ -132,7 +127,7 @@ export default function PlacesMap() {
           "[&_.maplibregl-popup-content]:!text-gray-800",
           "[&_.maplibregl-popup-content]:dark:!text-gray-100",
           "[&_.maplibregl-popup-tip]:!border-t-gray-50",
-          "[&_.maplibregl-popup-tip]:dark:!border-t-gray-900"
+          "[&_.maplibregl-popup-tip]:dark:!border-t-gray-900",
         )}
         closeOnClick=${false}
       >

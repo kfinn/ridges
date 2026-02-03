@@ -16,7 +16,7 @@ pub const config: ridges.App.Config = .{
         },
     },
     .session = .{
-        .cookie_secret_key = "de86040470140bcaa6cf34b4dc34edf3",
+        .cookie_secret_key = "14eca6f3d9e125731197d13f139fff9d",
     },
     .httpz = .{
         .port = 5882,
